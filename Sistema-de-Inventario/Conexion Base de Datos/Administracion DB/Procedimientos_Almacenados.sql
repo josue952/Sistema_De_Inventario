@@ -1,5 +1,5 @@
 -- Procedimientos almacenados para el sistema de inventario
--- Procedimientos almacenados de la tabla Usuarios para su CRUD
+-- Procedimientos almacenados de la tabla Usuarios para su CRUD --
 
 -- Procedimiento para Crear un Usuario
 DELIMITER //
@@ -100,3 +100,131 @@ END //
 DELIMITER ;
 
 -- --------------------------------------------------------
+
+-- Procedimientos almacenados de la tabla Categorias para su CRUD --
+
+-- Procedimiento para Crear una Categoria
+DELIMITER //
+
+CREATE PROCEDURE crearCategoria(
+    IN p_Categoria VARCHAR(30),
+    IN p_Descripcion VARCHAR(150),
+    IN p_MetodoInventario VARCHAR(30)
+)
+BEGIN
+    INSERT INTO categorias (Categoria, Descripcion, MetodoInventario)
+    VALUES (p_Categoria, p_Descripcion, p_MetodoInventario);
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Leer (obtener) todas las Categorias
+DELIMITER //
+
+CREATE PROCEDURE obtenerCategorias()
+BEGIN
+    SELECT * FROM categorias;
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Leer (obtener) una Categoria por id, nombre de categoria y Metodo de inventario
+
+
+
+-- Procedimiento para Actualizar una Categoria
+DELIMITER //
+
+CREATE PROCEDURE actualizarCategoria(
+    IN p_idCategoria INT,
+    IN p_Categoria VARCHAR(30),
+    IN p_Descripcion VARCHAR(150),
+    IN p_MetodoInventario VARCHAR(30)
+)
+BEGIN
+    UPDATE categorias
+    SET Categoria = p_Categoria,
+        Descripcion = p_Descripcion,
+        MetodoInventario = p_MetodoInventario
+    WHERE idCategoria = p_idCategoria;
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Eliminar una Categoria
+DELIMITER //
+
+CREATE PROCEDURE eliminarCategoria(
+    IN p_idCategoria INT
+)
+BEGIN
+    DELETE FROM categorias WHERE idCategoria = p_idCategoria;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimientos almacenados de la tabla Sucursales para su CRUD --
+
+-- Procedimiento para Crear una Sucursal
+DELIMITER //
+
+CREATE PROCEDURE crearSucursal(
+    IN p_NombreSucursal VARCHAR(50),
+    IN p_Ubicacion VARCHAR(250),
+    IN p_Departamento VARCHAR(30),
+    IN p_Municipio VARCHAR(30)
+)
+BEGIN
+    INSERT INTO sucursales (NombreSucursal, Ubicacion, Departamento, Municipio)
+    VALUES (p_NombreSucursal, p_Ubicacion, p_Departamento, p_Municipio);
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Leer (obtener) todas las Sucursales
+DELIMITER //
+
+CREATE PROCEDURE obtenerSucursales()
+BEGIN
+    SELECT * FROM sucursales;
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Leer (obtener) una Sucursal por id, nombre de sucursal, departamento y municipio
+
+-- Procedimiento para Actualizar una Sucursal
+DELIMITER //
+
+CREATE PROCEDURE actualizarSucursal(
+    IN p_idSucursal INT,
+    IN p_NombreSucursal VARCHAR(50),
+    IN p_Ubicacion VARCHAR(250),
+    IN p_Departamento VARCHAR(30),
+    IN p_Municipio VARCHAR(30)
+)
+BEGIN
+    UPDATE sucursales
+    SET NombreSucursal = p_NombreSucursal,
+        Ubicacion = p_Ubicacion,
+        Departamento = p_Departamento,
+        Municipio = p_Municipio
+    WHERE idSucursal = p_idSucursal;
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Eliminar una Sucursal
+DELIMITER //
+
+CREATE PROCEDURE eliminarSucursal(
+    IN p_idSucursal INT
+)
+BEGIN
+    DELETE FROM sucursales WHERE idSucursal = p_idSucursal;
+END //
+
+DELIMITER ;
+
