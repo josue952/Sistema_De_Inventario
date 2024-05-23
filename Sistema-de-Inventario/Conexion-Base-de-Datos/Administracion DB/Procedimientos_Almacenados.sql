@@ -195,6 +195,8 @@ DELIMITER ;
 
 -- Procedimiento para Leer (obtener) una Sucursal por id, nombre de sucursal, departamento y municipio
 
+
+
 -- Procedimiento para Actualizar una Sucursal
 DELIMITER //
 
@@ -228,3 +230,169 @@ END //
 
 DELIMITER ;
 
+-- --------------------------------------------------------
+
+-- Procedimientos almacenados de la tabla Proveedores para su CRUD --
+-- Procedimiento para Crear un Proveedor
+DELIMITER //
+
+CREATE PROCEDURE crearProveedor(
+    IN p_NombreProveedor VARCHAR(30),
+    IN p_CorreoProveedor VARCHAR(40),
+    IN p_TelefonoProveedor INT,
+    IN p_MetodoDePagoAceptado VARCHAR(30)
+)
+BEGIN
+    INSERT INTO proveedores (NombreProveedor, CorreoProveedor, TelefonoProveedor, MetodoDePagoAceptado)
+    VALUES (p_NombreProveedor, p_CorreoProveedor, p_TelefonoProveedor, p_MetodoDePagoAceptado);
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Leer (obtener) todos los Proveedores
+DELIMITER //
+
+CREATE PROCEDURE obtenerProveedores()
+BEGIN
+    SELECT * FROM proveedores;
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Leer (obtener) un Proveedor por id, nombre de proveedor y metodo de pago aceptado
+
+
+
+-- Procedimiento para Actualizar un Proveedor
+DELIMITER //
+
+CREATE PROCEDURE actualizarProveedor(
+    IN p_idProveedor INT,
+    IN p_NombreProveedor VARCHAR(30),
+    IN p_CorreoProveedor VARCHAR(40),
+    IN p_TelefonoProveedor INT,
+    IN p_MetodoDePagoAceptado VARCHAR(30)
+)
+BEGIN
+    UPDATE proveedores
+    SET NombreProveedor = p_NombreProveedor,
+        CorreoProveedor = p_CorreoProveedor,
+        TelefonoProveedor = p_TelefonoProveedor,
+        MetodoDePagoAceptado = p_MetodoDePagoAceptado
+    WHERE idProveedor = p_idProveedor;
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Eliminar un Proveedor
+DELIMITER //
+
+CREATE PROCEDURE eliminarProveedor(
+    IN p_idProveedor INT
+)
+BEGIN
+    DELETE FROM proveedores WHERE idProveedor = p_idProveedor;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimientos almacenados de la tabla Compras para su CRUD -- 
+-- Procedimiento para inicializar una compra
+DELIMITER //
+
+CREATE PROCEDURE crearCompra(
+    IN p_FechaCompra DATE,
+    IN p_idProveedor INT,
+    IN p_idSucursal INT
+)
+BEGIN
+    -- Inicializar la compra con un total de 0.0, este valo cambiará al agregar productoss
+    DECLARE p_TotalCompra DECIMAL(10,2) DEFAULT 0.0;
+    INSERT INTO compras (FechaCompra, idProveedor, idSucursal, TotalCompra)
+    VALUES (p_FechaCompra, p_idProveedor, p_idSucursal, p_TotalCompra);
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Leer (obtener) todas las Compras
+DELIMITER //
+
+CREATE PROCEDURE obtenerCompras()
+BEGIN
+    SELECT * FROM compras;
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Leer (obtener) una Compra por id, fecha de compra, id de proveedor y id de sucursal
+
+
+
+-- Procedimiento para Actualizar una Compra
+DELIMITER //
+
+CREATE PROCEDURE actualizarCompra(
+    IN p_idCompra INT,
+    IN p_FechaCompra DATE,
+    IN p_idProveedor INT,
+    IN p_idSucursal INT,
+    IN p_TotalCompra DECIMAL(10,2)
+)
+BEGIN
+    UPDATE compras
+    SET FechaCompra = p_FechaCompra,
+        idProveedor = p_idProveedor,
+        idSucursal = p_idSucursal,
+        TotalCompra = p_TotalCompra
+    WHERE idCompra = p_idCompra;
+END //
+
+DELIMITER ;
+
+-- Procedimiento para Eliminar una Compra
+DELIMITER //
+
+CREATE PROCEDURE eliminarCompra(
+    IN p_idCompra INT
+)
+BEGIN
+    DELETE FROM compras WHERE idCompra = p_idCompra;
+END //
+
+DELIMITER ;
+
+-- En esta parte, se comenzara con la logica que conlleva comprar productos
+-- Procedimiento para agregar un producto a una compra (en detalleCompras)
+DELIMITER //
+
+CREATE PROCEDURE agregarProductoACompra(
+    IN idCompra INT,
+    IN idProducto INT,
+    IN cantidad INT,
+    IN precioProducto DECIMAL(10,2),
+    OUT subTotalProducto DECIMAL(10,2)
+)
+BEGIN
+    -- Obtener el precio del producto
+    SELECT Precio, Precio * cantidad AS subTotalProducto
+    INTO precioProducto, subTotalProducto
+    FROM productos
+    WHERE idProducto = idProducto;
+
+    -- Si el producto existe, agregarlo al detalle de la compra
+    IF precioProducto IS NOT NULL THEN
+        INSERT INTO detalleCompras (idCompra, NombreProducto, Cantidad, Precio, SubTotal)
+        VALUES (idCompra, (SELECT NombreProducto FROM productos WHERE idProducto = idProducto), cantidad, precioProducto, subTotalProducto);
+
+        -- Actualizar el total de la compra
+        UPDATE compras
+        SET TotalCompra = TotalCompra + subTotalProducto
+        WHERE idCompra = idCompra;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Producto no encontrado.';
+    END IF;
+END //
+
+DELIMITER ;

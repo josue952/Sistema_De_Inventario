@@ -1,6 +1,6 @@
 <?php
 
-require '../../Conexion/dbConnection.php';
+require '../../Conexion-Base-de-Datos /dbConnection.php';
 
 
 class Usuario
@@ -177,7 +177,7 @@ class Usuario
 
     // el metodo retorna los datos
     public function obtenerUsuarios(){
-        $sql='select * from usuarios';
+        $sql='CALL obtenerUsuarios();';
         $datosObtenidos=$this->connection->query($sql);
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);

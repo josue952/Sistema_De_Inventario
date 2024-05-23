@@ -4,8 +4,6 @@ require "../../models/usuarioModel.php";
 $objUsuario = new Usuario();
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
