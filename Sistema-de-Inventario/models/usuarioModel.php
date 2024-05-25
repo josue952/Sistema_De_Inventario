@@ -8,7 +8,6 @@ class Usuario
     private $idUsuario;
     private $Nombre;
     private $Apellido;
-    private $Edad;
     private $Email;
     private $DUI;
     private $Contraseña;
@@ -73,27 +72,6 @@ class Usuario
 
         return $this;
     }
-
-    /**
-     * Get the value of Edad
-     */
-    public function getEdad()
-    {
-        return $this->Edad;
-    }
-
-    /**
-     * Set the value of Edad
-     *
-     * @return  self
-     */
-    public function setEdad($Edad)
-    {
-        $this->Edad = $Edad;
-
-        return $this;
-    }
-
     /**
      * Get the value of DUI
      */
@@ -177,12 +155,28 @@ class Usuario
 
     // el metodo retorna los datos
     public function obtenerUsuarios(){
-        $sql='CALL obtenerUsuarios();';
+        $sql="CALL obtenerUsuarios();";
         $datosObtenidos=$this->connection->query($sql);
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
         }
         return $datosObtenidos;
     } 
+
+    //metodo para insertar un usuario
+    public function crearUsuario($Nombre, $Apellido, $Email, $DUI, $Contraseña, $Rol){
+        // Preparar la llamada al procedimiento almacenado con los parámetros
+        $sql = "CALL crearUsuario('$Nombre', '$Apellido', '$Email', '$DUI', '$Contraseña', '$Rol');";
+        
+        // Ejecutar la consulta
+        $datosObtenidos = $this->connection->query($sql);
+        
+        // Verificar errores
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
+        }
+        
+        return $datosObtenidos;
+    }
 
 }
