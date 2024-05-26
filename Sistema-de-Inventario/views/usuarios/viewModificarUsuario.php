@@ -23,10 +23,35 @@ if ($_POST) {
     $data = $objUsuario->actualizarUsuario($idUsuario, $nombre, $apellido, $email, $dui, $contraseña, $rol);
 
     if ($data) {
-        echo "<script>alert('Usuario actualizado correctamente');</script>";
-        echo "<script>window.location.href='./tablaUsuario.php';</script>";
+        //se utiliza sweetalert para mostrar un mensaje de exito
+        echo "<script>
+        window.onload = function() {
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'Usuario actualizado correctamente',
+                icon: 'success'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = './tablaUsuario.php';
+                }
+            });
+        };
+        </script>";
     } else {
-        echo "<script>alert('Error al actualizar el usuario');</script>";
+        //se utiliza sweetalert para mostrar un mensaje de error
+        echo "<script>
+        window.onload = function() {
+            Swal.fire({
+                title: '¡Error!',
+                text: 'Algo salio mal!',
+                icon: 'error'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = './tablaUsuario.php';
+                }
+            });
+        };
+        </script>";
     }
 }
 
@@ -37,13 +62,17 @@ if ($_POST) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
+    <!--Dependencias de bootstrap-->
     <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.js"></script>
     <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
+    <!--Dependencias de SweetAlert-->
+    <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
     <title>Editar Usuario</title>
 </head>
 <body>
 <!--Modal para editar un usuario-->
-    <form action="./viewModificarUsuario.php?id=<?php echo $idUsuario; ?>" class="col-4 p-3 auto" method="post">
+    <form action="./viewModificarUsuario.php?id=<?php echo $idUsuario; ?>" class="col-4 p-3 m-auto" method="post">
         <h5 class="text-center alert alert-secondary">Modificar Usuario</h5>
         <?php
         $sql = $objUsuario->obtenerUsuariosFiltro($idUsuario, '', '');
@@ -75,6 +104,8 @@ if ($_POST) {
             </div><br>
         <?php } ?>
         <button type="submit" class="btn btn-primary" name="btnEditar" value="ok">Editar Usuario</button>
+
+        <button type="submit" class="btn btn-secondary" name="btnEditar" value="ok"><a href="./tablaUsuario.php" class="text-decoration-none text-dark">Volver</a></button>
     </form>
 </body>
 </html>

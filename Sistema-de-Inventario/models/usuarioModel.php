@@ -153,7 +153,7 @@ class Usuario
     }
     // metodos crud
 
-    // el metodo retorna los datos
+    //metodo para obtener todos los datos de todos los usuarios
     public function obtenerUsuarios(){
         $sql="CALL obtenerUsuarios();";
         $datosObtenidos=$this->connection->query($sql);
@@ -163,7 +163,7 @@ class Usuario
         return $datosObtenidos;
     } 
 
-    //obtener a un usuario con un id,nombre o rol espefico
+    //metodo para obtener a un usuario con un id,nombre o rol especifico
     public function obtenerUsuariosFiltro($idUsuario, $Nombre, $Rol){
         // Preparar la llamada al procedimiento almacenado con los parámetros
         $sql = "CALL obtenerUsuariosFiltro('$idUsuario', '$Nombre', '$Rol');";
@@ -211,4 +211,19 @@ class Usuario
         return $datosObtenidos;
     }
 
+    //metodo para eliminar un usuario
+    public function eliminarUsuario($idUsuario){
+        // Preparar la llamada al procedimiento almacenado con los parámetros
+        $sql = "CALL eliminarUsuario('$idUsuario');";
+        
+        // Ejecutar la consulta
+        $datosObtenidos = $this->connection->query($sql);
+        
+        // Verificar errores
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
+        }
+        
+        return $datosObtenidos;
+    }
 }

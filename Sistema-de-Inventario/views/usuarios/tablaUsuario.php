@@ -2,9 +2,27 @@
 require "../../models/usuarioModel.php";
 $objUsuario = new Usuario();
 
+// Verificar si se ha solicitado la eliminación de un usuario
+if (isset($_POST['delete_id'])) {
+    $idUsuario = $_POST['delete_id'];
+    echo "<script>
+    window.onload = function() {
+        Swal.fire({
+            title: '¡Éxito!',
+            text: 'Usuario eliminado exitosamente',
+            icon: 'success'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = './tablaUsuario.php';
+            }
+        });
+    };
+    </script>";
+    $objUsuario->eliminarUsuario($idUsuario);
+}
+
 // Verificar si se recibieron datos del formulario al crear un usuario
 if ($_POST) {
-    // Obtener los valores enviados
     $nombre = $_POST['TXTnombre'];
     $apellido = $_POST['TXTapellido'];
     $email = $_POST['TXTEmail'];
@@ -12,14 +30,38 @@ if ($_POST) {
     $contraseña = $_POST['TXTcontraseña'];
     $rol = $_POST['TXTrol'];
     
-    // Verificar si la inserción fue exitosa
     if ($nombre != "" && $apellido != "" && $email != "" && $dui != "" && $contraseña != "" && $rol != "") {
-        // Imprimir un script JavaScript que muestre el mensaje de alerta
-        echo "<script>alert('Usuario Creado Exitosamente')</script>";
+        // Muestra un mensaje de éxito al crear un usuario y redirige a la tabla de usuarios (caso en php)
+        echo "<script>
+            window.onload = function() {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Usuario creado exitosamente',
+                    icon: 'success'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = './tablaUsuario.php';
+                    }
+                });
+            };
+        </script>";
         $data = $objUsuario->crearUsuario($nombre, $apellido, $email, $dui, $contraseña, $rol);
+    }else{
+        // Muestra un mensaje de error al crear un usuario y redirige a la tabla de usuarios (caso en php)
+        echo "<script>
+            window.onload = function() {
+                Swal.fire({
+                    title: '¡Error al crear usuario!',
+                    text: 'Debe de completar todos los campos!',
+                    icon: 'error'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = './tablaUsuario.php';
+                    }
+                });
+            };
+        </script>";
     }
-} else {
-    // Si no se recibieron datos del formulario, no hacer nada
 }
 ?>
 
@@ -29,12 +71,16 @@ if ($_POST) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Dependencias de bootstrap-->
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/lobibox.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/select2.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/datatables.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/waitMe.css">
-    <link href="../../resources/src/css/index.css" rel="stylesheet">
+    <!--Dependencias de SweetAlert-->
+    <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
+    <!--Dependencias de terceros-->
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
     <link rel="stylesheet" type="text/css"
@@ -116,7 +162,7 @@ if ($_POST) {
     <div class="container mt-4 bg-white rounded p-4 shadow">
         <div class="row">
             <div class="col-md-8">
-                <h1>FORMULARIO PRUEBA</h1>
+                <h1>USUARIOS</h1>
             </div>
             <div class="col-md-4 text-lg-center">
                 <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modal-agregar">
@@ -125,7 +171,7 @@ if ($_POST) {
             </div>
         </div>
         <hr>
-        <div class="table-responsive mt-5">
+        <div class="table-responsive mt-2">
             <table class="table table-bordered table-hover" id="tabla-datos">
                 <thead class="bg-primary text-light">
                     <tr>
@@ -153,7 +199,10 @@ if ($_POST) {
                         echo "<td>".$objUsuario["DUI"]."</td>";
                         echo "<td>".$objUsuario["Rol"]."</td>";
                         $id = $objUsuario["idUsuario"];
-                        echo "<td data-bs-toggle='modal' data-bs-target='#modal-editar' class='action-buttons'><button class='btn btn-warning btn-lg btn-spacing editar-btn'><a href='./viewModificarUsuario.php?id=$id'>Editar</a></button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button></td>";
+                        echo "<td data-bs-toggle='modal' data-bs-target='#modal-editar' class='action-buttons'>
+                        <button class='btn btn-warning btn-lg btn-spacing editar-btn'><a class='text-decoration-none text-dark' href='./viewModificarUsuario.php?id=$id'>Editar</a>
+                        </button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>
+                        </td>";
                         echo"</tr>";
                     }
 
@@ -201,6 +250,12 @@ if ($_POST) {
             </div>
         </div>
     </div>
+    <!-- Formulario oculto para eliminar usuario -->
+    <form id="delete-form" action="./tablaUsuario.php" method="POST" style="display: none;">
+        <input type="hidden" name="delete_id" id="delete_id">
+    </form>
+</body>
+</body>
 </body>
 </body>
 
@@ -219,7 +274,6 @@ if ($_POST) {
 <script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/datatables.js"></script>
 <script src="../../resources/src/Bootstrap/js/select2.js"></script>
-<script src="../../resources/src/Bootstrap/js/sweetalert.min.js"></script>
 <script>
 $(document).ready(function() {
     // Inicializa DataTable
@@ -245,5 +299,26 @@ function limpiarCampos() {
     document.getElementById("Contraseña").value = "";
     document.getElementById("Rol").value = "";
 }
+
+// Maneja el clic en el botón "Eliminar"
+$('.eliminar-btn').click(function() {
+        var userId = $(this).data('id');
+        // Muestra un mensaje de confirmación antes de eliminar el usuario (caso en js)
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminarlo',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#delete_id').val(userId);
+                $('#delete-form').submit();
+            }
+        });
+    });
 </script>
 </html>
