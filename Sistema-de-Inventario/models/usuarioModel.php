@@ -163,10 +163,42 @@ class Usuario
         return $datosObtenidos;
     } 
 
+    //obtener a un usuario con un id,nombre o rol espefico
+    public function obtenerUsuariosFiltro($idUsuario, $Nombre, $Rol){
+        // Preparar la llamada al procedimiento almacenado con los parámetros
+        $sql = "CALL obtenerUsuariosFiltro('$idUsuario', '$Nombre', '$Rol');";
+        
+        // Ejecutar la consulta
+        $datosObtenidos = $this->connection->query($sql);
+        
+        // Verificar errores
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
+        }
+        
+        return $datosObtenidos;
+    }
+
     //metodo para insertar un usuario
     public function crearUsuario($Nombre, $Apellido, $Email, $DUI, $Contraseña, $Rol){
         // Preparar la llamada al procedimiento almacenado con los parámetros
         $sql = "CALL crearUsuario('$Nombre', '$Apellido', '$Email', '$DUI', '$Contraseña', '$Rol');";
+        
+        // Ejecutar la consulta
+        $datosObtenidos = $this->connection->query($sql);
+        
+        // Verificar errores
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
+        }
+        
+        return $datosObtenidos;
+    }
+
+    //metodo para actualizar un usuario
+    public function actualizarUsuario($idUsuario, $Nombre, $Apellido, $Email, $DUI, $Contraseña, $Rol){
+        // Preparar la llamada al procedimiento almacenado con los parámetros
+        $sql = "CALL actualizarUsuario('$idUsuario','$Nombre', '$Apellido', '$Email', '$DUI', '$Contraseña', '$Rol');";
         
         // Ejecutar la consulta
         $datosObtenidos = $this->connection->query($sql);

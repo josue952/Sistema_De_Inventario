@@ -17,11 +17,6 @@ if ($_POST) {
         // Imprimir un script JavaScript que muestre el mensaje de alerta
         echo "<script>alert('Usuario Creado Exitosamente')</script>";
         $data = $objUsuario->crearUsuario($nombre, $apellido, $email, $dui, $contraseña, $rol);
-    }elseif ($nombre == "" || $apellido == "" || $email == "" || $dui == "" || $contraseña == "" || $rol == ""){
-        echo "<script>alert('Debe de rellenar los campos requeridos')</script>";
-    }else{
-        // Si la inserción falló, mostrar un mensaje de error
-        echo "<script>alert('Error al crear el usuario')</script>";
     }
 } else {
     // Si no se recibieron datos del formulario, no hacer nada
@@ -134,6 +129,7 @@ if ($_POST) {
             <table class="table table-bordered table-hover" id="tabla-datos">
                 <thead class="bg-primary text-light">
                     <tr>
+                        <th>ID</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Email</th>
@@ -145,17 +141,22 @@ if ($_POST) {
                 <tbody>
                     <!-- tu codigo php con los datos (for o foreach) -->
                     <?php
+                    // Obtener los datos de los usuarios
                     $data=$objUsuario->obtenerUsuarios();
+                    // Recorrer los datos y mostrarlos en la tabla
                     foreach( $data as $objUsuario){
                         echo"<tr>";
+                        echo "<td>".$objUsuario["idUsuario"]."</td>";
                         echo "<td>".$objUsuario["Nombre"]."</td>";
                         echo "<td>".$objUsuario["Apellido"]."</td>";
                         echo "<td>".$objUsuario["Email"]."</td>";
                         echo "<td>".$objUsuario["DUI"]."</td>";
                         echo "<td>".$objUsuario["Rol"]."</td>";
-                        echo "<td class='action-buttons'><button id='editar' class='btn btn-warning btn-lg btn-spacing'>Editar</button><button id='eliminar' class='btn btn-danger btn-lg btn-spacing'>Eliminar</button></td>";
+                        $id = $objUsuario["idUsuario"];
+                        echo "<td data-bs-toggle='modal' data-bs-target='#modal-editar' class='action-buttons'><button class='btn btn-warning btn-lg btn-spacing editar-btn'><a href='./viewModificarUsuario.php?id=$id'>Editar</a></button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button></td>";
                         echo"</tr>";
                     }
+
                     ?>
                 </tbody>
             </table>
@@ -201,46 +202,6 @@ if ($_POST) {
         </div>
     </div>
 </body>
-<!--Modal para editar un usuario-->
-    <!-- Modal para agregar un usuario -->
-    <div class="modal fade" id="modal-editar" tabindex="-1" aria-labelledby="modal-editar-label" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-editar-label">Formulario de edicion de Usuarios</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="./tablaUsuario.php" method="POST">
-                        <div class="row">
-                            <div class="form-group col-md-6">
-                                <input type="text" class="form-control" name="TXTnombre" id="Nombre" placeholder="Nombre" value="" require>
-                            </div><br><br>
-                            <div class="form-group col-md-6">
-                                <input type="text" class="form-control" name="TXTapellido" id="Apellido" placeholder="Apellido" value="" require>
-                            </div><br><br>
-                            <div class="form-group col-md-6">
-                                <input type="email" class="form-control" name="TXTEmail" id="Email" placeholder="example@gmail.com" value="" require>
-                            </div><br><br>
-                            <div class="form-group col-md-6">
-                                <input type="text" class="form-control" name="TXTdui" id="DUI" placeholder="DUI" value="" require>
-                            </div><br><br>
-                            <div class="form-group col-md-6">
-                                <input type="password" class="form-control" name="TXTcontraseña" id="Contraseña" placeholder="Contraseña" value="" require>
-                            </div><br><br>
-                            <div class="form-group col-md-6">
-                                <input type="text" class="form-control" name="TXTrol" id="Rol" placeholder="Rol" value="" require>
-                            </div><br><br>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </body>
 
 <!-- Bootstrap JS and dependencies -->
@@ -270,14 +231,6 @@ $(document).ready(function() {
     });
 });
 
-$(document).ready(function() {
-    // Maneja el clic en el botón "Editar"
-    $('.btn-primary').click(function() {
-        // Aquí puedes agregar código adicional si necesitas hacer algo antes de abrir el modal
-        $('#modal-agregar').modal('show');
-    });
-});
-
 // Maneja el clic en el botón "Guardar"
 $('#modal-agregar').on('hidden.bs.modal', function () {
     limpiarCampos();
@@ -285,12 +238,12 @@ $('#modal-agregar').on('hidden.bs.modal', function () {
 
 // Función para limpiar los campos del formulario
 function limpiarCampos() {
-        document.getElementById("Nombre").value = "";
-        document.getElementById("Apellido").value = "";
-        document.getElementById("Email").value = "";
-        document.getElementById("DUI").value = "";
-        document.getElementById("Contraseña").value = "";
-        document.getElementById("Rol").value = "";
-    }
+    document.getElementById("Nombre").value = "";
+    document.getElementById("Apellido").value = "";
+    document.getElementById("Email").value = "";
+    document.getElementById("DUI").value = "";
+    document.getElementById("Contraseña").value = "";
+    document.getElementById("Rol").value = "";
+}
 </script>
 </html>
