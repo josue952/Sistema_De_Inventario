@@ -254,6 +254,20 @@ CREATE TABLE `salidas` (
 SELECT DATE_FORMAT(FechaSalida, '%d/%m/%Y') AS FechaSalidaF FROM salidas;
 
 -- --------------------------------------------------------
+--
+-- Estructura de tabla para la tabla `empresa`
+-- Esta tabla almacenara la informacion de la empresa, como su nombre, logo, slogan, mision, vision y sobre nosotros
+CREATE TABLE empresa (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    NombreEmpresa VARCHAR(255),
+    LogoEmpresa VARCHAR(255),
+    SloganEmpresa VARCHAR(255),
+    MisionEmpresa TEXT,
+    VisionEmpresa TEXT,
+    AboutUsEmpresa TEXT
+);
+
+-- --------------------------------------------------------
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
