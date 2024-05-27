@@ -35,4 +35,7 @@ INSERT INTO entradas (FechaEntrada, idProducto, Motivo, Cantidad, idProveedor) V
 -- Se crean datos predeterminados para la tabla de salidas -P
 INSERT INTO salidas (FechaSalida, idProducto, Motivo, Cantidad, idCliente) VALUES ('18/05/2024', 1, 'Por Extravio de mercancia', 1, null);
 
+-- Se crean datos predeterminados para la tabla de empresa -C
+INSERT INTO empresa (NombreEmpresa, LogoEmpresa, SloganEmpresa, MisionEmpresa, VisionEmpresa, AboutUsEmpresa) VALUES ('Zona Digital', 'Logo', 'Slogan', 'Mision', 'Vision', 'About Us');
+
 

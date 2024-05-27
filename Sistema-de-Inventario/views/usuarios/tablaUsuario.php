@@ -1,4 +1,5 @@
 <?php
+session_start();
 require "../../models/usuarioModel.php";
 $objUsuario = new Usuario();
 
@@ -67,7 +68,6 @@ if ($_POST) {
 
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -86,7 +86,6 @@ if ($_POST) {
     <link rel="stylesheet" type="text/css"
         href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
-
     <title>Usuarios</title>
     <style>
         .action-buttons {
@@ -97,67 +96,91 @@ if ($_POST) {
         .btn-spacing {
             margin: 0 5px; /* Ajusta el margen según tus necesidades */
         }
+        /* Estilo para centrar el enlace de Inicio */
+        .navbar-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
     </style>
 </head>
 <body class="bg-light">
     <!-- Navbar -->
     <nav class="navbar navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
-        <a class="navbar-brand" href="#">Nombre del usuario</a>
-        <a class="navbar-brand" href="../../index.php">Inicio</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
-            <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="menuInicio">Menú</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand navbar-center" href="../../index.php">Inicio</a>
+            <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="menuInicio">Menú</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <?php if (!isset($_SESSION['Nombre'])): ?>
+                        <li class="nav-item">
+                            <a href="#" id="loginBtn" class="nav-link">Iniciar Sesión</a>
+                        </li>
+                        <?php else: ?>
+                        <li class="nav-item">
+                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Administración
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
+                                <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
+                                <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
+                                <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
+                                <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                <li>
+                                <hr class="dropdown-divider">
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" id="Compras" class="nav-link">Compras</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" id="Productos" class="nav-link">Productos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" id="Entradas" class="nav-link">Entradas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" id="Salidas" class="nav-link">Salidas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" id="configurarEmpresa" class="nav-link">Configurar Empresa</a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
             </div>
-            <div class="offcanvas-body">
-            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                <li class="nav-item">
-                <a href="#" id="loginBtn" class="nav-link">Iniciar Sesión</a>
-                </li>
-                
-                <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Administración
+            <?php if (isset($_SESSION['Nombre'])): ?>
+            <div class="dropdown ms-auto">
+                <a class="navbar-brand dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <?php echo $_SESSION['Nombre']; ?>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-dark">
-                    <li><a class="dropdown-item" id="Usuarios" href="./views/usuarios/tablaUsuario.php">Usuarios</a></li>
-                    <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
-                    <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                    <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                    <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
-                    <li>
-                    <hr class="dropdown-divider">
-                    </li>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+                    <li><a class="dropdown-item" href="#">Rol: <?php echo $_SESSION['Rol']; ?></a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="../../logout.php">Cerrar Sesión</a></li>
                 </ul>
-                </li>
-                <li class="nav-item">
-                <a href="#" id="Compras" class="nav-link">Compras</a>
-                </li>
-                <li class="nav-item">
-                <a href="#" id="Productos" class="nav-link">Productos</a>
-                </li>
-                <li class="nav-item">
-                <a href="#" id="Ventas" class="nav-link">Ventas</a>
-                </li>
-                <li class="nav-item">
-                <a href="#" id="Entradas" class="nav-link">Entradas</a>
-                </li>
-                <li class="nav-item">
-                <a href="#" id="Salidas" class="nav-link">Salidas</a>
-                </li>
-                <li class="nav-item">
-                <a href="#" id="configurarEmpresa" class="nav-link">Configurar Empresa</a>
-                </li>
-            </ul>
             </div>
-        </div>
+            <?php endif; ?>
         </div>
     </nav>
     <br><br><br>
+
     <!-- Contenido -->
     <div class="container mt-4 bg-white rounded p-4 shadow">
         <div class="row">
@@ -187,9 +210,9 @@ if ($_POST) {
                 <tbody>
                     <!-- tu codigo php con los datos (for o foreach) -->
                     <?php
-                    // Obtener los datos de los usuarios
+                    // Obtener todos los datos de los usuarios
                     $data=$objUsuario->obtenerUsuarios();
-                    // Recorrer los datos y mostrarlos en la tabla
+                    // Recorrer cada dato que existe y mostrarlos en la tabla
                     foreach( $data as $objUsuario){
                         echo"<tr>";
                         echo "<td>".$objUsuario["idUsuario"]."</td>";
@@ -261,11 +284,8 @@ if ($_POST) {
 
 <!-- Bootstrap JS and dependencies -->
 <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+5hb7O5PiA2d1W4cJ0eUO3qTAlye/vZn6vEx/j8" crossorigin="anonymous"></script>
 <script src="../../resources/src/Bootstrap/js/waitMe.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
-<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
-    crossorigin="anonymous"></script>
 <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/popper.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/lobibox.js"></script>
@@ -320,5 +340,16 @@ $('.eliminar-btn').click(function() {
             }
         });
     });
+
+$('.dropdown-toggle').click(function() {
+    $(this).next('.dropdown-menu').toggleClass('show');
+});
+
+$(document).click(function (e) {
+    var container = $(".dropdown");
+    if (!container.is(e.target) && container.has(e.target).length === 0) {
+        container.find('.dropdown-menu').removeClass('show');
+    }
+});
 </script>
 </html>

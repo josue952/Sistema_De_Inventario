@@ -1,7 +1,6 @@
 <?php
 
-require '../../Conexion-Base-de-Datos /dbConnection.php';
-
+require '../../Conexion-Base-de-Datos/dbConnection.php';
 
 class Usuario
 {

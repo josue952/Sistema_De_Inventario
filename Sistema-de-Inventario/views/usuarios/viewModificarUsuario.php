@@ -23,6 +23,14 @@ if ($_POST) {
     $data = $objUsuario->actualizarUsuario($idUsuario, $nombre, $apellido, $email, $dui, $contraseña, $rol);
 
     if ($data) {
+        //limpiar las variables
+        $nombre = '';
+        $apellido = '';
+        $email = '';
+        $dui = '';
+        $contraseña = '';
+        $rol = '';
+        
         //se utiliza sweetalert para mostrar un mensaje de exito
         echo "<script>
         window.onload = function() {

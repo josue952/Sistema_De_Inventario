@@ -41,16 +41,17 @@ CREATE PROCEDURE obtenerUsuariosFiltro(
 )
 BEGIN
     SET @sql = 'SELECT * FROM usuarios WHERE 1=1';
-    IF p_idUsuario IS NOT NULL THEN
+    
+    IF p_idUsuario IS NOT NULL AND p_idUsuario != '' THEN
         SET @sql = CONCAT(@sql, ' AND idUsuario = ', p_idUsuario);
     END IF;
 
     IF p_Nombre IS NOT NULL AND p_Nombre != '' THEN
-        SET @sql = CONCAT(@sql, ' AND Nombre LIKE ''%', p_Nombre, '%''');
+        SET @sql = CONCAT(@sql, ' AND Nombre = ''', p_Nombre, '''');
     END IF;
 
     IF p_Rol IS NOT NULL AND p_Rol != '' THEN
-        SET @sql = CONCAT(@sql, ' AND Rol LIKE ''%', p_Rol, '%''');
+        SET @sql = CONCAT(@sql, ' AND Rol = ''', p_Rol, '''');
     END IF;
 
     PREPARE stmt FROM @sql;
