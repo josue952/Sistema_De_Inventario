@@ -61,17 +61,6 @@ if ($_POST){
         </script>";
     }
 }
-
-//Este parte obtiene los datos de la empresa
-    $sql = "SELECT * FROM empresa WHERE id = 1";
-    $result = $conn->query($sql);
-    $datosEmpresa = $result->fetch_assoc();
-    $nombreEmpresa = $datosEmpresa['NombreEmpresa'];
-    $urlImagenEmpresa = $datosEmpresa['LogoEmpresa'];
-    $sloganEmpresa = $datosEmpresa['SloganEmpresa'];
-    $misionEmpresa = $datosEmpresa['MisionEmpresa'];
-    $visionEmpresa = $datosEmpresa['VisionEmpresa'];
-    $abouUsEmpresa = $datosEmpresa['AboutUsEmpresa'];
 ?>
 
 <!DOCTYPE html>
@@ -96,6 +85,19 @@ if ($_POST){
     </style>
 </head>
 <body>
+    <?php
+    //Este parte obtiene los datos de la empresa
+    $sql = "SELECT * FROM empresa WHERE id = 1";
+    $result = $conn->query($sql);
+    $datosEmpresa = $result->fetch_assoc();
+    $nombreEmpresa = $datosEmpresa['NombreEmpresa'];
+    $urlImagenEmpresa = $datosEmpresa['LogoEmpresa'];
+    $sloganEmpresa = $datosEmpresa['SloganEmpresa'];
+    $misionEmpresa = $datosEmpresa['MisionEmpresa'];
+    $visionEmpresa = $datosEmpresa['VisionEmpresa'];
+    $abouUsEmpresa = $datosEmpresa['AboutUsEmpresa'];
+
+    ?>
     <!-- Navbar -->
     <nav class="navbar navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
@@ -209,7 +211,7 @@ if ($_POST){
     <header class="header" <?php echo !isset($_SESSION['Nombre']) ? 'style="display: none;"' : ''; ?>>
         <div class="container text-center"><br><br><br>
             <h1 class="display-4 text-black">Bienvenido a nuestro sistema de inventario</h1><br>
-            <h2 class="display-5 text-black"><?php echo $nombreEmpresa ?></h2>
+            <h2 class="display-5 text-black fw-bold"><?php echo $nombreEmpresa ?></h2>
             <img src="<?php echo $urlImagenEmpresa?>" alt="Imagen/Icono/Logo de la empresa">
             <p class="lead text-black fst-italic">
                 <?php echo $sloganEmpresa ?>

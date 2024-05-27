@@ -159,7 +159,7 @@ if ($_POST) {
                             <a href="#" id="Salidas" class="nav-link">Salidas</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="configurarEmpresa" class="nav-link">Configurar Empresa</a>
+                            <a href="../../views/modifEmpresa/viewModifEmpresa.php" id="configurarEmpresa" class="nav-link">Configurar Empresa</a>
                         </li>
                         <?php endif; ?>
                     </ul>
