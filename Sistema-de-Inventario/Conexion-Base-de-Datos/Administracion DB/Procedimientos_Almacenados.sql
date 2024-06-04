@@ -322,40 +322,6 @@ DELIMITER ;
 
 -- Procedimiento para Leer (obtener) un Proveedor por id, nombre de proveedor y metodo de pago aceptado
 
-DELIMITER //
-
-CREATE PROCEDURE obtenerSucursalFiltro(
-    IN p_idSucursal INT,
-    IN p_NombreSucursal VARCHAR(30),
-    IN p_Departamento VARCHAR(15),
-    IN p_Municipio VARCHAR(15)
-)
-BEGIN
-    SET @sql = 'SELECT * FROM sucursales WHERE 1=1';
-    
-    IF p_idSucursal IS NOT NULL AND p_idSucursal != '' THEN
-        SET @sql = CONCAT(@sql, ' AND idSucursal = ', p_idSucursal);
-    END IF;
-
-    IF p_NombreSucursal IS NOT NULL AND p_NombreSucursal != '' THEN
-        SET @sql = CONCAT(@sql, ' AND NombreSucursal = ''', p_NombreSucursal, '''');
-    END IF;
-
-    IF p_Departamento IS NOT NULL AND p_Departamento != '' THEN
-        SET @sql = CONCAT(@sql, ' AND Departamento = ''', p_Departamento, '''');
-    END IF;
-
-    IF p_Municipio IS NOT NULL AND p_Municipio != '' THEN
-        SET @sql = CONCAT(@sql, ' AND Municipio = ''', p_Municipio, '''');
-    END IF;
-
-    PREPARE stmt FROM @sql;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-END //
-
-DELIMITER ;
-
 
 -- Procedimiento para Actualizar un Proveedor
 DELIMITER //
