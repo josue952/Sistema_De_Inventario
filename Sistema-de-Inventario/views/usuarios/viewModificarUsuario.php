@@ -6,13 +6,15 @@ include_once '../../models/usuarioModel.php';
 $objUsuario = new Usuario();
 
 //Parte para obtener el id del usuario
-$idUsuario = $_GET['id'];
+$idUsuario = $_POST['idUsuario'];
 if (!$idUsuario) {
     die("ID de usuario no proporcionado.");
 }
 
 //Parte para manejar la logica para actualizar al usuario en la base de datos
-if ($_POST) {
+
+//Si se presiona el boton de editar
+if (isset($_POST['btnEditar'])) {
     $nombre = $_POST['Nombre'];
     $apellido = $_POST['Apellido'];
     $email = $_POST['Email'];
@@ -22,6 +24,7 @@ if ($_POST) {
 
     $data = $objUsuario->actualizarUsuario($idUsuario, $nombre, $apellido, $email, $dui, $contraseña, $rol);
 
+    //Si se actualiza el usuario
     if ($data) {
         //limpiar las variables
         $nombre = '';

@@ -30,6 +30,7 @@ if ($_POST){
                 });
             };
             </script>";
+            $sql->free();
         } else {
             echo "<script>
             window.onload = function() {
@@ -86,9 +87,10 @@ if ($_POST){
 </head>
 <body>
     <?php
+    $conn->next_result();
     //Este parte obtiene los datos de la empresa
-    $sql = "SELECT * FROM empresa WHERE id = 1";
-    $result = $conn->query($sql);
+    $sqlEmpresa = "SELECT * FROM empresa WHERE id = 1";
+    $result = $conn->query($sqlEmpresa);
     $datosEmpresa = $result->fetch_assoc();
     $nombreEmpresa = $datosEmpresa['NombreEmpresa'];
     $urlImagenEmpresa = $datosEmpresa['LogoEmpresa'];
@@ -136,7 +138,7 @@ if ($_POST){
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Compras" class="nav-link">Compras</a>
+                            <a href="./views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Productos" class="nav-link">Productos</a>

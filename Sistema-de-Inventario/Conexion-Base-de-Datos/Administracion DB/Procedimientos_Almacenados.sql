@@ -131,6 +131,34 @@ DELIMITER ;
 
 -- Procedimiento para Leer (obtener) una Categoria por id, nombre de categoria y Metodo de inventario
 
+DELIMITER //
+
+CREATE PROCEDURE obtenerCategoriaFiltro(
+    IN p_idCategoria INT,
+    IN p_Categoria VARCHAR(30),
+    IN p_MetodoInventario VARCHAR(15)
+)
+BEGIN
+    SET @sql = 'SELECT * FROM categorias WHERE 1=1';
+    
+    IF p_idCategoria IS NOT NULL AND p_idCategoria != '' THEN
+        SET @sql = CONCAT(@sql, ' AND idCategoria = ', p_idCategoria);
+    END IF;
+
+    IF p_Categoria IS NOT NULL AND p_Categoria != '' THEN
+        SET @sql = CONCAT(@sql, ' AND Categoria = ''', p_Categoria, '''');
+    END IF;
+
+    IF p_MetodoInventario IS NOT NULL AND p_MetodoInventario != '' THEN
+        SET @sql = CONCAT(@sql, ' AND MetodoInventario = ''', p_MetodoInventario, '''');
+    END IF;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
 
 
 -- Procedimiento para Actualizar una Categoria
@@ -196,7 +224,39 @@ DELIMITER ;
 
 -- Procedimiento para Leer (obtener) una Sucursal por id, nombre de sucursal, departamento y municipio
 
+DELIMITER //
 
+CREATE PROCEDURE obtenerSucursalFiltro(
+    IN p_idSucursal INT,
+    IN p_NombreSucursal VARCHAR(30),
+    IN p_Departamento VARCHAR(15),
+    IN p_Municipio VARCHAR(15)
+)
+BEGIN
+    SET @sql = 'SELECT * FROM sucursales WHERE 1=1';
+    
+    IF p_idSucursal IS NOT NULL AND p_idSucursal != '' THEN
+        SET @sql = CONCAT(@sql, ' AND idSucursal = ', p_idSucursal);
+    END IF;
+
+    IF p_NombreSucursal IS NOT NULL AND p_NombreSucursal != '' THEN
+        SET @sql = CONCAT(@sql, ' AND NombreSucursal = ''', p_NombreSucursal, '''');
+    END IF;
+
+    IF p_Departamento IS NOT NULL AND p_Departamento != '' THEN
+        SET @sql = CONCAT(@sql, ' AND Departamento = ''', p_Departamento, '''');
+    END IF;
+
+    IF p_Municipio IS NOT NULL AND p_Municipio != '' THEN
+        SET @sql = CONCAT(@sql, ' AND Municipio = ''', p_Municipio, '''');
+    END IF;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
 
 -- Procedimiento para Actualizar una Sucursal
 DELIMITER //
@@ -262,6 +322,39 @@ DELIMITER ;
 
 -- Procedimiento para Leer (obtener) un Proveedor por id, nombre de proveedor y metodo de pago aceptado
 
+DELIMITER //
+
+CREATE PROCEDURE obtenerSucursalFiltro(
+    IN p_idSucursal INT,
+    IN p_NombreSucursal VARCHAR(30),
+    IN p_Departamento VARCHAR(15),
+    IN p_Municipio VARCHAR(15)
+)
+BEGIN
+    SET @sql = 'SELECT * FROM sucursales WHERE 1=1';
+    
+    IF p_idSucursal IS NOT NULL AND p_idSucursal != '' THEN
+        SET @sql = CONCAT(@sql, ' AND idSucursal = ', p_idSucursal);
+    END IF;
+
+    IF p_NombreSucursal IS NOT NULL AND p_NombreSucursal != '' THEN
+        SET @sql = CONCAT(@sql, ' AND NombreSucursal = ''', p_NombreSucursal, '''');
+    END IF;
+
+    IF p_Departamento IS NOT NULL AND p_Departamento != '' THEN
+        SET @sql = CONCAT(@sql, ' AND Departamento = ''', p_Departamento, '''');
+    END IF;
+
+    IF p_Municipio IS NOT NULL AND p_Municipio != '' THEN
+        SET @sql = CONCAT(@sql, ' AND Municipio = ''', p_Municipio, '''');
+    END IF;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
 
 
 -- Procedimiento para Actualizar un Proveedor
@@ -304,13 +397,15 @@ DELIMITER ;
 DELIMITER //
 
 CREATE PROCEDURE crearCompra(
-    IN p_FechaCompra DATE,
+    IN p_FechaCompra DATE, -- Cambiado de DATE a VARCHAR
     IN p_idProveedor INT,
     IN p_idSucursal INT
 )
 BEGIN
-    -- Inicializar la compra con un total de 0.0, este valo cambiará al agregar productoss
+    -- Inicializar la compra con un total de 0.0, este valor cambiará al agregar productos
     DECLARE p_TotalCompra DECIMAL(10,2) DEFAULT 0.0;
+
+    -- Insertar la compra con la fecha convertida
     INSERT INTO compras (FechaCompra, idProveedor, idSucursal, TotalCompra)
     VALUES (p_FechaCompra, p_idProveedor, p_idSucursal, p_TotalCompra);
 END //
@@ -318,32 +413,82 @@ END //
 DELIMITER ;
 
 -- Procedimiento para Leer (obtener) todas las Compras
+-- Se obtiene el id de la compra, la fecha de la compra, el nombre del proveedor, el nombre de la sucursal y el total de la compra
 DELIMITER //
 
 CREATE PROCEDURE obtenerCompras()
 BEGIN
-    SELECT * FROM compras;
+    SELECT 
+        c.idCompra,
+        DATE_FORMAT(c.FechaCompra, '%d-%m-%y') AS FechaCompra,
+        p.NombreProveedor,
+        s.NombreSucursal,
+        c.TotalCompra
+    FROM compras c
+    JOIN proveedores p ON c.idProveedor = p.idProveedor
+    JOIN sucursales s ON c.idSucursal = s.idSucursal;
 END //
 
 DELIMITER ;
 
 -- Procedimiento para Leer (obtener) una Compra por id, fecha de compra, id de proveedor y id de sucursal
+-- Se obtiene el id de la compra, la fecha de la compra, el nombre del proveedor, el nombre de la sucursal y el total de la compra
+DELIMITER //
 
+CREATE PROCEDURE obtenerCompraFiltro(
+    IN p_idCompra INT,
+    IN p_FechaCompra VARCHAR(10),
+    IN p_NombreProveedor VARCHAR(30),
+    IN p_NombreSucursal VARCHAR(50)
+)
+BEGIN
+    SET @sql = 'SELECT 
+                    c.idCompra,
+                    DATE_FORMAT(c.FechaCompra, ''%d-%m-%y'') AS FechaCompra,
+                    p.NombreProveedor,
+                    s.NombreSucursal,
+                    c.TotalCompra
+                FROM compras c
+                JOIN proveedores p ON c.idProveedor = p.idProveedor
+                JOIN sucursales s ON c.idSucursal = s.idSucursal
+                WHERE 1=1';
+    
+    IF p_idCompra IS NOT NULL AND p_idCompra != '' THEN
+        SET @sql = CONCAT(@sql, ' AND c.idCompra = ', p_idCompra);
+    END IF;
 
+    IF p_FechaCompra IS NOT NULL AND p_FechaCompra != '' THEN
+        SET @sql = CONCAT(@sql, ' AND c.FechaCompra = STR_TO_DATE(''', p_FechaCompra, ''', ''%d-%m-%y'')');
+    END IF;
+
+    IF p_NombreProveedor IS NOT NULL AND p_NombreProveedor != '' THEN
+        SET @sql = CONCAT(@sql, ' AND p.NombreProveedor LIKE ''%', p_NombreProveedor, '%''');
+    END IF;
+
+    IF p_NombreSucursal IS NOT NULL AND p_NombreSucursal != '' THEN
+        SET @sql = CONCAT(@sql, ' AND s.NombreSucursal LIKE ''%', p_NombreSucursal, '%''');
+    END IF;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
 
 -- Procedimiento para Actualizar una Compra
 DELIMITER //
 
 CREATE PROCEDURE actualizarCompra(
     IN p_idCompra INT,
-    IN p_FechaCompra DATE,
+    IN p_FechaCompra VARCHAR(10),
     IN p_idProveedor INT,
     IN p_idSucursal INT,
     IN p_TotalCompra DECIMAL(10,2)
 )
 BEGIN
     UPDATE compras
-    SET FechaCompra = p_FechaCompra,
+    SET FechaCompra = STR_TO_DATE(p_FechaCompra, '%d-%m-%y'),
         idProveedor = p_idProveedor,
         idSucursal = p_idSucursal,
         TotalCompra = p_TotalCompra
@@ -366,34 +511,62 @@ DELIMITER ;
 
 -- En esta parte, se comenzara con la logica que conlleva comprar productos
 -- Procedimiento para agregar un producto a una compra (en detalleCompras)
+
 DELIMITER //
 
 CREATE PROCEDURE agregarProductoACompra(
-    IN idCompra INT,
-    IN idProducto INT,
-    IN cantidad INT,
-    IN precioProducto DECIMAL(10,2),
-    OUT subTotalProducto DECIMAL(10,2)
+    IN p_idCompra INT,
+    IN p_NombreProducto VARCHAR(50),
+    IN p_cantidad INT,
+    IN p_precioProducto DECIMAL(10,2),
+    IN p_subTotalProducto DECIMAL(10,2)
 )
 BEGIN
-    -- Obtener el precio del producto
-    SELECT Precio, Precio * cantidad AS subTotalProducto
-    INTO precioProducto, subTotalProducto
-    FROM productos
-    WHERE idProducto = idProducto;
+    -- Insertar el producto en detalleCompras
+    INSERT INTO detalleCompras (idCompra, NombreProducto, Cantidad, Precio, SubTotal)
+    VALUES (p_idCompra, p_NombreProducto, p_cantidad, p_precioProducto, p_subTotalProducto);
+    
+    -- Insertar el producto en la tabla de productos, si no existe, o actualizar su cantidad si ya existe
+    INSERT INTO productos (NombreProducto, Cantidad, Precio)
+    VALUES (p_NombreProducto, p_cantidad, p_precioProducto)
+    ON DUPLICATE KEY UPDATE
+    Cantidad = Cantidad + VALUES(Cantidad),
+    Precio = VALUES(Precio);
 
-    -- Si el producto existe, agregarlo al detalle de la compra
-    IF precioProducto IS NOT NULL THEN
-        INSERT INTO detalleCompras (idCompra, NombreProducto, Cantidad, Precio, SubTotal)
-        VALUES (idCompra, (SELECT NombreProducto FROM productos WHERE idProducto = idProducto), cantidad, precioProducto, subTotalProducto);
-
-        -- Actualizar el total de la compra
-        UPDATE compras
-        SET TotalCompra = TotalCompra + subTotalProducto
-        WHERE idCompra = idCompra;
-    ELSE
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Producto no encontrado.';
-    END IF;
+    -- Recalcular el total de la compra basado en los detalles de la compra
+    UPDATE compras c
+    JOIN (
+        SELECT idCompra, SUM(SubTotal) as TotalCompra
+        FROM detalleCompras
+        WHERE idCompra = p_idCompra
+        GROUP BY idCompra
+    ) dc ON c.idCompra = dc.idCompra
+    SET c.TotalCompra = dc.TotalCompra
+    WHERE c.idCompra = p_idCompra;
 END //
 
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimientos almacenados de la tabla DetalleCompras para su CRUD -- 
+-- Procedimiento para Leer (obtener) todos los DetallesCompras con idCompra
+DELIMITER //
+
+CREATE PROCEDURE obtenerDetalleCompraFiltro(
+    IN p_idCompra INT
+)
+BEGIN
+    SET @sql = 'SELECT * FROM detallecompras WHERE 1=1';
+    
+    IF p_idCompra IS NOT NULL AND p_idCompra != '' THEN
+        SET @sql = CONCAT(@sql, ' AND idCompra = ', p_idCompra);
+    END IF;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
+

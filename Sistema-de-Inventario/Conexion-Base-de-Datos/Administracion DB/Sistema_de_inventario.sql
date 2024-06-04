@@ -135,8 +135,8 @@ CREATE TABLE `productos` (
     `Cantidad` int(11) NOT NULL,
     `Precio` decimal(10,2) NOT NULL,
     `Foto` longblob DEFAULT NULL,
-    `idCategoria` int(11) NOT NULL,
-    `idSucursal` int(11) NOT NULL,
+    `idCategoria` int(11) DEFAULT NULL, -- No es obligatorio para la creacion del producto, pero luego se debe asignar
+    `idSucursal` int(11) DEFAULT NULL, -- No es obligatorio para la creacion del producto, pero luego se debe asignar
     PRIMARY KEY (`idProducto`),
     FOREIGN KEY (`idCategoria`) REFERENCES `categorias`(`idCategoria`)
         ON DELETE CASCADE

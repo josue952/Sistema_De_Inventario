@@ -23,7 +23,7 @@ if (isset($_POST['delete_id'])) {
 }
 
 // Verificar si se recibieron datos del formulario al crear un usuario
-if ($_POST) {
+if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail'], $_POST['TXTdui'], $_POST['TXTcontraseña'], $_POST['TXTrol'])) {
     $nombre = $_POST['TXTnombre'];
     $apellido = $_POST['TXTapellido'];
     $email = $_POST['TXTEmail'];
@@ -47,7 +47,7 @@ if ($_POST) {
             };
         </script>";
         $data = $objUsuario->crearUsuario($nombre, $apellido, $email, $dui, $contraseña, $rol);
-    }else{
+    }else if ($nombre == "" || $apellido == "" || $email == "" || $dui == "" || $contraseña == "" || $rol == ""){
         // Muestra un mensaje de error al crear un usuario y redirige a la tabla de usuarios (caso en php)
         echo "<script>
             window.onload = function() {
@@ -72,6 +72,8 @@ if ($_POST) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--Dependencias de bootstrap-->
+    <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.js"></script>
+    <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/lobibox.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/select2.css">
@@ -102,7 +104,6 @@ if ($_POST) {
             left: 50%;
             transform: translateX(-50%);
         }
-
     </style>
 </head>
 <body class="bg-light">
@@ -144,7 +145,7 @@ if ($_POST) {
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Compras" class="nav-link">Compras</a>
+                            <a href="../../views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Productos" class="nav-link">Productos</a>
@@ -208,27 +209,30 @@ if ($_POST) {
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- tu codigo php con los datos (for o foreach) -->
-                    <?php
+                <?php
                     // Obtener todos los datos de los usuarios
-                    $data=$objUsuario->obtenerUsuarios();
-                    // Recorrer cada dato que existe y mostrarlos en la tabla
-                    foreach( $data as $objUsuario){
-                        echo"<tr>";
-                        echo "<td>".$objUsuario["idUsuario"]."</td>";
-                        echo "<td>".$objUsuario["Nombre"]."</td>";
-                        echo "<td>".$objUsuario["Apellido"]."</td>";
-                        echo "<td>".$objUsuario["Email"]."</td>";
-                        echo "<td>".$objUsuario["DUI"]."</td>";
-                        echo "<td>".$objUsuario["Rol"]."</td>";
+                    $data = $objUsuario->obtenerUsuarios();
+                    foreach ($data as $objUsuario) {
                         $id = $objUsuario["idUsuario"];
-                        echo "<td data-bs-toggle='modal' data-bs-target='#modal-editar' class='action-buttons'>
-                        <button class='btn btn-warning btn-lg btn-spacing editar-btn'><a class='text-decoration-none text-dark' href='./viewModificarUsuario.php?id=$id'>Editar</a>
-                        </button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>
-                        </td>";
-                        echo"</tr>";
+                        ?>
+                        <tr>
+                            <td><?php echo $objUsuario["idUsuario"]; ?></td>
+                            <td><?php echo $objUsuario["Nombre"]; ?></td>
+                            <td><?php echo $objUsuario["Apellido"]; ?></td>
+                            <td><?php echo $objUsuario["Email"]; ?></td>
+                            <td><?php echo $objUsuario["DUI"]; ?></td>
+                            <td><?php echo $objUsuario["Rol"]; ?></td>
+                            <td class="action-buttons">
+                                <!-- Formulario para la acción de editar -->
+                                <form action="./viewModificarUsuario.php" method="post" style="display:inline;">
+                                    <input type="hidden" name="idUsuario" value="<?php echo $id; ?>">
+                                    <button type="submit" class="btn btn-warning btn-lg btn-spacing editar-btn">Editar</button>
+                                </form>
+                                <?php echo"</button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>"?>
+                            </td>
+                        </tr>
+                        <?php
                     }
-
                     ?>
                 </tbody>
             </table>
@@ -261,7 +265,12 @@ if ($_POST) {
                                 <input type="password" class="form-control" name="TXTcontraseña" id="Contraseña" placeholder="Contraseña" require>
                             </div><br><br>
                             <div class="form-group col-md-6">
-                                <input type="text" class="form-control" name="TXTrol" id="Rol" placeholder="Rol" require>
+                                <select class="form-control" name="TXTrol" id="rol" required>
+                                    <option value="">Seleccione un Rol</option>
+                                    <option value="Administrador">Administrador</option>
+                                    <option value="Empleado">Empleado</option>
+                                    <option value="Empleado">Cajero</option>
+                                </select>
                             </div><br><br>
                         </div>
                         <div class="modal-footer">
@@ -284,15 +293,15 @@ if ($_POST) {
 
 <!-- Bootstrap JS and dependencies -->
 <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/waitMe.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
-<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/popper.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/lobibox.js"></script>
 <script src="../../resources/src/Bootstrap/js/notifications.js"></script>
 <script src="../../resources/src/Bootstrap/js/messageboxes.js"></script>
-<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
-<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
 <script src="../../resources/src/Bootstrap/js/select2.js"></script>
 <script>
 $(document).ready(function() {
