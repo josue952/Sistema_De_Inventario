@@ -151,7 +151,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Compras" class="nav-link">Compras</a>
+                            <a href="../../views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Productos" class="nav-link">Productos</a>
