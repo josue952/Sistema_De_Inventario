@@ -217,16 +217,18 @@ $productos = $objCompra->obtenerTodosLosProductos();
                             <form id="form-agregar-item">
                                 <div class="mb-3">
                                     <label for="NombreProducto" class="form-label">Nombre Producto</label>
-                                    <!--Input que implementa autocompletado-->
-                                    <input type="text" class="form-control" id="NombreProducto" name="NombreProducto" placeholder="Nombre del Producto" required>
-                                    <script>
-                                        $(function() {
-                                            var productos = ["hola", "adios", "hasta luego", "hasta pronto", "hasta nunca"];
-                                            $("#NombreProducto").autocomplete({
-                                                source: productos
-                                            });
-                                        });
-                                    </script>
+                                    <input class="form-control" id="NombreProducto" name="NombreProducto">
+                                    <br>
+                                    <p class="text-center">O</p>
+                                    <label for="SeleccionarProducto" class="form-label">Seleccionar Producto</label>
+                                    <select class="form-select" id="NombreProductoSelect" name="NombreProductoSelect">
+                                        <option value="">Seleccionar Producto</option>
+                                        <?php foreach ($productos as $producto): ?>
+                                        <option value="<?php echo $producto; ?>">
+                                            <?php echo $producto; ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="Cantidad" class="form-label">Cantidad</label>
@@ -262,7 +264,12 @@ $productos = $objCompra->obtenerTodosLosProductos();
 
     // Agregar item temporalmente a la tabla
     $('#guardar-item').on('click', function() {
-        var nombreProducto = $('#NombreProducto').val();
+        //Si el usaurio no selecciona un producto del select, se toma el valor del input
+        if ($('#NombreProductoSelect').val() === '') {
+            var nombreProducto = $('#NombreProducto').val();
+        }else{
+            var nombreProducto = $('#NombreProductoSelect').val();
+        }
         var cantidad = $('#Cantidad').val();
         var precio = $('#Precio').val();
         var subtotal = $('#SubTotal').val();
@@ -285,6 +292,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                 `;
             $('#tabla-productos tbody').append(nuevaFila);
             $('#NombreProducto').val(''); 
+            $('#NombreProductoSelect').val('');
             $('#Cantidad').val('');
             $('#Precio').val('');
             $('#SubTotal').val('');
@@ -302,7 +310,12 @@ $productos = $objCompra->obtenerTodosLosProductos();
         $(this).closest('tr').remove();
     });
 
-    // Guardar cambios
+    // Eliminar producto de la tabla
+    $('#tabla-productos').on('click', '.btn-eliminarTemp', function() {
+        $(this).closest('tr').remove();
+    });
+
+    // Guardar cambios (cuando se ingresa desde el input)
     $('#guardar-cambios').on('click', function(event) {
         var nuevosProductos = $('#tabla-productos tbody tr.nuevo-producto').length;
         if (nuevosProductos > 0) {
@@ -336,16 +349,65 @@ $productos = $objCompra->obtenerTodosLosProductos();
         }
     });
 
+    //permite que se despliegue el dropdown
     $('.dropdown-toggle').click(function() {
         $(this).next('.dropdown-menu').toggleClass('show');
     });
-
+    
+    //permite que se despliegue el dropdown
     $(document).click(function(e) {
         var container = $(".dropdown");
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             container.find('.dropdown-menu').removeClass('show');
         }
     });
+
+    //Logica para el buscador de productos
+    $(document).ready(function() {
+            var productos = <?php echo json_encode($productos); ?>;
+
+            // Filtrar productos en el select cuando se escribe en el input
+            $("#NombreProducto").on("input", function() {
+                var searchTerm = $(this).val().toLowerCase();
+                $("#NombreProductoSelect option").each(function() {
+                    var optionText = $(this).text().toLowerCase();
+                    if (optionText.includes(searchTerm)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Autocompletar para el input NombreProducto
+            $("#NombreProducto").autocomplete({
+                source: productos,
+                minLength: 2
+            });
+
+            // Reset select options when input is cleared
+            $("#NombreProducto").on("blur", function() {
+                if ($(this).val() === "") {
+                    $("#NombreProductoSelect option").show();
+                }
+            });
+        });
+
+    // Obtener precio del producto seleccionado
+    $('#NombreProductoSelect').on('change', function() {
+        var precio = $(this).find(':selected').data('precio');
+        $('#precio').val(precio);
+    });
+
+    // Al abrir el modal, actualizar el precio con el producto seleccionado por defecto
+    $('#Modal-agregarItem').on('shown.bs.modal', function() {
+        var precio = $('#NombreProductoSelect').find(':selected').data('precio');
+        $('#precio').val(precio);
+    });
+
+    
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
