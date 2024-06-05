@@ -18,6 +18,24 @@ $datosCompras = $sqlCompras->fetch_object();
 $sqlDetalleCompras = $objCompra->obtenerDetalleCompraFiltro($idCompra);
 
 // verificar si el usuario ha solicitado la eliminacion de un producto
+if (isset($_POST['delete_id'])) {
+    $idUsuario = $_POST['delete_id'];
+    echo "<script>
+    window.onload = function() {
+        Swal.fire({
+            title: '¡Éxito!',
+            text: 'Item eliminado exitosamente',
+            icon: 'success'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = './tablaDetalleCompras-create.php';
+            }
+        });
+    };
+    </script>";
+    
+}
+
 
 //obtener el todos los productos 
 $productos = $objCompra->obtenerTodosLosProductos();
@@ -195,7 +213,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                         <td><?php echo $datosDetalleCompras->Precio; ?></td>
                         <td><?php echo $datosDetalleCompras->SubTotal; ?></td>
                         <td>
-                            <button class="btn btn-eliminar"><img src="../../resources/Icons/eliminar.svg"></button>
+                            <button class="btn btn-eliminar" data-id=".<?php $objCompra["idCompra"]?>."><img src="../../resources/Icons/eliminar.svg"></button>
                     </tr>
                     <?php endwhile; ?>
                     <?php else: ?>
@@ -349,19 +367,6 @@ $productos = $objCompra->obtenerTodosLosProductos();
         }
     });
 
-    //permite que se despliegue el dropdown
-    $('.dropdown-toggle').click(function() {
-        $(this).next('.dropdown-menu').toggleClass('show');
-    });
-    
-    //permite que se despliegue el dropdown
-    $(document).click(function(e) {
-        var container = $(".dropdown");
-        if (!container.is(e.target) && container.has(e.target).length === 0) {
-            container.find('.dropdown-menu').removeClass('show');
-        }
-    });
-
     //Logica para el buscador de productos
     $(document).ready(function() {
             var productos = <?php echo json_encode($productos); ?>;
@@ -405,9 +410,41 @@ $productos = $objCompra->obtenerTodosLosProductos();
         $('#precio').val(precio);
     });
 
+    //permite que se despliegue el dropdown
+    $('.dropdown-toggle').click(function() {
+        $(this).next('.dropdown-menu').toggleClass('show');
+    });
     
+    //permite que se despliegue el dropdown
+    $(document).click(function(e) {
+        var container = $(".dropdown");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.find('.dropdown-menu').removeClass('show');
+        }
+    });
+
+    // Maneja el clic en el botón "Eliminar"
+    $('.btn-eliminar').click(function() {
+            var userId = $(this).data('id');
+            // Muestra un mensaje de confirmación antes de eliminar la compra (caso en js)
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminarlo',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#delete_id').val(userId);
+                    $('#delete-form').submit();
+                }
+            });
+        });
+
+
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

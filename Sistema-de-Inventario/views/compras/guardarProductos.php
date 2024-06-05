@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Por ejemplo si el usuario ingresa un producto con mayusculas o minusculas
     // Pero refiriendose al mismo producto, se debe normalizar el nombre para que
     // no se dupliquen productos en la base de datos
-
     function normalizarNombreProducto($nombre) {
         return strtolower(trim($nombre));
     }
@@ -22,17 +21,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $cantidad = $producto['cantidad'];
         $precio = $producto['precio'];
         $subtotal = $producto['subtotal'];
+        //se deja en nulo $productoExistente
+        $productoExistente = null;
 
-        // Aquí iría la lógica para insertar el producto en la base de datos
-        $resultProductoInCompra = $objCompra->agregarProductoACompra($idCompra, $nombreProducto, $cantidad, $precio, $subtotal);
-        if (!$resultProductoInCompra) {
-            $todosInsertados = false;
-            break;
+        if ($objCompra->productoExiste($nombreProducto)) {
+            // Obtener los detalles del producto existente
+            $productoExistente = $objCompra->obtenerProductoPorNombre($nombreProducto);
+            $cantidadExistente = $productoExistente['Cantidad'];
+            $precioExistente = $productoExistente['Precio'];
+            
+            // Calcular la nueva cantidad
+            $nuevaCantidad = $cantidadExistente + $cantidad;
+
+
+            // Actualizar la cantidad del producto existente en la base de datos
+            if ($productoExistente) {
+                echo "<script>alert($idCompra)</script>";
+                echo "<script>alert('Nombre producto: $nombreProducto')</script>";
+                echo "<script>alert('Cantidad: $cantidad')</script>";
+                echo "<script>alert('Cantidad Acumulada: $nuevaCantidad')</script>";
+                echo "<script>alert('Precio: $precioExistente')</script>";
+                $resultProductoInCompra = $objCompra->gestionarProductoCompra($idCompra, $nombreProducto, $cantidad, $nuevaCantidad, $precioExistente);
+                if (!$resultProductoInCompra) {
+                    $todosInsertados = false;
+                    break;
+                }
+            }
+        } else {
+            //Si se trata de un nuevo producto que no exista en la base de datos
+            $resultProductoInCompra = $objCompra->agregarProductoACompra($idCompra, $nombreProducto, $cantidad, $precio, $subtotal);
+            if (!$resultProductoInCompra) {
+                $todosInsertados = false;
+                break;
+            }
         }
     }
 
-    // Redirigir o mostrar un mensaje de éxito después de guardar los productos
-    if ($todosInsertados) {
+    if ($productoExistente) {
+        echo "
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: '¡Atención!',
+                    text: 'Hay uno o mas productos duplicados en la compra, se han sumado las cantidades.',
+                    icon: 'warning'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = './tablaCompras.php';
+                    }
+                });
+            });
+        </script>
+        ";
+    }else if($todosInsertados){
         echo "
         <script>
             document.addEventListener('DOMContentLoaded', function() {

@@ -228,7 +228,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                                     <input type="hidden" name="idUsuario" value="<?php echo $id; ?>">
                                     <button type="submit" class="btn btn-warning btn-lg btn-spacing editar-btn">Editar</button>
                                 </form>
-                                <?php echo"</button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>"?>
+                                <?php echo"<button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>"?>
                             </td>
                         </tr>
                         <?php
@@ -286,9 +286,6 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
     <form id="delete-form" action="./tablaUsuario.php" method="POST" style="display: none;">
         <input type="hidden" name="delete_id" id="delete_id">
     </form>
-</body>
-</body>
-</body>
 </body>
 
 <!-- Bootstrap JS and dependencies -->

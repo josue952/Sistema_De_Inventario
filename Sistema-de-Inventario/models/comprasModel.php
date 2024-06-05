@@ -165,4 +165,43 @@ Class Compra
         $this->connection->next_result();
         return $productos;
     }
+
+    // Método para saber si un producto ya existe en la tabla productos
+    public function productoExiste($nombreProducto) {
+        $sql = "SELECT COUNT(*) AS existe FROM productos WHERE NombreProducto = ?";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param('s', $nombreProducto);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+        $this->connection->next_result();
+        return $result->fetch_assoc()['existe'] > 0;
+    }
+
+    // Método para obtener los detalles de un producto por su nombre
+    public function obtenerProductoPorNombre($nombreProducto) {
+        $sql = "SELECT * FROM productos WHERE NombreProducto = ?";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param('s', $nombreProducto);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $producto = $result->fetch_assoc();
+        $stmt->close();
+        $this->connection->next_result();
+        return $producto;
+    }
+
+    // Método para actualizar la cantidad de un producto en la tabla productos
+    // su funcion dependera de si el producto ya existe en detalleCompras
+    public function gestionarProductoCompra($idCompra, $nombreProducto, $cantidad, $cantidadAcumulada, $precio) {
+        $sql = "CALL gestionarProductoCompra(?, ?, ?, ?, ?)";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param('isidd', $idCompra, $nombreProducto, $cantidad, $cantidadAcumulada, $precio);
+        $result = $stmt->execute();
+        $stmt->close();
+        $this->connection->next_result();
+        return $result;
+    }
+
+    // Metodo para eliminar un item de la tabla detalleCompra
 }

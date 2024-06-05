@@ -536,3 +536,52 @@ END //
 
 DELIMITER ;
 
+-- --------------------------------------------------------
+-- Procedimiento para que, si el producto ya existe este verifique que exista, y en caso
+-- que el producto ya exista, en vez de agregarlo, se actualice la cantidad y el subtotal
+-- para evitar duplicados en la tabla detalleCompras.
+DELIMITER //
+
+CREATE PROCEDURE gestionarProductoCompra(
+    IN p_idCompra INT,
+    IN p_nombreProducto VARCHAR(255),
+    IN p_cantidad INT,
+    IN p_cantidadAcumulada INT,
+    IN p_precio DECIMAL(10,2)
+)
+BEGIN
+    DECLARE v_cantidadActual INT;
+    DECLARE v_productoExiste INT;
+
+    -- Actualizar la cantidad en productos
+    UPDATE productos
+    SET Cantidad = p_cantidadAcumulada
+    WHERE NombreProducto = p_nombreProducto;
+
+    -- Verificar si el producto ya existe en detalleCompras para esta compra
+    SELECT COUNT(*), Cantidad INTO v_productoExiste, v_cantidadActual
+    FROM detalleCompras
+    WHERE IdCompra = p_idCompra AND NombreProducto = p_nombreProducto
+    GROUP BY Cantidad;
+
+    IF v_productoExiste > 0 THEN
+        -- Actualizar la cantidad y subtotal en detalleCompras
+        UPDATE detalleCompras
+        SET Cantidad = v_cantidadActual + p_cantidad,
+            Subtotal = (v_cantidadActual + p_cantidad) * p_precio
+        WHERE IdCompra = p_idCompra AND NombreProducto = p_nombreProducto;
+    ELSE
+        -- Insertar el producto en detalleCompras si no existe
+        INSERT INTO detalleCompras (IdCompra, NombreProducto, Cantidad, Precio, Subtotal)
+        VALUES (p_idCompra, p_nombreProducto, p_cantidad, p_precio, p_cantidad * p_precio);
+    END IF;
+
+    -- Recalcular el total en compras
+    UPDATE compras
+    SET TotalCompra = (SELECT SUM(Subtotal) FROM detalleCompras WHERE IdCompra = p_idCompra)
+    WHERE IdCompra = p_idCompra;
+END //
+
+DELIMITER ;
+
+
