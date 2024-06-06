@@ -50,9 +50,9 @@ if ($resultCompras) {
     echo "Error al obtener compras: " . $conn->error;
 }
 
-// Logica para agregar una compra
-if ($_POST){
-    // Obtener datos del formulario
+// Logica para agregar una compra y esta comenzara cuando el formulario sea enviado
+if ($_POST && isset($_POST['FechaCompra'], $_POST['Proveedor'], $_POST['Sucursal'])){
+    //Obtener datos del formulario
     $FechaCompra = $_POST['FechaCompra'];
     $Proveedor = $_POST['Proveedor'];
     $Sucursal = $_POST['Sucursal'];
@@ -89,6 +89,25 @@ if ($_POST){
         </script>";
     }
 
+}
+
+// Verificar si se ha solicitado la eliminación de un usuario
+if (isset($_POST['delete_id'])) {
+    $idCompra = $_POST['delete_id'];
+    $objCompra->eliminarCompra($idCompra);
+    echo "<script>
+    window.onload = function() {
+        Swal.fire({
+            title: '¡Éxito!',
+            text: 'Compra eliminada exitosamente',
+            icon: 'success'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = './tablaCompras.php';
+            }
+        });
+    };
+    </script>";
 }
 ?>
 
@@ -242,15 +261,15 @@ if ($_POST){
                         <td><?php echo $compra['FechaCompra']; ?></td>
                         <td><?php echo $compra['NombreProveedor']; ?></td>
                         <td><?php echo $compra['NombreSucursal']; ?></td>
-                        <td><?php echo $compra['TotalCompra']; ?></td>
+                        <td><?php echo "$".$compra['TotalCompra']; ?></td>
                         <td class="action-buttons">
                             <!--Se inicializa como formulario para no mostrar el id en la url por seguridad-->
                             <form action="./tablaDetalleCompras-create.php" method="post" style="display:inline;">
                                 <input type="hidden" name="idCompra" value="<?php echo $compra['idCompra']; ?>">
                                 <button type="submit" class="btn btn-success btn-sm btn-spacing">Productos</button>
                             </form>
-                            <a href="#" class="btn btn-warning btn-sm btn-spacing">Editar</a>
-                            <a href="#" class="btn btn-danger btn-sm btn-spacing">Eliminar</a>                        
+                            <a href="" class="btn btn-warning btn-sm btn-spacing btn-editar">Editar</a>
+                            <button class="btn btn-danger btn-eliminar" data-id="<?php $idCompra = $compra['idCompra']; echo $idCompra;?>">Eliminar</button>                      
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -298,6 +317,20 @@ if ($_POST){
             </div>
         </div>
     </div>
+    <!-- Formulario oculto para eliminar una compra -->
+    <?php
+    //En caso de no haber ninguna compra, se inicializa el idCompra en 0
+    if ($resultCompras->num_rows == 0){
+        $idCompra = 0;
+    }
+    echo "
+    <form id='delete-form' action='./tablaCompras.php?idCompra=".$idCompra."' method='POST' style='display: none;'>
+        <input type='hidden' name='delete_id' id='delete_id'>
+    </form>
+
+    ";
+    ?>
+
 </body>
 </html>
 <!-- Bootstrap JS and dependencies -->
@@ -323,5 +356,26 @@ $(document).click(function(e) {
     if (!container.is(e.target) && container.has(e.target).length === 0) {
         container.find('.dropdown-menu').removeClass('show');
     }
+});
+
+// Maneja el clic en el botón "Eliminar"
+$('.btn-eliminar').click(function() {
+    var compraId = $(this).data('id');
+    // Muestra un mensaje de confirmación antes de eliminar la compra (caso en js)
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás revertir esto!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminarlo',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+            if (result.isConfirmed) {
+            $('#delete_id').val(compraId);  
+            $('#delete-form').submit();
+        }
+    });
 });
 </script>

@@ -36,11 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Actualizar la cantidad del producto existente en la base de datos
             if ($productoExistente) {
-                echo "<script>alert($idCompra)</script>";
-                echo "<script>alert('Nombre producto: $nombreProducto')</script>";
-                echo "<script>alert('Cantidad: $cantidad')</script>";
-                echo "<script>alert('Cantidad Acumulada: $nuevaCantidad')</script>";
-                echo "<script>alert('Precio: $precioExistente')</script>";
                 $resultProductoInCompra = $objCompra->gestionarProductoCompra($idCompra, $nombreProducto, $cantidad, $nuevaCantidad, $precioExistente);
                 if (!$resultProductoInCompra) {
                     $todosInsertados = false;
@@ -67,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     icon: 'warning'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = './tablaCompras.php';
+                        window.location.href = './tablaDetalleCompras-create.php?idCompra=$idCompra';
                     }
                 });
             });
@@ -79,11 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     title: '¡Éxito!',
-                    text: 'Productos añadidos correctamente.',
+                    text: '¡¡Productos Registrados correctamente!!',
                     icon: 'success'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = './tablaCompras.php';
+                        window.location.href = './tablaDetalleCompras-create.php?idCompra=$idCompra';
                     }
                 });
             });

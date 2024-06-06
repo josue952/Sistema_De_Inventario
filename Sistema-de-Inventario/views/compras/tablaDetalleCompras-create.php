@@ -17,9 +17,11 @@ $datosCompras = $sqlCompras->fetch_object();
 // Obtener los productos de la compra (detalle de compra)
 $sqlDetalleCompras = $objCompra->obtenerDetalleCompraFiltro($idCompra);
 
-// verificar si el usuario ha solicitado la eliminacion de un producto
+// Verificar si se ha solicitado la eliminación de un usuario
 if (isset($_POST['delete_id'])) {
-    $idUsuario = $_POST['delete_id'];
+    $producto = $_POST['producto'];
+    $cantidad = $_POST['cantidad'];
+    $objCompra->eliminarItemDetalleCompra($idCompra, $producto, $cantidad);
     echo "<script>
     window.onload = function() {
         Swal.fire({
@@ -28,14 +30,12 @@ if (isset($_POST['delete_id'])) {
             icon: 'success'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = './tablaDetalleCompras-create.php';
+                window.location.href = './tablaDetalleCompras-create.php?idCompra=".$idCompra."';
             }
         });
     };
     </script>";
-    
 }
-
 
 //obtener el todos los productos 
 $productos = $objCompra->obtenerTodosLosProductos();
@@ -182,7 +182,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                 <tr>
                     <td><?php echo $datosCompras->idCompra; ?></td>
                     <td><?php echo $datosCompras->FechaCompra; ?></td>
-                    <td><?php echo $datosCompras->TotalCompra; ?></td>
+                    <td><?php echo "$".$datosCompras->TotalCompra; ?></td>
                 </tr>
             </tbody>
         </table>
@@ -210,10 +210,11 @@ $productos = $objCompra->obtenerTodosLosProductos();
                     <tr>
                         <td><?php echo $datosDetalleCompras->NombreProducto; ?></td>
                         <td><?php echo $datosDetalleCompras->Cantidad; ?></td>
-                        <td><?php echo $datosDetalleCompras->Precio; ?></td>
-                        <td><?php echo $datosDetalleCompras->SubTotal; ?></td>
+                        <td><?php echo "$".$datosDetalleCompras->Precio; ?></td>
+                        <td><?php echo "$".$datosDetalleCompras->SubTotal; ?></td>
                         <td>
-                            <button class="btn btn-eliminar" data-id=".<?php $objCompra["idCompra"]?>."><img src="../../resources/Icons/eliminar.svg"></button>
+                            <button class="btn btn-eliminar" data-id="<?php echo $idCompra; ?>" data-producto="<?php echo $datosDetalleCompras->NombreProducto; ?>" data-cantidad="<?php echo $datosDetalleCompras->Cantidad; ?>"><img src="../../resources/Icons/eliminar.svg"></button>                        
+                        </td>
                     </tr>
                     <?php endwhile; ?>
                     <?php else: ?>
@@ -268,6 +269,17 @@ $productos = $objCompra->obtenerTodosLosProductos();
             </div>
             <button class="btn btn-success mt-3" id="guardar-cambios">Guardar Cambios</button>
     </div>
+    <!-- Formulario oculto para eliminar un detalleCompra-->
+    <?php
+    echo "
+    <form id='delete-form' action='./tablaDetalleCompras-create.php?idCompra=".$idCompra."' method='POST' style='display: none;'>
+        <input type='hidden' name='delete_id' id='delete_id'>
+        <input type='hidden' name='producto' id='producto'>
+        <input type='hidden' name='cantidad' id='cantidad'>
+    </form>
+
+    ";
+    ?>
     <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
     <script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
@@ -369,34 +381,34 @@ $productos = $objCompra->obtenerTodosLosProductos();
 
     //Logica para el buscador de productos
     $(document).ready(function() {
-            var productos = <?php echo json_encode($productos); ?>;
+        var productos = <?php echo json_encode($productos); ?>;
 
-            // Filtrar productos en el select cuando se escribe en el input
-            $("#NombreProducto").on("input", function() {
-                var searchTerm = $(this).val().toLowerCase();
-                $("#NombreProductoSelect option").each(function() {
-                    var optionText = $(this).text().toLowerCase();
-                    if (optionText.includes(searchTerm)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-
-            // Autocompletar para el input NombreProducto
-            $("#NombreProducto").autocomplete({
-                source: productos,
-                minLength: 2
-            });
-
-            // Reset select options when input is cleared
-            $("#NombreProducto").on("blur", function() {
-                if ($(this).val() === "") {
-                    $("#NombreProductoSelect option").show();
+        // Filtrar productos en el select cuando se escribe en el input
+        $("#NombreProducto").on("input", function() {
+            var searchTerm = $(this).val().toLowerCase();
+            $("#NombreProductoSelect option").each(function() {
+                var optionText = $(this).text().toLowerCase();
+                if (optionText.includes(searchTerm)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
                 }
             });
         });
+
+        // Autocompletar para el input NombreProducto
+        $("#NombreProducto").autocomplete({
+            source: productos,
+            minLength: 2
+        });
+
+        // Reset select options when input is cleared
+        $("#NombreProducto").on("blur", function() {
+            if ($(this).val() === "") {
+                $("#NombreProductoSelect option").show();
+            }
+        });
+    });
 
     // Obtener precio del producto seleccionado
     $('#NombreProductoSelect').on('change', function() {
@@ -425,7 +437,9 @@ $productos = $objCompra->obtenerTodosLosProductos();
 
     // Maneja el clic en el botón "Eliminar"
     $('.btn-eliminar').click(function() {
-            var userId = $(this).data('id');
+            var compraId = $(this).data('id');
+            var nombreProducto = $(this).data('producto');
+            var cantidad = $(this).data('cantidad');
             // Muestra un mensaje de confirmación antes de eliminar la compra (caso en js)
             Swal.fire({
                 title: '¿Estás seguro?',
@@ -438,13 +452,13 @@ $productos = $objCompra->obtenerTodosLosProductos();
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $('#delete_id').val(userId);
+                    $('#delete_id').val(compraId);  
+                    $('#producto').val(nombreProducto); 
+                    $('#cantidad').val(cantidad); 
                     $('#delete-form').submit();
                 }
             });
         });
-
-
     </script>
 </body>
 </html>

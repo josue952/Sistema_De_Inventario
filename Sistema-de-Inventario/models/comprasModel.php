@@ -204,4 +204,34 @@ Class Compra
     }
 
     // Metodo para eliminar un item de la tabla detalleCompra
+    public function eliminarItemDetalleCompra($idCompra, $nombreProducto, $cantidad) {
+        $sql = "CALL eliminarItemDetalleCompra('$idCompra', '$nombreProducto', '$cantidad')";
+        $result = $this->connection->query($sql);
+    
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+    
+        $this->connection->next_result();
+        return $result;
+    }
+
+    public function eliminarCompra($idCompra) {
+        // Asegúrate de liberar cualquier resultado previo
+        while($this->connection->more_results()) {
+            $this->connection->next_result();
+        }
+
+        $sql = "CALL eliminarCompra('$idCompra')";
+        $result = $this->connection->query($sql);
+
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+
+        // Liberar resultados después de la ejecución
+        $this->connection->next_result();
+
+        return $result;
+    }
 }

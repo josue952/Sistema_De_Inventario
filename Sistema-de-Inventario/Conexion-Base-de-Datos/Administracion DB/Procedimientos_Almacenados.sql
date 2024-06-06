@@ -463,17 +463,7 @@ END //
 
 DELIMITER ;
 
--- Procedimiento para Eliminar una Compra
-DELIMITER //
-
-CREATE PROCEDURE eliminarCompra(
-    IN p_idCompra INT
-)
-BEGIN
-    DELETE FROM compras WHERE idCompra = p_idCompra;
-END //
-
-DELIMITER ;
+-- --------------------------------------------------------
 
 -- En esta parte, se comenzara con la logica que conlleva comprar productos
 -- Procedimiento para agregar un producto a una compra (en detalleCompras)
@@ -584,4 +574,175 @@ END //
 
 DELIMITER ;
 
+-- --------------------------------------------------------
+
+-- Procedimiento para eliminar un item en detalleCompras, si la cantidad de el item es menor a la q
+-- total del producto en la tabla productos simplemente se reducira dicha cantidad, en caso contrario
+-- su cantidad se reducira a 0 sin eliminar el producto de la tabla productos pero si eliminando el
+-- producto en detalleCompras.
+
+DELIMITER //
+
+CREATE PROCEDURE eliminarItemDetalleCompra(
+    IN p_idCompra INT,
+    IN p_nombreProducto VARCHAR(255),
+    IN p_cantidadEliminar INT
+)
+BEGIN
+    DECLARE v_cantidadProducto INT;
+    DECLARE v_cantidadEnDetalle INT;
+
+    -- Obtener la cantidad actual del producto en la tabla productos
+    SELECT Cantidad INTO v_cantidadProducto
+    FROM productos
+    WHERE NombreProducto = p_nombreProducto;
+
+    -- Obtener la cantidad actual del producto en detalleCompras para la compra específica
+    SELECT Cantidad INTO v_cantidadEnDetalle
+    FROM detalleCompras
+    WHERE IdCompra = p_idCompra AND NombreProducto = p_nombreProducto;
+
+    -- Verificar si la cantidad a eliminar es mayor o igual a la cantidad en detalleCompras
+    IF p_cantidadEliminar >= v_cantidadProducto THEN
+        -- Eliminar el producto de detalleCompras
+        DELETE FROM detalleCompras
+        WHERE IdCompra = p_idCompra AND NombreProducto = p_nombreProducto;
+
+        -- Actualizar la cantidad en la tabla productos a 0
+        UPDATE productos
+        SET Cantidad = 0
+        WHERE NombreProducto = p_nombreProducto;
+    ELSE -- Cuando la cantidad en productos es mayor a la cantidad a eliminar
+        -- Eliminar el producto de detalleCompras
+        DELETE FROM detalleCompras
+        WHERE IdCompra = p_idCompra AND NombreProducto = p_nombreProducto;
+
+        -- Reducir la cantidad en la tabla productos
+        UPDATE productos
+        SET Cantidad = v_cantidadProducto - p_cantidadEliminar
+        WHERE NombreProducto = p_nombreProducto;
+    END IF;
+
+    -- Recalcular el total en compras
+    UPDATE compras
+    SET TotalCompra = (SELECT SUM(Subtotal) FROM detalleCompras WHERE IdCompra = p_idCompra)
+    WHERE IdCompra = p_idCompra;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para eliminar una compra y a raiz de dicha compra, eliminar todos los detallesCompas
+-- que esten relacionados con la compra a eliminar, asi como tambien reducir la cantidad de los productos
+
+/*DELIMITER //
+
+CREATE PROCEDURE eliminarCompra(IN compra_id INT)
+BEGIN
+    DECLARE productoNombre VARCHAR(255);
+    DECLARE productoCantidad INT;
+    DECLARE done INT DEFAULT FALSE;
+
+    -- Declarar el cursor
+    DECLARE cur_detcompras CURSOR FOR
+        SELECT NombreProducto, Cantidad
+        FROM detalleCompras
+        WHERE idCompra = compra_id;
+
+    -- Declarar el handler para el fin de los datos del cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Abrir el cursor
+    OPEN cur_detcompras;
+    SELECT 'Cursor abierto' AS DepuracionMensaje;
+
+    -- Iterar sobre los detalles de compra
+    detalle_compras_loop: LOOP
+        FETCH cur_detcompras INTO productoNombre, productoCantidad;
+        IF done THEN
+            LEAVE detalle_compras_loop;
+        END IF;
+
+        -- Depurar: Mostrar información del producto actual
+        SELECT productoNombre AS nombreProductoDepuracion, productoCantidad AS cantidadDepuracion;
+        IF productoNombre IS NULL THEN
+            SELECT 'nombreProducto es NULL' AS ErrorDepuracion;
+        END IF;
+
+        -- Restar la cantidad de productos en la tabla productos
+        UPDATE productos
+        SET Cantidad = Cantidad - productoCantidad
+        WHERE NombreProducto = productoNombre;
+
+        -- Depurar: Verificar si la actualización se realizó
+        IF ROW_COUNT() = 0 THEN
+            SELECT CONCAT('No se encontró el producto: ', productoNombre) AS ErrorMensaje;
+        ELSE
+            SELECT CONCAT('Actualizado producto: ', productoNombre, ' con cantidad eliminada: ', productoCantidad) AS InfoMensaje;
+        END IF;
+    END LOOP detalle_compras_loop;
+
+    -- Cerrar el cursor
+    CLOSE cur_detcompras;
+    SELECT 'Cursor cerrado' AS DepuracionMensaje;
+
+    -- Eliminar los detalles de compra
+    DELETE FROM detalleCompras WHERE idCompra = compra_id;
+    SELECT 'Detalles de compra eliminados' AS DepuracionMensaje;
+
+    -- Eliminar la compra
+    DELETE FROM compras WHERE idCompra = compra_id;
+    SELECT 'Compra eliminada' AS DepuracionMensaje;
+
+END //
+
+DELIMITER ;
+*/
+
+DELIMITER //
+
+CREATE PROCEDURE eliminarCompra(IN compra_id INT)
+BEGIN
+    DECLARE productoNombre VARCHAR(255);
+    DECLARE productoCantidad INT;
+    DECLARE done INT DEFAULT FALSE;
+
+    -- Declarar el cursor
+    DECLARE cur_detcompras CURSOR FOR
+        SELECT NombreProducto, Cantidad
+        FROM detalleCompras
+        WHERE idCompra = compra_id;
+
+    -- Declarar el handler para el fin de los datos del cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Abrir el cursor
+    OPEN cur_detcompras;
+
+    -- Iterar sobre los detalles de compra
+    detalle_compras_loop: LOOP
+        FETCH cur_detcompras INTO productoNombre, productoCantidad;
+        IF done THEN
+            LEAVE detalle_compras_loop;
+        END IF;
+
+        -- Restar la cantidad de productos en la tabla productos
+        UPDATE productos
+        SET Cantidad = Cantidad - productoCantidad
+        WHERE NombreProducto = productoNombre;
+    END LOOP detalle_compras_loop;
+
+    -- Cerrar el cursor
+    CLOSE cur_detcompras;
+
+    -- Eliminar los detalles de compra
+    DELETE FROM detalleCompras WHERE idCompra = compra_id;
+
+    -- Eliminar la compra
+    DELETE FROM compras WHERE idCompra = compra_id;
+
+END //
+
+DELIMITER ;
 
