@@ -403,20 +403,18 @@ DELIMITER //
 
 CREATE PROCEDURE obtenerCompraFiltro(
     IN p_idCompra INT,
-    IN p_FechaCompra VARCHAR(10),
-    IN p_NombreProveedor VARCHAR(30),
-    IN p_NombreSucursal VARCHAR(50)
+    IN p_FechaCompra DATE,
+    IN p_NombreProveedor INT,
+    IN p_NombreSucursal INT
 )
 BEGIN
     SET @sql = 'SELECT 
                     c.idCompra,
-                    DATE_FORMAT(c.FechaCompra, ''%d-%m-%y'') AS FechaCompra,
-                    p.NombreProveedor,
-                    s.NombreSucursal,
+                    FechaCompra,
+                    idProveedor,
+                    idSucursal,
                     c.TotalCompra
                 FROM compras c
-                JOIN proveedores p ON c.idProveedor = p.idProveedor
-                JOIN sucursales s ON c.idSucursal = s.idSucursal
                 WHERE 1=1';
     
     IF p_idCompra IS NOT NULL AND p_idCompra != '' THEN
@@ -447,17 +445,15 @@ DELIMITER //
 
 CREATE PROCEDURE actualizarCompra(
     IN p_idCompra INT,
-    IN p_FechaCompra VARCHAR(10),
+    IN p_FechaCompra DATE,
     IN p_idProveedor INT,
-    IN p_idSucursal INT,
-    IN p_TotalCompra DECIMAL(10,2)
+    IN p_idSucursal INT
 )
 BEGIN
     UPDATE compras
-    SET FechaCompra = STR_TO_DATE(p_FechaCompra, '%d-%m-%y'),
+    SET FechaCompra = p_FechaCompra,
         idProveedor = p_idProveedor,
-        idSucursal = p_idSucursal,
-        TotalCompra = p_TotalCompra
+        idSucursal = p_idSucursal
     WHERE idCompra = p_idCompra;
 END //
 
@@ -530,6 +526,7 @@ DELIMITER ;
 -- Procedimiento para que, si el producto ya existe este verifique que exista, y en caso
 -- que el producto ya exista, en vez de agregarlo, se actualice la cantidad y el subtotal
 -- para evitar duplicados en la tabla detalleCompras.
+
 DELIMITER //
 
 CREATE PROCEDURE gestionarProductoCompra(
@@ -635,70 +632,6 @@ DELIMITER ;
 
 -- Procedimiento para eliminar una compra y a raiz de dicha compra, eliminar todos los detallesCompas
 -- que esten relacionados con la compra a eliminar, asi como tambien reducir la cantidad de los productos
-
-/*DELIMITER //
-
-CREATE PROCEDURE eliminarCompra(IN compra_id INT)
-BEGIN
-    DECLARE productoNombre VARCHAR(255);
-    DECLARE productoCantidad INT;
-    DECLARE done INT DEFAULT FALSE;
-
-    -- Declarar el cursor
-    DECLARE cur_detcompras CURSOR FOR
-        SELECT NombreProducto, Cantidad
-        FROM detalleCompras
-        WHERE idCompra = compra_id;
-
-    -- Declarar el handler para el fin de los datos del cursor
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-
-    -- Abrir el cursor
-    OPEN cur_detcompras;
-    SELECT 'Cursor abierto' AS DepuracionMensaje;
-
-    -- Iterar sobre los detalles de compra
-    detalle_compras_loop: LOOP
-        FETCH cur_detcompras INTO productoNombre, productoCantidad;
-        IF done THEN
-            LEAVE detalle_compras_loop;
-        END IF;
-
-        -- Depurar: Mostrar información del producto actual
-        SELECT productoNombre AS nombreProductoDepuracion, productoCantidad AS cantidadDepuracion;
-        IF productoNombre IS NULL THEN
-            SELECT 'nombreProducto es NULL' AS ErrorDepuracion;
-        END IF;
-
-        -- Restar la cantidad de productos en la tabla productos
-        UPDATE productos
-        SET Cantidad = Cantidad - productoCantidad
-        WHERE NombreProducto = productoNombre;
-
-        -- Depurar: Verificar si la actualización se realizó
-        IF ROW_COUNT() = 0 THEN
-            SELECT CONCAT('No se encontró el producto: ', productoNombre) AS ErrorMensaje;
-        ELSE
-            SELECT CONCAT('Actualizado producto: ', productoNombre, ' con cantidad eliminada: ', productoCantidad) AS InfoMensaje;
-        END IF;
-    END LOOP detalle_compras_loop;
-
-    -- Cerrar el cursor
-    CLOSE cur_detcompras;
-    SELECT 'Cursor cerrado' AS DepuracionMensaje;
-
-    -- Eliminar los detalles de compra
-    DELETE FROM detalleCompras WHERE idCompra = compra_id;
-    SELECT 'Detalles de compra eliminados' AS DepuracionMensaje;
-
-    -- Eliminar la compra
-    DELETE FROM compras WHERE idCompra = compra_id;
-    SELECT 'Compra eliminada' AS DepuracionMensaje;
-
-END //
-
-DELIMITER ;
-*/
 
 DELIMITER //
 

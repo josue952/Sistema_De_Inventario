@@ -91,7 +91,7 @@ if ($_POST && isset($_POST['FechaCompra'], $_POST['Proveedor'], $_POST['Sucursal
 
 }
 
-// Verificar si se ha solicitado la eliminación de un usuario
+// Verificar si se ha solicitado la eliminación de una compra
 if (isset($_POST['delete_id'])) {
     $idCompra = $_POST['delete_id'];
     $objCompra->eliminarCompra($idCompra);
@@ -109,6 +109,49 @@ if (isset($_POST['delete_id'])) {
     };
     </script>";
 }
+
+// Verificar si se ha solicitado la edicion de una compra
+if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['ProveedorEdit'], $_POST['SucursalEdit'])) {
+    $idCompraEdit = $_POST['edit_id'];
+    $fechaCompraEdit = $_POST['FechaCompraEdit'];
+    $proveedorEdit = $_POST['ProveedorEdit'];
+    $sucursalEdit = $_POST['SucursalEdit'];
+    
+    // Validar los datos
+    if ($fechaCompraEdit != "" && $proveedorEdit != "" && $sucursalEdit != "") {
+        $result = $objCompra->actualizarCompra($idCompraEdit, $fechaCompraEdit, $proveedorEdit, $sucursalEdit);
+        if ($result) {
+            echo "<script>
+            window.onload = function() {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Compra editada exitosamente',
+                    icon: 'success'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = './tablaCompras.php';
+                    }
+                });
+            };
+            </script>";
+        } else {
+            echo "<script>
+            window.onload = function() {
+                Swal.fire({
+                    title: '¡Error!',
+                    text: 'Error al editar la compra',
+                    icon: 'error'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = './tablaCompras.php';
+                    }
+                });
+            };
+            </script>";
+        }
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -177,8 +220,7 @@ if (isset($_POST['delete_id'])) {
                                 Administración
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" id="Usuarios"
-                                        href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
+                                <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                 <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                 <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
                                 <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
@@ -268,7 +310,30 @@ if (isset($_POST['delete_id'])) {
                                 <input type="hidden" name="idCompra" value="<?php echo $compra['idCompra']; ?>">
                                 <button type="submit" class="btn btn-success btn-sm btn-spacing">Productos</button>
                             </form>
-                            <a href="" class="btn btn-warning btn-sm btn-spacing btn-editar">Editar</a>
+                            <!-- Botón de edición en la tabla -->
+                            <?php
+                            //Obtener una compra en especifico
+                            // obtener lista de compras
+                            $resultComprasEdit = $objCompra->obtenerCompraFiltro($compra['idCompra'],'','','');
+
+                            if ($resultComprasEdit) {
+                                $comprasEdit = [];
+                                while ($row = $resultComprasEdit->fetch_assoc()) {
+                                    $comprasEdit[] = $row;
+                                }
+                            } else {
+                                echo "Error al obtener compras: " . $conn->error;
+                            }
+
+                            ?>
+                            <button class="btn btn-warning btn-sm btn-spacing btn-editar" 
+                                data-idEditar="<?php echo $compra['idCompra']; ?>" 
+                                data-fecha="<?php echo $comprasEdit[0]['FechaCompra']; ?>" 
+                                data-proveedor="<?php echo $comprasEdit[0]['idProveedor'];?>" 
+                                data-sucursal="<?php echo $comprasEdit[0]['idSucursal'];?>" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#Modal-EditarCompra">Editar
+                            </button>   
                             <button class="btn btn-danger btn-eliminar" data-id="<?php $idCompra = $compra['idCompra']; echo $idCompra;?>">Eliminar</button>                      
                         </td>
                     </tr>
@@ -317,6 +382,47 @@ if (isset($_POST['delete_id'])) {
             </div>
         </div>
     </div>
+<!-- Modal Editar -->
+<div id="Modal-EditarCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-editar-label">Formulario para editar una compra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-editar-compra" action="" method="POST">
+                    <input type="hidden" name="edit_id" id="edit_id">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <input type="date" class="form-control" name="FechaCompraEdit" id="FechaCompraEdit" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <select class="form-control" name="ProveedorEdit" id="ProveedorEdit" required>
+                                <option value="">Seleccione un proveedor</option>
+                                <?php foreach ($proveedores as $proveedor): ?>
+                                    <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div><br><br>
+                        <div class="form-group col-md-12">
+                            <select class="form-control" name="SucursalEdit" id="SucursalEdit" required>
+                                <option value="">Seleccione una sucursal</option>
+                                <?php foreach ($sucursales as $sucursal): ?>
+                                    <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Formulario oculto para eliminar una compra -->
     <?php
     //En caso de no haber ninguna compra, se inicializa el idCompra en 0
@@ -330,6 +436,24 @@ if (isset($_POST['delete_id'])) {
 
     ";
     ?>
+
+    <!-- Formulario oculto para editar una compra -->
+    <?php
+    //En caso de no haber ninguna compra, se inicializa el idCompra en 0
+    if ($resultCompras->num_rows == 0){
+        $idCompra = 0;
+    }
+    echo "
+    <form id='edit-form' action='./tablaCompras.php?idCompra=".$idCompra."' method='POST' style='display: none;'>
+        <input type='hidden' name='edit_id' id='edit_id'>
+        <input type='hidden' name='FechaCompraEdit' id='FechaCompraEdit'>
+        <input type='hidden' name='ProveedorEdit' id='ProveedorEdit'>
+        <input type='hidden' name='SucursalEdit' id='SucursalEdit'>
+    </form>
+
+    ";
+    ?>
+
 
 </body>
 </html>
@@ -378,4 +502,22 @@ $('.btn-eliminar').click(function() {
         }
     });
 });
+
+// Maneja el clic en el botón "Editar"
+$('.btn-editar').click(function() {
+    var compraId = $(this).data('ideditar');
+    var fechaCompra = $(this).data('fecha');
+    var proveedorId = $(this).data('proveedor');
+    var sucursalId = $(this).data('sucursal');
+    
+    // Establece los valores en el formulario de edición
+    $('#edit_id').val(compraId);
+    $('#FechaCompraEdit').val(fechaCompra);
+    $('#ProveedorEdit').val(proveedorId);
+    $('#SucursalEdit').val(sucursalId);
+
+    // Abre el modal de edición
+    $('#Modal-EditarCompra').modal('show');
+});
+
 </script>

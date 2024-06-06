@@ -216,6 +216,7 @@ Class Compra
         return $result;
     }
 
+    // Metodo para eliminar una compra y reducir dicha cantidad de productos en la tabla productos
     public function eliminarCompra($idCompra) {
         // Asegúrate de liberar cualquier resultado previo
         while($this->connection->more_results()) {
@@ -232,6 +233,18 @@ Class Compra
         // Liberar resultados después de la ejecución
         $this->connection->next_result();
 
+        return $result;
+    }
+
+    // Metodo para actualizar una compra (el total no se actualiza)
+    public function actualizarCompra($idCompra, $fechaCompra, $idProveedor, $idSucursal) {
+        $conn = conectar();
+        $sql = "CALL actualizarCompra(?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("issi", $idCompra, $fechaCompra, $idProveedor, $idSucursal);
+        $result = $stmt->execute();
+        $stmt->close();
+        $conn->close();
         return $result;
     }
 }
