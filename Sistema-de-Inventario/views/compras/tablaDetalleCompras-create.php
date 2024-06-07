@@ -129,7 +129,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>

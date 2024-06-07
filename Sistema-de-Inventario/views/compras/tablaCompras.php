@@ -237,7 +237,7 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>
@@ -342,46 +342,50 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
             </table>
         </div>
     </div>
-    <!-- Modal Agregar -->
-    <div id="Modal-CrearCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-agregar-label">Formulario para crear pedido de compra</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="" method="POST">
-                        <div class="row">
-                            <div class="form-group col-md-6">
-                                <input type="date" class="form-control" name="FechaCompra" id="FechaCompra" placeholder="Fecha de Compra" required>
-                            </div><br><br>
-                            <div class="form-group col-md-6">
-                                <select class="form-control" name="Proveedor" id="Proveedor" required>
-                                    <option value="">Seleccione un proveedor</option>
-                                    <?php foreach ($proveedores as $proveedor): ?>
-                                        <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div><br><br>
-                            <div class="form-group col-md-12">
-                                <select class="form-control" name="Sucursal" id="Sucursal" required>
-                                    <option value="">Seleccione una sucursal</option>
-                                    <?php foreach ($sucursales as $sucursal): ?>
-                                        <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div><br><br>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        </div>
-                    </form>
-                </div>
+<!-- Modal Agregar -->
+<div id="Modal-CrearCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center w-100" id="modal-agregar-label">Formulario para crear pedido de compra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="POST">
+                    <div class="row">
+                        <div class="form-group col-md-6 text-center">
+                            <label for="FechaCompra" class="form-label">Fecha de Compra</label>
+                            <input type="date" class="form-control" name="FechaCompra" id="FechaCompra" placeholder="Fecha de Compra" required>
+                        </div><br><br>
+                        <div class="form-group col-md-6 text-center">
+                            <label for="Proveedor" class="form-label">Proveedor</label>
+                            <select class="form-control" name="Proveedor" id="Proveedor" required>
+                                <option value="">Seleccione un proveedor</option>
+                                <?php foreach ($proveedores as $proveedor): ?>
+                                    <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div><br><br><br>
+                        <div class="form-group col-md-12 text-center">
+                            <label for="Sucursal" class="form-label">Sucursal</label>
+                            <br>
+                            <select class="form-control" name="Sucursal" id="Sucursal" required>
+                                <option value="">Seleccione una sucursal</option>
+                                <?php foreach ($sucursales as $sucursal): ?>
+                                    <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div><br><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 <!-- Modal Editar -->
 <div id="Modal-EditarCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">

@@ -678,4 +678,76 @@ BEGIN
 END //
 
 DELIMITER ;
+-- --------------------------------------------------------
+
+-- Procedimiento para Leer (obtener) todas las Ventas
+-- Se obtiene el id de la venta, la fecha de la venta, el nombre del cliente y el total de la compra
+
+DELIMITER //
+
+CREATE PROCEDURE obtenerVentas()
+BEGIN
+    SELECT 
+        v.idVenta,
+        DATE_FORMAT(v.FechaVenta, '%d-%m-%y') AS FechaVenta,
+        c.NombreCliente,
+        v.TotalVenta
+    FROM ventas v
+    JOIN clientes c ON v.idCliente = c.idCliente;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para Leer (obtener) todos los clientes
+-- Se oobtiene el id del clientey el nombre del cliente
+
+DELIMITER //
+
+CREATE PROCEDURE obtenerClientes()
+BEGIN
+    SELECT * FROM clientes;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para Leer (obtener) todos los DetallesCompras con un idCliente, Nombre, MetodoDePago y MetodoEnvio Especifico
+DELIMITER //
+
+CREATE PROCEDURE obtenerClienteFiltro(
+    IN p_idCliente INT,
+    IN p_NombreCliente VARCHAR(30),
+    IN p_MetodoDePago VARCHAR(15),
+    IN p_MetodoEnvio VARCHAR(15)
+)
+BEGIN
+    SET @sql = 'SELECT * FROM clientes WHERE 1=1';
+    
+    IF p_idCliente IS NOT NULL AND p_idCliente != '' THEN
+        SET @sql = CONCAT(@sql, ' AND idCliente = ', p_idCliente);
+    END IF;
+
+    IF p_NombreCliente IS NOT NULL AND p_NombreCliente != '' THEN
+        SET @sql = CONCAT(@sql, ' AND NombreCliente = ''', p_NombreCliente, '''');
+    END IF;
+
+    IF p_MetodoDePago IS NOT NULL AND p_MetodoDePago != '' THEN
+        SET @sql = CONCAT(@sql, ' AND MetodoDePago = ''', p_MetodoDePago, '''');
+    END IF;
+
+    IF p_MetodoEnvio IS NOT NULL AND p_MetodoEnvio != '' THEN
+        SET @sql = CONCAT(@sql, ' AND MetodoEnvio = ''', p_MetodoEnvio, '''');
+    END IF;
+
+    PREPARE stmt FROM @sql; 
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
 

@@ -144,7 +144,7 @@ if ($_POST){
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="./views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>
@@ -281,7 +281,7 @@ if ($_POST){
 </body>
 </html>
 <?php
-if ($_POST) {
+if ($_POST && isset($_POST['NombreEmpresa'])) {
     $nombreEmpresa = $_POST['NombreEmpresa'];
     $logoEmpresa = $_POST['LogoEmpresa'];
     $sloganEmpresa = $_POST['SloganEmpresa'];
