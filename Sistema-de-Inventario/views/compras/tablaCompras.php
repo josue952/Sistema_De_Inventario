@@ -429,12 +429,8 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
 </div>
     <!-- Formulario oculto para eliminar una compra -->
     <?php
-    //En caso de no haber ninguna compra, se inicializa el idCompra en 0
-    if ($resultCompras->num_rows == 0){
-        $idCompra = 0;
-    }
     echo "
-    <form id='delete-form' action='./tablaCompras.php?idCompra=".$idCompra."' method='POST' style='display: none;'>
+    <form id='delete-form' action='./tablaCompras.php' method='POST' style='display: none;'>
         <input type='hidden' name='delete_id' id='delete_id'>
     </form>
 
@@ -443,12 +439,8 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
 
     <!-- Formulario oculto para editar una compra -->
     <?php
-    //En caso de no haber ninguna compra, se inicializa el idCompra en 0
-    if ($resultCompras->num_rows == 0){
-        $idCompra = 0;
-    }
     echo "
-    <form id='edit-form' action='./tablaCompras.php?idCompra=".$idCompra."' method='POST' style='display: none;'>
+    <form id='edit-form' action='./tablaCompras.php' method='POST' style='display: none;'>
         <input type='hidden' name='edit_id' id='edit_id'>
         <input type='hidden' name='FechaCompraEdit' id='FechaCompraEdit'>
         <input type='hidden' name='ProveedorEdit' id='ProveedorEdit'>

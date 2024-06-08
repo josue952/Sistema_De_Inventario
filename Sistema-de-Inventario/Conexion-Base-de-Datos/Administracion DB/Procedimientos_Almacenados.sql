@@ -440,6 +440,8 @@ END //
 
 DELIMITER ;
 
+-- --------------------------------------------------------
+
 -- Procedimiento para Actualizar una Compra
 DELIMITER //
 
@@ -523,6 +525,7 @@ END //
 DELIMITER ;
 
 -- --------------------------------------------------------
+
 -- Procedimiento para que, si el producto ya existe este verifique que exista, y en caso
 -- que el producto ya exista, en vez de agregarlo, se actualice la cantidad y el subtotal
 -- para evitar duplicados en la tabla detalleCompras.
@@ -751,3 +754,245 @@ DELIMITER ;
 
 -- --------------------------------------------------------
 
+-- Procedimiento para Leer (obtener) una Venta por id, fecha de compra e id de cliente
+-- Se obtiene el id de la compra, la fecha de la compra, y el nombre del cliente
+
+DELIMITER //
+
+CREATE PROCEDURE obtenerVentaFiltro(
+    IN p_idVenta INT,
+    IN p_FechaVenta DATE,
+    IN p_NombreCliente INT
+)
+BEGIN
+    SET @sql = 'SELECT 
+                    v.idVenta,
+                    FechaVenta,
+                    idCliente,
+                    v.TotalVenta
+                FROM ventas v
+                WHERE 1=1';
+    
+    IF p_idVenta IS NOT NULL AND p_idVenta != '' THEN
+        SET @sql = CONCAT(@sql, ' AND v.idVenta = ', p_idVenta);
+    END IF;
+
+    IF p_FechaVenta IS NOT NULL AND p_FechaVenta != '' THEN
+        SET @sql = CONCAT(@sql, ' AND v.FechaVenta = STR_TO_DATE(''', p_FechaVenta, ''', ''%d-%m-%y'')');
+    END IF;
+
+    IF p_NombreCliente IS NOT NULL AND p_NombreCliente != '' THEN
+        SET @sql = CONCAT(@sql, ' AND c.p_NombreCliente LIKE ''%', p_NombreCliente, '%''');
+    END IF;
+
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+DELIMITER //
+
+CREATE PROCEDURE obtenerDetalleVentaFiltro(
+    IN p_idVenta INT
+)
+BEGIN
+    SET @sql = 'SELECT dv.idDetalleVenta, dv.idVenta, dv.idProducto, dv.NombreProducto, dv.Cantidad, dv.Precio, s.NombreSucursal as idSucursal, dv.SubTotal 
+                FROM detalleVentas dv
+                JOIN sucursales s ON dv.idSucursal = s.idSucursal
+                WHERE 1=1';
+    
+    IF p_idVenta IS NOT NULL AND p_idVenta != '' THEN
+        SET @sql = CONCAT(@sql, ' AND dv.idVenta = ', p_idVenta);
+    END IF;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
+-- --------------------------------------------------------
+
+-- Procedimiento para que, si el producto ya existe este verifique que exista, y en caso
+-- que el producto ya exista, en vez de agregarlo, se actualice la cantidad y el subtotal
+-- para evitar duplicados en la tabla detalleVentas.
+
+DELIMITER //
+
+CREATE PROCEDURE gestionarProductoVenta(
+    IN p_idVenta INT,
+    IN p_idProducto INT,
+    IN p_nombreProducto VARCHAR(255),
+    IN p_cantidad INT,
+    IN p_precio DECIMAL(10,2),
+    IN p_idSucursal INT
+)
+BEGIN
+    DECLARE v_cantidadActual INT;
+    DECLARE v_productoExiste INT;
+
+    -- Obtener la cantidad actual del producto en la tabla productos
+    UPDATE productos
+    SET Cantidad = Cantidad - p_cantidad
+    WHERE NombreProducto = p_nombreProducto;
+
+    -- Verificar si el producto ya existe en detalleVentas para esta venta
+    SELECT COUNT(*), Cantidad INTO v_productoExiste, v_cantidadActual
+    FROM detalleVentas
+    WHERE IdVenta = p_idVenta AND NombreProducto = p_nombreProducto
+    GROUP BY Cantidad;
+
+    IF v_productoExiste > 0 THEN
+        -- Actualizar la cantidad y subtotal en detalleVentas
+        UPDATE detalleVentas
+        SET Cantidad = v_cantidadActual + p_cantidad,
+            Subtotal = (v_cantidadActual + p_cantidad) * p_precio
+        WHERE IdVenta = p_idVenta AND NombreProducto = p_nombreProducto;
+    ELSE
+        -- Insertar el producto en detalleCompras si no existe
+        INSERT INTO detalleVentas (IdVenta, idProducto, NombreProducto, Cantidad, Precio, idSucursal, Subtotal)
+        VALUES (p_idVenta, p_idProducto, p_nombreProducto, p_cantidad, p_precio, p_idSucursal, p_cantidad * p_precio);
+    END IF;
+
+    -- Recalcular el total en compras
+    UPDATE ventas
+    SET TotalVenta = (SELECT SUM(Subtotal) FROM detalleVentas WHERE IdVenta = p_idVenta)
+    WHERE IdVenta = p_idVenta;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para eliminar un item en detalleVentas, si la cantidad de el item es menor al
+-- total del producto en la tabla productos simplemente se reducira dicha cantidad, en caso contrario
+-- su cantidad se reducira a 0 sin eliminar el producto de la tabla productos pero si eliminando el
+-- producto en detalleCompras.
+
+DELIMITER //
+
+CREATE PROCEDURE eliminarItemDetalleVenta(
+    IN p_idVenta INT,
+    IN p_nombreProducto VARCHAR(255),
+    IN p_cantidadEliminar INT
+)
+BEGIN
+    DECLARE v_cantidadProducto INT;
+    DECLARE v_cantidadEnDetalle INT;
+
+    -- Obtener la cantidad actual del producto en la tabla productos
+    SELECT Cantidad INTO v_cantidadProducto
+    FROM productos
+    WHERE NombreProducto = p_nombreProducto;
+
+    -- Obtener la cantidad actual del producto en detalleVentas para la venta específica
+    SELECT Cantidad INTO v_cantidadEnDetalle
+    FROM detalleVentas
+    WHERE IdVenta = p_idVenta AND NombreProducto = p_nombreProducto;
+
+    -- Verificar si la cantidad a eliminar es mayor o igual a la cantidad en detalleVentas
+    IF p_cantidadEliminar >= v_cantidadEnDetalle THEN
+        -- Eliminar el producto de detalleVentas
+        DELETE FROM detalleVentas
+        WHERE IdVenta = p_idVenta AND NombreProducto = p_nombreProducto;
+
+        -- Actualizar la cantidad en la tabla productos sumando la cantidad eliminada
+        UPDATE productos
+        SET Cantidad = v_cantidadProducto + v_cantidadEnDetalle
+        WHERE NombreProducto = p_nombreProducto;
+    ELSE -- Cuando la cantidad en detalleVentas es mayor a la cantidad a eliminar
+        -- Reducir la cantidad en detalleVentas
+        UPDATE detalleVentas
+        SET Cantidad = v_cantidadEnDetalle - p_cantidadEliminar
+        WHERE IdVenta = p_idVenta AND NombreProducto = p_nombreProducto;
+
+        -- Aumentar la cantidad en la tabla productos
+        UPDATE productos
+        SET Cantidad = v_cantidadProducto + p_cantidadEliminar
+        WHERE NombreProducto = p_nombreProducto;
+    END IF;
+
+    -- Recalcular el total en ventas
+    UPDATE ventas
+    SET TotalVenta = (SELECT SUM(Subtotal) FROM detalleVentas WHERE IdVenta = p_idVenta)
+    WHERE IdVenta = p_idVenta;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para eliminar una venta y a raiz de dicha venta, eliminar todos los detallesCompas
+-- que esten relacionados con la venta a eliminar, asi como tambien aumentar la cantidad de los productos
+
+DELIMITER //
+
+CREATE PROCEDURE eliminarVenta(IN venta_id INT)
+BEGIN
+    DECLARE productoNombre VARCHAR(255);
+    DECLARE productoCantidad INT;
+    DECLARE done INT DEFAULT FALSE;
+
+    -- Declarar el cursor
+    DECLARE cur_detventas CURSOR FOR
+        SELECT NombreProducto, Cantidad
+        FROM detalleVentas
+        WHERE idVenta = venta_id;
+
+    -- Declarar el handler para el fin de los datos del cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Abrir el cursor
+    OPEN cur_detventas;
+
+    -- Iterar sobre los detalles de venta
+    detalle_ventas_loop: LOOP
+        FETCH cur_detventas INTO productoNombre, productoCantidad;
+        IF done THEN
+            LEAVE detalle_ventas_loop;
+        END IF;
+
+        -- Aumentar la cantidad de productos en la tabla productos
+        UPDATE productos
+        SET Cantidad = Cantidad + productoCantidad
+        WHERE NombreProducto = productoNombre;
+    END LOOP detalle_ventas_loop;
+
+    -- Cerrar el cursor
+    CLOSE cur_detventas;
+
+    -- Eliminar los detalles de compra
+    DELETE FROM detalleVentas WHERE idVenta = venta_id;
+
+    -- Eliminar la compra
+    DELETE FROM ventas WHERE idVenta = venta_id;
+
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para Actualizar una Venta
+DELIMITER //
+
+CREATE PROCEDURE actualizarVenta(
+    IN p_idVenta INT,
+    IN p_FechaVenta DATE,
+    IN p_idCliente INT
+)
+BEGIN
+    UPDATE ventas
+    SET FechaVenta = p_FechaVenta,
+        idCliente = p_idCliente
+    WHERE idVenta = p_idVenta;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------

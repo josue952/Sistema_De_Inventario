@@ -151,7 +151,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="../ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>

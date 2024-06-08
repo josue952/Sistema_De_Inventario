@@ -72,6 +72,67 @@ if ($_POST && isset($_POST['FechaVenta'], $_POST['Cliente'])){
 
 }
 
+// Verificar si se ha solicitado la eliminación de una compra
+if (isset($_POST['delete_id'])) {
+    $idVenta = $_POST['delete_id'];
+    $objVenta->eliminarVenta($idVenta);
+    echo "<script>
+    window.onload = function() {
+        Swal.fire({
+            title: '¡Éxito!',
+            text: 'Venta eliminada exitosamente',
+            icon: 'success'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = './tablaVentas.php';
+            }
+        });
+    };
+    </script>";
+}
+
+// Verificar si se ha solicitado la edicion de una venta
+
+if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['ClienteEdit'])) {
+    $idVentaEdit = $_POST['edit_id'];
+    $fechaVentaEdit = $_POST['FechaVentaEdit'];
+    $clienteEdit = $_POST['ClienteEdit'];
+    
+    // Validar los datos
+    if ($fechaVentaEdit != "" && $clienteEdit != "") {
+        $result = $objVenta->actualizarVenta($idVentaEdit, $fechaVentaEdit, $clienteEdit);
+        if ($result) {
+            echo "<script>
+            window.onload = function() {
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Venta editada exitosamente',
+                    icon: 'success'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = './tablaVentas.php';
+                    }
+                });
+            };
+            </script>";
+        } else {
+            echo "<script>
+            window.onload = function() {
+                Swal.fire({
+                    title: '¡Error!',
+                    text: 'Error al editar la venta',
+                    icon: 'error'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = './tablaVentas.php';
+                    }
+                });
+            };
+            </script>";
+        }
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -237,14 +298,31 @@ if ($_POST && isset($_POST['FechaVenta'], $_POST['Cliente'])){
                             } else {
                                 echo "Error al obtener cliente: " . $conn->error;
                             }
+
+                            //obtener una venta en especifico
+                            $idVenta = $venta['idVenta'];
+                            $sqlVentaFiltro = "CALL obtenerVentaFiltro('$idVenta','','');";
+                            $resultVentaFiltro = $conn->query($sqlVentaFiltro);
+
+                            if ($resultVentaFiltro) {
+                                $VentaFiltro = [];
+                                while ($row = $resultVentaFiltro->fetch_assoc()) {
+                                    $VentaFiltro[] = $row;
+                                }
+                                // Libera el búfer de resultados
+                                $resultVentaFiltro->free();
+                                $conn->next_result();
+                            } else {
+                                echo "Error al obtener cliente: " . $conn->error;
+                            }
                             ?>
                             <!-- Botón de edición en la tabla -->
                             <button class="btn btn-warning btn-sm btn-spacing btn-editar" 
                                 data-idEditar="<?php echo $venta['idVenta']; ?>" 
-                                data-fecha="<?php echo $venta['FechaVenta']; ?>" 
+                                data-fecha="<?php echo $VentaFiltro[0]['FechaVenta']; ?>" 
                                 data-cliente="<?php echo $cliente[0]['idCliente'];?>" 
                                 data-bs-toggle="modal" 
-                                data-bs-target="#Modal-">Editar
+                                data-bs-target="#Modal-EditarVenta">Editar
                             </button>   
                             <button class="btn btn-danger btn-eliminar" data-id="<?php echo $venta['idVenta']; ?>">Eliminar</button>                      
                         </td>
@@ -254,7 +332,6 @@ if ($_POST && isset($_POST['FechaVenta'], $_POST['Cliente'])){
             </table>
         </div>
     </div>
-
 <!-- Modal Agregar -->
 <div id="Modal-CrearVenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -289,6 +366,64 @@ if ($_POST && isset($_POST['FechaVenta'], $_POST['Cliente'])){
         </div>
     </div>
 </div>
+<!-- Modal Editar -->
+<div id="Modal-EditarVenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center w-100" id="modal-editar-label">Formulario para editar una venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-editar-compra" action="" method="POST">
+                    <input type="hidden" name="edit_id" id="edit_id">
+                    <div class="row">
+                        <div class="form-group col-md-12 text-center">
+                            <label for="FechaVentaEdit" class="form-label">Fecha de Venta</label>
+                            <input type="date" class="form-control" name="FechaVentaEdit" id="FechaVentaEdit" placeholder="Fecha de Venta" required>
+                        </div><br><br><br>
+                        <div class="form-group col-md-12 text-center">
+                            <label for="ClienteEdit" class="form-label">Cliente</label>
+                            <select class="form-control" name="ClienteEdit" id="ClienteEdit" required>
+                                <option value="">Seleccione un Cliente</option>
+                                <?php foreach ($clientes as $cliente): ?>
+                                    <option value="<?php echo $cliente['idCliente']; ?>"><?php echo $cliente['NombreCliente']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div><br><br><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Formulario oculto para eliminar una compra -->
+    <?php
+    echo "
+    <form id='delete-form' action='./tablaVentas.php' method='POST' style='display: none;'>
+        <input type='hidden' name='delete_id' id='delete_id'>
+    </form>
+
+    ";
+    ?>
+
+    <!-- Formulario oculto para editar una compra -->
+    <?php
+    echo "
+    <form id='edit-form' action='./tablaVentas.php' method='POST' style='display: none;'>
+        <input type='hidden' name='edit_id' id='edit_id'>
+        <input type='hidden' name='FechaVentaEdit' id='FechaVentaEdit'>
+        <input type='hidden' name='ClienteEdit' id='ClienteEdit'>
+    </form>
+
+    ";
+    ?>
+
 </body>
 </html>
 
@@ -310,4 +445,41 @@ $(document).click(function(e) {
         container.find('.dropdown-menu').removeClass('show');
     }
 });
+
+// Maneja el clic en el botón "Eliminar"
+$('.btn-eliminar').click(function() {
+    var ventaId = $(this).data('id');
+    // Muestra un mensaje de confirmación antes de eliminar la compra (caso en js)
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás revertir esto!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminarlo',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+            if (result.isConfirmed) {
+            $('#delete_id').val(ventaId);  
+            $('#delete-form').submit();
+        }
+    });
+});
+
+// Maneja el clic en el botón "Editar"
+$('.btn-editar').click(function() {
+    var VentaId = $(this).data('ideditar');
+    var fechaVenta = $(this).data('fecha');
+    var clienteId = $(this).data('cliente');
+    
+    // Establece los valores en el formulario de edición
+    $('#edit_id').val(VentaId);
+    $('#FechaVentaEdit').val(fechaVenta);
+    $('#ClienteEdit').val(clienteId);
+
+    // Abre el modal de edición
+    $('#Modal-EditarVenta').modal('show');
+});
+
 </script>

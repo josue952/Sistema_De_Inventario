@@ -17,7 +17,7 @@ $datosCompras = $sqlCompras->fetch_object();
 // Obtener los productos de la compra (detalle de compra)
 $sqlDetalleCompras = $objCompra->obtenerDetalleCompraFiltro($idCompra);
 
-// Verificar si se ha solicitado la eliminación de un usuario
+// Verificar si se ha solicitado la eliminación de un item de compra
 if (isset($_POST['delete_id'])) {
     $producto = $_POST['producto'];
     $cantidad = $_POST['cantidad'];
@@ -39,6 +39,7 @@ if (isset($_POST['delete_id'])) {
 
 //obtener el todos los productos 
 $productos = $objCompra->obtenerTodosLosProductos();
+
 ?>
 
 <!DOCTYPE html>
@@ -205,6 +206,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                     </tr>
                 </thead>
                 <tbody>
+                    <!--Obtener los productos de la compra-->
                     <?php if ($sqlDetalleCompras->num_rows > 0): ?>
                     <?php while ($datosDetalleCompras = $sqlDetalleCompras->fetch_object()): ?>
                     <tr>
@@ -239,6 +241,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                                     <input class="form-control" id="NombreProducto" name="NombreProducto">
                                     <br>
                                     <p class="text-center">O</p>
+                                    <!--Agregar un select para seleccionar el producto-->
                                     <label for="SeleccionarProducto" class="form-label">Seleccionar Producto</label>
                                     <select class="form-select" id="NombreProductoSelect" name="NombreProductoSelect">
                                         <option value="">Seleccionar Producto</option>
