@@ -2,18 +2,10 @@
 
  session_start();
 require "../../models/productoModel.php";
+$objProducto = new productoModel();
 
 //cpnexion de la base de datos
-$conn = new mysqli("localhost", "root", "", "inventario");
-
-// Verificar la conexión
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-
-
-$objProducto = new productoModel($conn);
+$conn = conectar();
 
 // Verificar si se ha solicitado la eliminación de un producto
 if (isset($_POST['delete_id'])) {
@@ -181,26 +173,36 @@ $productos = $objProducto->mostrar();
             </thead>
             <tbody>
                 <?php
-                    // obtener todos los datos de los usuarios
-                    $data = $objUsuario->obtenerUsuarios();
-                    foreach ($data as $objUsuario) {
-                        $id = $objUsuario["idUsuario"];
+                        // obtener todos los datos de los usuarios
+                        $resultProductos = $objProducto->mostrar();
+
+                        if ($resultProductos) {
+                            $Productos = [];
+                            while ($row = $resultProductos->fetch_assoc()) {
+                                $Productos[] = $row;
+                            }
+                        } else {
+                            echo "Error al obtener Productos: " . $conn->error;
+                        }   
+                        foreach ($Productos as $producto) {
                         ?>
                         <tr>
-                            <td><?php echo $objUsuario["idProducto"]; ?></td>
-                            <td><?php echo $objUsuario["NombreProducto"]; ?></td>
-                            <td><?php echo $objUsuario["Cantidad"]; ?></td>
-                            <td><?php echo $objUsuario["Precio"]; ?></td>
-                            <td><?php echo $objUsuario["Foto"]; ?></td>
-                            <td><?php echo $objUsuario["idCategoria"]; ?></td>
-                            <td><?php echo $objUsuario["idSucursal"]; ?></td>
+                            <td><?php echo $producto["idProducto"]; ?></td>
+                            <td><?php echo $producto["NombreProducto"]; ?></td>
+                            <td><?php echo $producto["Cantidad"]; ?></td>
+                            <td><?php echo $producto["Precio"]; ?></td>
+                            <td><?php echo $producto["Foto"]; ?></td>
+                            <td><?php echo $producto["idCategoria"]; ?></td>
+                            <td><?php echo $producto["idSucursal"]; ?></td>
                             <td class="action-buttons">
+                                <?php $id = $producto["idProducto"];?>
                                 <!-- Formulario para la acción de editar -->
                                 <form action="./viewModificarUsuario.php" method="post" style="display:inline;">
-                                    <input type="hidden" name="idUsuario" value="<?php echo $id; ?>">
+                                    <input type="hidden" name="idProducto" value="<?php echo $id; ?>">
                                     <button type="submit" class="btn btn-warning btn-lg btn-spacing editar-btn">Editar</button>
                                 </form>
-                                <?php echo"</button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>"?>
+                                
+                                <?php echo"</button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$producto["idProducto"]."'>Eliminar</button>"?>
                             </td>
                         </tr>
                         <?php
