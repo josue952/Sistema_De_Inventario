@@ -1,77 +1,43 @@
 <?php
-session_start();
-require "../../models/usuarioModel.php";
-$objUsuario = new Usuario();
+    session_start();
+    require "../../models/proveedorModel.php";
+    $objProveedor = new Proveedor(); 
 
-    // Verificar si se recibieron datos del formulario al crear un usuario
-    if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail'], $_POST['TXTdui'], $_POST['TXTcontraseña'], $_POST['TXTrol'])) {
-        $nombre = $_POST['TXTnombre'];
-        $apellido = $_POST['TXTapellido'];
-        $email = $_POST['TXTEmail'];
-        $dui = $_POST['TXTdui'];
-        $contraseña = $_POST['TXTcontraseña'];
-        $rol = $_POST['TXTrol'];
-
-        if ($nombre != "" && $apellido != "" && $email != "" && $dui != "" && $contraseña != "" && $rol != "") {
-            // Verificar si el DUI ya existe antes de intentar crear el usuario
-            if ($objUsuario->verificarDUIExistente($dui)) {
-                echo "<script>
-                    window.onload = function() {
-                        Swal.fire({
-                            title: '¡Error!',
-                            text: 'El DUI ya está registrado',
-                            icon: 'error'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = './tablaUsuario.php';
-                            }
-                        });
-                    };
-                </script>";
-            } else {
-                // Intentar crear el usuario
-                $resultado = $objUsuario->crearUsuario($nombre, $apellido, $email, $dui, $contraseña, $rol);
-
-                if ($resultado === false) {
-                    echo "<script>
-                        window.onload = function() {
-                            Swal.fire({
-                                title: '¡Error!',
-                                text: 'Hubo un error al crear el usuario',
-                                icon: 'error'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = './tablaUsuario.php';
-                                }
-                            });
-                        };
-                    </script>";
-                } else {
-                    echo "<script>
-                        window.onload = function() {
-                            Swal.fire({
-                                title: '¡Éxito!',
-                                text: 'Usuario creado exitosamente',
-                                icon: 'success'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = './tablaUsuario.php';
-                                }
-                            });
-                        };
-                    </script>";
-                }
-            }
-        } else {
+    // Verificar si se recibieron datos del formulario al agregar un Proveedor
+    if ($_POST && isset($_POST['NombreProveedor'], $_POST['CorreoProveedor'], $_POST['TelefonoProveedor'], $_POST['TelefonoProveedor'], $_POST['MetodoDePagoAceptado'])) {
+        $nombre = $_POST['NombreProveedor'];
+        $correo = $_POST['CorreoProveedor'];
+        $telefono = $_POST['TelefonoProveedor'];
+        $metodoPago = $_POST['MetodoDePagoAceptado'];
+    
+        
+        if ($nombre != "" && $correo != "" && $telefono != "" && $metodoPago != "") {
+            // Muestra un mensaje de éxito al agregar un Proveedor y redirige a la tabla de proveedores (caso en php)
             echo "<script>
                 window.onload = function() {
                     Swal.fire({
-                        title: '¡Error al crear usuario!',
-                        text: 'Debe de completar todos los campos',
+                        title: '¡Éxito!',
+                        text: 'Proveedor agregado exitosamente',
+                        icon: 'success'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = './tablaProveedor.php';
+                        }
+                    });
+                };
+            </script>";
+            $data = $objProveedor->agregarProveedor($nombre, $correo, $telefono, $metodoPago);
+        }else{
+            // Muestra un mensaje de error al agregar un proveedor y redirige a la tabla de proveedores (caso en php)
+            echo "<script>
+                window.onload = function() {
+                    Swal.fire({
+                        title: '¡Error al agregar proveedor!',
+                        text: 'Debe de completar todos los campos!',
                         icon: 'error'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.href = './tablaUsuario.php';
+                            window.location.href = './tablaProveedor.php';
                         }
                     });
                 };
@@ -79,23 +45,23 @@ $objUsuario = new Usuario();
         }
     }
 
-    // Verificar si se ha solicitado la eliminación de un usuario
+    // Verificar si se ha solicitado la eliminación de un proveedor
     if (isset($_POST['delete_id'])) {
-        $idUsuario = $_POST['delete_id'];
+        $idProveedor = $_POST['delete_id'];
         echo "<script>
         window.onload = function() {
             Swal.fire({
                 title: '¡Éxito!',
-                text: 'Usuario eliminado exitosamente',
+                text: 'Proveedor eliminado exitosamente',
                 icon: 'success'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = './tablaUsuario.php';
+                    window.location.href = './tablaProveedor.php';
                 }
             });
         };
         </script>";
-        $objUsuario->eliminarUsuario($idUsuario);
+        $objProveedor->eliminarProveedor($idProveedor); 
     }
     ?>
 
@@ -119,7 +85,7 @@ $objUsuario = new Usuario();
         <link rel="stylesheet" type="text/css"
             href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
-        <title>Usuarios</title>
+        <title>Proveedores</title>
         <style>
             .action-buttons {
                 display: flex;
@@ -169,8 +135,8 @@ $objUsuario = new Usuario();
                                     <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                     <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                     <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                    <li><a class="dropdown-item" id="Proveedores" href="../Proveedores/tablaProveedor.php">Proveedores</a></li>
-                                    <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                    <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                    <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                     <li>
                                     <hr class="dropdown-divider">
                                     </li>
@@ -218,11 +184,11 @@ $objUsuario = new Usuario();
         <div class="container mt-4 bg-white rounded p-4 shadow">
             <div class="row">
                 <div class="col-md-8">
-                    <h1>USUARIOS</h1>
+                    <h1>PROVEEDORES</h1>
                 </div>
                 <div class="col-md-4 text-lg-center">
                     <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modal-agregar">
-                        Agregar registro
+                        Agregar Proveedor
                     </button>
                 </div>
             </div>
@@ -231,71 +197,67 @@ $objUsuario = new Usuario();
                 <table class="table table-bordered table-hover" id="tabla-datos">
                     <thead class="bg-primary text-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Email</th>
-                            <th>DUI</th>
-                            <th>Rol</th>
-                            <th>Acciones</th>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Método de Pago</th>
+                        <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- tu codigo php con los datos (for o foreach) -->
                         <?php
-                        // Obtener todos los datos de los usuarios
-                        $data=$objUsuario->obtenerUsuarios();
+                        // Obtener todos los datos de los proveedores
+                        $data=$objProveedor->obtenerProveedores();
                         // Recorrer cada dato que existe y mostrarlos en la tabla
-                        foreach( $data as $objUsuario){
-                            echo"<tr>";
-                            echo "<td>".$objUsuario["idUsuario"]."</td>";
-                            echo "<td>".$objUsuario["Nombre"]."</td>";
-                            echo "<td>".$objUsuario["Apellido"]."</td>";
-                            echo "<td>".$objUsuario["Email"]."</td>";
-                            echo "<td>".$objUsuario["DUI"]."</td>";
-                            echo "<td>".$objUsuario["Rol"]."</td>";
-                            $id = $objUsuario["idUsuario"];
+                        foreach ($data as $objProveedor) {
+                            echo "<tr>";
+                            echo "<td>".$objProveedor["idProveedor"]."</td>";
+                            echo "<td>".$objProveedor["NombreProveedor"]."</td>";
+                            echo "<td>".$objProveedor["CorreoProveedor"]."</td>";
+                            echo "<td>".$objProveedor["TelefonoProveedor"]."</td>";
+                            echo "<td>".$objProveedor["MetodoDePagoAceptado"]."</td>";
+                            $id = $objProveedor["idProveedor"];
                             echo "<td data-bs-toggle='modal' data-bs-target='#modal-editar' class='action-buttons'>
-                            <button class='btn btn-warning btn-lg btn-spacing editar-btn'><a class='text-decoration-none text-dark' href='./viewModificarUsuario.php?id=$id'>Editar</a>
-                            </button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>
+                            <button class='btn btn-warning btn-lg btn-spacing editar-btn'><a class='text-decoration-none text-dark' href='./viewModificarProveedor.php?id=$id'>Editar</a>
+                            </button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objProveedor["idProveedor"]."'>Eliminar</button>
                             </td>";
                             echo"</tr>";
                         }
-
                         ?>
                     </tbody>
                 </table>
             </div>
         </div>
-        <!-- Modal para agregar un usuario -->
+        <!-- Modal para agregar un proveedor -->
         <div class="modal fade" id="modal-agregar" tabindex="-1" aria-labelledby="modal-agregar-label" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modal-agregar-label">Formulario de registro de Usuarios</h5>
+                        <h5 class="modal-title" id="modal-agregar-label">Agregar Proveedor</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="./tablaUsuario.php" method="POST">
+                        <form action="./tablaProveedor.php" method="POST">
                             <div class="row">
                                 <div class="form-group col-md-6">
-                                    <input type="text" class="form-control" name="TXTnombre" id="Nombre" placeholder="Nombre" require>
-                                </div><br><br>
+                                    <input type="text" class="form-control" name="NombreProveedor" placeholder="Nombre" required>
+                                </div>
                                 <div class="form-group col-md-6">
-                                    <input type="text" class="form-control" name="TXTapellido" id="Apellido" placeholder="Apellido" require>
-                                </div><br><br>
+                                    <input type="email" class="form-control" name="CorreoProveedor" placeholder="Correo" required>
+                                </div>
                                 <div class="form-group col-md-6">
-                                    <input type="email" class="form-control" name="TXTEmail" id="Email" placeholder="example@gmail.com" require>
-                                </div><br><br>
+                                    <input type="text" class="form-control" name="TelefonoProveedor" placeholder="Teléfono" required>
+                                </div>
                                 <div class="form-group col-md-6">
-                                    <input type="text" class="form-control" name="TXTdui" id="DUI" placeholder="DUI" require>
-                                </div><br><br>
-                                <div class="form-group col-md-6">
-                                    <input type="password" class="form-control" name="TXTcontraseña" id="Contraseña" placeholder="Contraseña" require>
-                                </div><br><br>
-                                <div class="form-group col-md-6">
-                                    <input type="text" class="form-control" name="TXTrol" id="Rol" placeholder="Rol" require>
-                                </div><br><br>
+                                    <select class="form-select" name="MetodoDePagoAceptado" required>
+                                        <option selected disabled>-- Seleccione Método de Pago --</option>
+                                        <option value="Efectivo">Efectivo</option>
+                                        <option value="Transferencia">Transferencia</option>
+                                        <option value="Deposito">Depósito</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="submit" class="btn btn-primary">Guardar</button>
@@ -306,14 +268,12 @@ $objUsuario = new Usuario();
                 </div>
             </div>
         </div>
-        <!-- Formulario oculto para eliminar usuario -->
-        <form id="delete-form" action="./tablaUsuario.php" method="POST" style="display: none;">
+
+        <!-- Formulario oculto para eliminar proveedor -->
+        <form id="delete-form" action="./tablaProveedor.php" method="POST" style="display: none;">
             <input type="hidden" name="delete_id" id="delete_id">
         </form>
-    </body>
-    </body>
-    </body>
-    </body>
+
 
     <!-- Bootstrap JS and dependencies -->
     <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -343,19 +303,17 @@ $objUsuario = new Usuario();
         limpiarCampos();
     });
 
-    // Función para limpiar los campos del formulario
-    function limpiarCampos() {
-        document.getElementById("Nombre").value = "";
-        document.getElementById("Apellido").value = "";
-        document.getElementById("Email").value = "";
-        document.getElementById("DUI").value = "";
-        document.getElementById("Contraseña").value = "";
-        document.getElementById("Rol").value = "";
+    // Función para limpiar los campos del formulario de proveedores
+    function limpiarCamposProveedores() {
+        document.getElementById("NombreProveedor").value = "";
+        document.getElementById("CorreoProveedor").value = "";
+        document.getElementById("TelefonoProveedor").value = "";
+        document.getElementById("MetodoDePagoAceptado").value = "";
     }
 
     // Maneja el clic en el botón "Eliminar"
     $('.eliminar-btn').click(function() {
-            var userId = $(this).data('id');
+            var idProveedor = $(this).data('id');
             // Muestra un mensaje de confirmación antes de eliminar el usuario (caso en js)
             Swal.fire({
                 title: '¿Estás seguro?',
@@ -368,7 +326,7 @@ $objUsuario = new Usuario();
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $('#delete_id').val(userId);
+                    $('#delete_id').val(idProveedor);
                     $('#delete-form').submit();
                 }
             });

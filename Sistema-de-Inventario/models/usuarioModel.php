@@ -194,6 +194,17 @@ class Usuario
         return $datosObtenidos;
     }
 
+     // Método para verificar si un DUI ya existe
+    public function verificarDUIExistente($dui)
+    {
+        $sql = "SELECT idUsuario FROM usuarios WHERE DUI = '$dui'";
+        $resultado = $this->connection->query($sql);
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+        return $resultado->num_rows > 0;
+    }
+
     //metodo para actualizar un usuario
     public function actualizarUsuario($idUsuario, $Nombre, $Apellido, $Email, $DUI, $Contraseña, $Rol){
         // Preparar la llamada al procedimiento almacenado con los parámetros
