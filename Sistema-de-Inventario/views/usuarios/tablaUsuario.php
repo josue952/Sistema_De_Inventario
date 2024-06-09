@@ -32,28 +32,61 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
     $rol = $_POST['TXTrol'];
     
     if ($nombre != "" && $apellido != "" && $email != "" && $dui != "" && $contraseña != "" && $rol != "") {
-        // Muestra un mensaje de éxito al crear un usuario y redirige a la tabla de usuarios (caso en php)
-        echo "<script>
-            window.onload = function() {
-                Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'Usuario creado exitosamente',
-                    icon: 'success'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = './tablaUsuario.php';
-                    }
-                });
-            };
-        </script>";
-        $data = $objUsuario->crearUsuario($nombre, $apellido, $email, $dui, $contraseña, $rol);
-    }else if ($nombre == "" || $apellido == "" || $email == "" || $dui == "" || $contraseña == "" || $rol == ""){
-        // Muestra un mensaje de error al crear un usuario y redirige a la tabla de usuarios (caso en php)
+        // Verificar si el DUI ya existe antes de intentar crear el usuario
+        if ($objUsuario->verificarDUIExistente($dui)) {
+            echo "<script>
+                window.onload = function() {
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: 'El DUI ya está registrado',
+                        icon: 'error'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = './tablaUsuario.php';
+                        }
+                    });
+                };
+            </script>";
+        } else {
+            // Intentar crear el usuario
+            $resultado = $objUsuario->crearUsuario($nombre, $apellido, $email, $dui, $contraseña, $rol);
+
+            if ($resultado === false) {
+                echo "<script>
+                    window.onload = function() {
+                        Swal.fire({
+                            title: '¡Error!',
+                            text: 'Hubo un error al crear el usuario',
+                            icon: 'error'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = './tablaUsuario.php';
+                            }
+                        });
+                    };
+                </script>";
+            } else {
+                echo "<script>
+                    window.onload = function() {
+                        Swal.fire({
+                            title: '¡Éxito!',
+                            text: 'Usuario creado exitosamente',
+                            icon: 'success'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = './tablaUsuario.php';
+                            }
+                        });
+                    };
+                </script>";
+            }
+        }
+    } else {
         echo "<script>
             window.onload = function() {
                 Swal.fire({
                     title: '¡Error al crear usuario!',
-                    text: 'Debe de completar todos los campos!',
+                    text: 'Debe de completar todos los campos',
                     icon: 'error'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -63,6 +96,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
             };
         </script>";
     }
+
 }
 ?>
 
@@ -127,7 +161,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

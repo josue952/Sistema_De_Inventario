@@ -186,7 +186,7 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['Cliente
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -211,7 +211,7 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['Cliente
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>

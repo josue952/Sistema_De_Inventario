@@ -4,7 +4,7 @@ require './Conexion-Base-de-Datos/dbConnection.php';
 
 $conn = conectar();
 //este parte verifica si el usuario esta o no logueado, y si no lo redirige a la pagina de inicio
-if ($_POST){
+if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
     $nombreUsuario = $_POST['Usuario'];
     $contraseña = $_POST['Contraseña'];
     $sql = $conn->query("CALL obtenerUsuariosFiltro('', '$nombreUsuario', '')");
@@ -30,7 +30,6 @@ if ($_POST){
                 });
             };
             </script>";
-            $sql->free();
         } else {
             echo "<script>
             window.onload = function() {
@@ -120,7 +119,7 @@ if ($_POST){
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="./views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

@@ -25,13 +25,15 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
         $tipoLogo = strtolower(pathinfo($nombreLogo, PATHINFO_EXTENSION));
         //permite obtener el tamaño del archivo en bytes
         $sizeLogo = $_FILES['LogoEmpresa']['size'];
+        //directorio donde se guardara el archivo
         $directorio = 'resources/images/';
+        //ruta donde se guardara el archivo con el nombre de la imagen
+        $ruta = $directorio.$nombreLogo;
 
         //valida que el archivo sea de tipo jpg, jpeg, png o gif
         if ($tipoLogo == 'jpg' || $tipoLogo == 'jpeg' || $tipoLogo == 'png' || $tipoLogo == 'gif'){
             //valida que ningun campo este vacio
             if ($_POST['NombreEmpresa'] != '' || $nombreLogo != '' || $_POST['SloganEmpresa'] != '' || $_POST['MisionEmpresa'] != '' || $_POST['VisionEmpresa'] != '' || $_POST['AboutUsEmpresa'] != ''){
-                $ruta = $directorio.$nombreLogo;
                 $conn->query("UPDATE empresa SET NombreEmpresa = '".$_POST['NombreEmpresa']."', LogoEmpresa = '".$ruta."', SloganEmpresa = '".$_POST['SloganEmpresa']."', MisionEmpresa = '".$_POST['MisionEmpresa']."', VisionEmpresa = '".$_POST['VisionEmpresa']."', AboutUsEmpresa = '".$_POST['AboutUsEmpresa']."' WHERE id = 1");
                 //almacenar el archivo en la carpeta resources/images
                 if (move_uploaded_file($logoEmpresa, '../../'.$ruta)){
@@ -133,7 +135,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
