@@ -125,7 +125,7 @@
                             </li>
                             <?php else: ?>
                             <li class="nav-item">
-                                <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                                <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -143,13 +143,13 @@
                                 </ul>
                             </li>
                             <li class="nav-item">
-                                <a href="#" id="Compras" class="nav-link">Compras</a>
+                                <a href="../../views/compras/guardarProductos.php" id="Compras" class="nav-link">Compras</a>
                             </li>
                             <li class="nav-item">
                                 <a href="#" id="Productos" class="nav-link">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                                <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                             </li>
                             <li class="nav-item">
                                 <a href="#" id="Entradas" class="nav-link">Entradas</a>
@@ -243,13 +243,14 @@
                             <div class="row">
                                 <div class="form-group col-md-6">
                                     <input type="text" class="form-control" name="NombreProveedor" placeholder="Nombre" required>
-                                </div>
+                                </div><br><br>
                                 <div class="form-group col-md-6">
                                     <input type="email" class="form-control" name="CorreoProveedor" placeholder="Correo" required>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <input type="text" class="form-control" name="TelefonoProveedor" placeholder="Teléfono" required>
                                 </div>
+                                <br><br>
                                 <div class="form-group col-md-6">
                                     <select class="form-select" name="MetodoDePagoAceptado" required>
                                         <option selected disabled>-- Seleccione Método de Pago --</option>

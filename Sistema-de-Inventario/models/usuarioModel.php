@@ -243,14 +243,4 @@ class Usuario
         return $datosObtenidos;
     }
 
-    // Método para verificar si un DUI ya existe
-    public function verificarDUIExistente($dui)
-    {
-        $sql = "SELECT idUsuario FROM usuarios WHERE DUI = '$dui'";
-        $resultado = $this->connection->query($sql);
-        if ($this->connection->error) {
-            die('ERROR SQL: ' . $this->connection->error);
-        }
-        return $resultado->num_rows > 0;
-    }
 }

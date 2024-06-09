@@ -410,9 +410,8 @@ END //
 
 DELIMITER ;
 
-DELIMITER //
-
 -- Procedimiento para Leer (obtener) un cliente por id y nombre de cliente
+DELIMITER //
 CREATE PROCEDURE obtenerClientesFiltro(
     IN p_idCliente INT,
     IN p_NombreCliente VARCHAR(30)

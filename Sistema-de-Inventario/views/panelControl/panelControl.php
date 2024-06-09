@@ -151,7 +151,7 @@ if ($_POST) {
                             </li>
                         <?php else : ?>
                             <li class="nav-item">
-                                <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                                <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -161,8 +161,8 @@ if ($_POST) {
                                     <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                     <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                     <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                    <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                    <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                    <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                    <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -175,7 +175,7 @@ if ($_POST) {
                                 <a href="#" id="Productos" class="nav-link">Productos</a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                                <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                             </li>
                             <li class="nav-item">
                                 <a href="#" id="Entradas" class="nav-link">Entradas</a>

@@ -197,8 +197,8 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['Cliente
                                 <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                 <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                 <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
