@@ -1,5 +1,4 @@
 <?php
-
 require '../../Conexion-Base-de-Datos/dbConnection.php';
 
 class Usuario
@@ -159,6 +158,8 @@ class Usuario
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
         }
+        //limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
         return $datosObtenidos;
     } 
 
@@ -175,6 +176,8 @@ class Usuario
             die ('ERROR SQL: '.$this->connection->error);
         }
         
+        //limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
         return $datosObtenidos;
     }
 
@@ -190,7 +193,8 @@ class Usuario
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
         }
-        
+        //limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
         return $datosObtenidos;
     }
 
@@ -206,7 +210,8 @@ class Usuario
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
         }
-        
+        //limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
         return $datosObtenidos;
     }
 
@@ -222,7 +227,19 @@ class Usuario
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
         }
-        
+        //limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
         return $datosObtenidos;
+    }
+
+    // Método para verificar si un DUI ya existe
+    public function verificarDUIExistente($dui)
+    {
+        $sql = "SELECT idUsuario FROM usuarios WHERE DUI = '$dui'";
+        $resultado = $this->connection->query($sql);
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+        return $resultado->num_rows > 0;
     }
 }
