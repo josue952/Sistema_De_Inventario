@@ -40,7 +40,7 @@ class PDF extends FPDF
       $this->Cell(50); // mover a la derecha
       $this->SetFont('Arial', 'B', 15);
       $this->Cell(100, 10, utf8_decode("REPORTE DE USUARIOS"), 0, 1, 'C', 0);
-      $this->Ln(8);
+      $this->Ln(7);
 
       /* CAMPOS DE LA TABLA */
       //color
@@ -53,7 +53,8 @@ class PDF extends FPDF
       $this->Cell(30, 8, utf8_decode('APELLIDO'), 1, 0, 'C', 1);
       $this->Cell(50, 8, utf8_decode('EMAIL'), 1, 0, 'C', 1);
       $this->Cell(35, 8, utf8_decode('DUI'), 1, 0, 'C', 1);
-      $this->Cell(35, 8, utf8_decode('ROL'), 1, 1, 'C', 1);
+      $this->Cell(35, 8, utf8_decode('ROL'), 1, 0, 'C', 1);
+      $this->Ln(8);
    }
 
    // Pie de página
@@ -74,13 +75,12 @@ include '../../Conexion-Base-de-Datos//dbConexionReportes.php';
 
 /* CONSULTA INFORMACION DEL HOSPEDAJE */
 $sqlUsuarios = $conexion->query(" SELECT * FROM usuarios ");//traemos datos de la empresa desde BD
-$datosUsuarios = $sqlUsuarios->fetch_assoc();
 
 $pdf = new PDF();
 $pdf->AddPage(); /* aqui entran dos para parametros (horientazion,tamaño)V->portrait H->landscape tamaño (A3.A4.A5.letter.legal) */
 $pdf->AliasNbPages(); //muestra la pagina / y total de paginas
 
-$pdf->SetFont('Arial', '', 11);
+$pdf->SetFont('Arial', '', 10);
 $pdf->SetDrawColor(163, 163, 163); //colorBorde
 
 while ($row = $sqlUsuarios->fetch_object()) {
@@ -89,7 +89,8 @@ while ($row = $sqlUsuarios->fetch_object()) {
    $pdf->Cell(30, 8, utf8_decode($row->Apellido), 1, 0, 'C', 0);
    $pdf->Cell(50, 8, utf8_decode($row->Email), 1, 0, 'C', 0);
    $pdf->Cell(35, 8, utf8_decode($row->DUI), 1, 0, 'C', 0);
-   $pdf->Cell(35, 8, utf8_decode($row->Rol), 1, 1, 'C', 0);
+   $pdf->Cell(35, 8, utf8_decode($row->Rol), 1, 0, 'C', 0);
+   $pdf->Ln(8);
 }
 
 $pdf->Output('ReporteUsuarios.pdf', 'I');//nombreDescarga, Visor(I->visualizar - D->descargar)

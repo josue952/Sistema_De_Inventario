@@ -99,27 +99,24 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
 
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--Dependencias de bootstrap-->
-    <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.js"></script>
-    <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
+    <!-- Dependencias de Bootstrap -->
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/lobibox.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/select2.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/datatables.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/waitMe.css">
-    <!--Dependencias de SweetAlert-->
+    <!-- Dependencias de SweetAlert -->
     <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
     <!--Dependencias de terceros-->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
     <title>Usuarios</title>
     <style>
@@ -140,8 +137,8 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
     </style>
 </head>
 <body class="bg-light">
-<!-- Navbar -->
-<nav class="navbar navbar-dark bg-dark fixed-top">
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -160,7 +157,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="../../views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -321,18 +318,18 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
         <input type="hidden" name="delete_id" id="delete_id">
     </form>
 </body>
-</html>
+
 <!-- Bootstrap JS and dependencies -->
 <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
-<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
-<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/waitMe.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/popper.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/lobibox.js"></script>
 <script src="../../resources/src/Bootstrap/js/notifications.js"></script>
 <script src="../../resources/src/Bootstrap/js/messageboxes.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
 <script src="../../resources/src/Bootstrap/js/select2.js"></script>
 <script>
 $(document).ready(function() {
@@ -392,3 +389,4 @@ $(document).click(function (e) {
     }
 });
 </script>
+</html>

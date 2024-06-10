@@ -6,10 +6,10 @@ if (!isset($_SESSION['Nombre'])) {
     header('Location: index.php');
     exit();
 }
+
 //en este apartado accederemos a la informacion que se encuantra en la base de datos para mostrarla en la vista
 $conn = conectar();
 $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
-
 
 //este apartado sirve para validar que el tipo de archivo sea el correcto
 
@@ -40,12 +40,14 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
                     echo "<script>
                     window.onload = function() {
                         Swal.fire({
-                            title: '¡Exito!',
-                            text: 'Se ha guardado la configuración de la empresa correctamente',
+                            title: 'Exito!',
+                            text: 'Configuracion Guardada Correctamente!',
                             icon: 'success'
-                        })= function() {
-                            window.location = '../../index.php';
-                        };
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '../../index.php';
+                            }
+                        });
                     };
                     </script>";
                 }else{
@@ -77,17 +79,19 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
         echo "<script>
         window.onload = function() {
             Swal.fire({
-                title: '¡Exito!',
-                text: 'Se ha guardado la configuración de la empresa correctamente',
+                title: 'Exito!',
+                text: 'Configuracion Guardada Correctamente!',
                 icon: 'success'
-            })= function() {
-                window.location = '../../index.php';
-            };
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '../../index.php';
+                }
+            });
         };
         </script>";
-
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -111,10 +115,8 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
             transform: translateX(-50%);
         }
     </style>
-
 </head>
 <body>
-    <!--nav bar-->
     <!-- Navbar -->
     <nav class="navbar navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
@@ -189,7 +191,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
         </div>
     </nav>
     <br><br><br>
-
+    <!-- Formulario de Configuración de Empresa -->
     <div class="container mt-5">
         <h1>Configurar Empresa</h1>
         <form action="" method="post" enctype="multipart/form-data">
@@ -206,7 +208,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
             </div>
             <div class="mb-3">
                 <label for="SloganEmpresa" class="form-label">Slogan de la Empresa</label>
-                <input type="text" class="form-control" id="SloganEmpresa" name="SloganEmpresa" value="<?php echo $empresa['SloganEmpresa']?>">
+                <input type="text" class="form-control" id="SloganEmpresa" name="SloganEmpresa" value='<?php echo $empresa['SloganEmpresa'];?>'>
             </div>
             <div class="mb-3">
                 <label for="MisionEmpresa" class="form-label">Misión de la Empresa</label>
@@ -227,12 +229,17 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
                 </textarea>
             </div>
             <input type="submit" class="btn btn-primary" name="btnEditarEmpresa" value="Guardar Configuracion">
-            <button class="btn btn-secondary"><a class="text-decoration-none text-dark" href="../../index.php">Volver</a></button>
+            <a class="btn btn-secondary" href="../../index.php">Volver</a>
+            <input type="button" class="btn btn-danger" id="btnEliminarImagenes" name="btnEliminarImagenes" value="Eliminar Imágenes Guardadas">            
+            <br><br>
         </form>
     </div>
-    <script src="./resources/src/Bootstrap/js/bootstrap.bundle.js"></script>
 </body>
 </html>
+<!-- Bootstrap JS and dependencies -->
+<script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
 <script>
 $('.dropdown-toggle').click(function() {
     $(this).next('.dropdown-menu').toggleClass('show');
@@ -245,4 +252,19 @@ $(document).click(function (e) {
     }
 });
 
+$('#btnEliminarImagenes').click(function() {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción eliminará todas las imágenes guardadas en la empresa',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Eliminar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'eliminar_imagenes.php';
+        }
+    });
+});
 </script>

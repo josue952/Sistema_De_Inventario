@@ -74,7 +74,6 @@ include '../../Conexion-Base-de-Datos//dbConexionReportes.php';
 
 /* CONSULTA INFORMACION DEL HOSPEDAJE */
 $sqlProveedores = $conexion->query(" SELECT * FROM proveedores ");//traemos datos de la empresa desde BD
-$datosProveedores = $sqlProveedores->fetch_assoc();
 
 $pdf = new PDF();
 $pdf->AddPage(); /* aqui entran dos para parametros (horientazion,tamaño)V->portrait H->landscape tamaño (A3.A4.A5.letter.legal) */
@@ -89,6 +88,7 @@ while ($row = $sqlProveedores->fetch_object()) {
    $pdf->Cell(50, 8, utf8_decode($row->CorreoProveedor), 1, 0, 'C', 0);
    $pdf->Cell(30, 8, utf8_decode($row->TelefonoProveedor), 1, 0, 'C', 0);
    $pdf->Cell(50, 8, utf8_decode($row->MetodoDePagoAceptado), 1, 0, 'C', 0);
+   $pdf->Ln(8);
 }
 
 $pdf->Output('ReporteProveedores.pdf', 'I');//nombreDescarga, Visor(I->visualizar - D->descargar)

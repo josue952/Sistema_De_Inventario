@@ -92,7 +92,6 @@ if (isset($_POST['delete_id'])) {
 }
 
 // Verificar si se ha solicitado la edicion de una venta
-
 if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['ClienteEdit'])) {
     $idVentaEdit = $_POST['edit_id'];
     $fechaVentaEdit = $_POST['FechaVentaEdit'];
@@ -141,10 +140,19 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['Cliente
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ventas</title>
-    <!-- Dependencias de Bootstrap -->
-    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
-    <!-- Dependencias de SweetAlert -->
-    <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
+        <!--Dependencias de bootstrap-->
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/lobibox.css">
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/select2.css">
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/datatables.css">
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/waitMe.css">
+        <!--Dependencias de SweetAlert-->
+        <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
+        <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
+        <!--Dependencias de terceros-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
     <style>
         .action-buttons {
             display: flex;
@@ -333,76 +341,75 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['Cliente
             </table>
         </div>
     </div>
-<!-- Modal Agregar -->
-<div id="Modal-CrearVenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-center w-100" id="modal-agregar-label">Formulario para crear pedido de venta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="" method="POST">
-                    <div class="row">
-                        <div class="form-group col-md-12 text-center">
-                            <label for="FechaVenta" class="form-label">Fecha de Venta</label>
-                            <input type="date" class="form-control" name="FechaVenta" id="FechaVenta" placeholder="Fecha de Venta" required>
-                        </div><br><br><br>
-                        <div class="form-group col-md-12 text-center">
-                            <label for="Cliente" class="form-label">Cliente</label>
-                            <select class="form-control" name="Cliente" id="Cliente" required>
-                                <option value="">Seleccione un Cliente</option>
-                                <?php foreach ($clientes as $cliente): ?>
-                                    <option value="<?php echo $cliente['idCliente']; ?>"><?php echo $cliente['NombreCliente']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div><br><br><br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Modal Editar -->
-<div id="Modal-EditarVenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-center w-100" id="modal-editar-label">Formulario para editar una venta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="form-editar-compra" action="" method="POST">
-                    <input type="hidden" name="edit_id" id="edit_id">
-                    <div class="row">
-                        <div class="form-group col-md-12 text-center">
-                            <label for="FechaVentaEdit" class="form-label">Fecha de Venta</label>
-                            <input type="date" class="form-control" name="FechaVentaEdit" id="FechaVentaEdit" placeholder="Fecha de Venta" required>
-                        </div><br><br><br>
-                        <div class="form-group col-md-12 text-center">
-                            <label for="ClienteEdit" class="form-label">Cliente</label>
-                            <select class="form-control" name="ClienteEdit" id="ClienteEdit" required>
-                                <option value="">Seleccione un Cliente</option>
-                                <?php foreach ($clientes as $cliente): ?>
-                                    <option value="<?php echo $cliente['idCliente']; ?>"><?php echo $cliente['NombreCliente']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div><br><br><br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </form>
+    <!-- Modal Agregar -->
+    <div id="Modal-CrearVenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-center w-100" id="modal-agregar-label">Formulario para crear pedido de venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="POST">
+                        <div class="row">
+                            <div class="form-group col-md-12 text-center">
+                                <label for="FechaVenta" class="form-label">Fecha de Venta</label>
+                                <input type="date" class="form-control" name="FechaVenta" id="FechaVenta" placeholder="Fecha de Venta" required>
+                            </div><br><br><br>
+                            <div class="form-group col-md-12 text-center">
+                                <label for="Cliente" class="form-label">Cliente</label>
+                                <select class="form-control" name="Cliente" id="Cliente" required>
+                                    <option value="">Seleccione un Cliente</option>
+                                    <?php foreach ($clientes as $cliente): ?>
+                                        <option value="<?php echo $cliente['idCliente']; ?>"><?php echo $cliente['NombreCliente']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div><br><br><br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
+    <!-- Modal Editar -->
+    <div id="Modal-EditarVenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-center w-100" id="modal-editar-label">Formulario para editar una venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-editar-compra" action="" method="POST">
+                        <input type="hidden" name="edit_id" id="edit_id">
+                        <div class="row">
+                            <div class="form-group col-md-12 text-center">
+                                <label for="FechaVentaEdit" class="form-label">Fecha de Venta</label>
+                                <input type="date" class="form-control" name="FechaVentaEdit" id="FechaVentaEdit" placeholder="Fecha de Venta" required>
+                            </div><br><br><br>
+                            <div class="form-group col-md-12 text-center">
+                                <label for="ClienteEdit" class="form-label">Cliente</label>
+                                <select class="form-control" name="ClienteEdit" id="ClienteEdit" required>
+                                    <option value="">Seleccione un Cliente</option>
+                                    <?php foreach ($clientes as $cliente): ?>
+                                        <option value="<?php echo $cliente['idCliente']; ?>"><?php echo $cliente['NombreCliente']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div><br><br><br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Formulario oculto para eliminar una compra -->
     <?php
     echo "
@@ -427,12 +434,18 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['Cliente
 
 </body>
 </html>
-
 <!-- Bootstrap JS and dependencies -->
-<script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/waitMe.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
-<script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/popper.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/lobibox.js"></script>
+<script src="../../resources/src/Bootstrap/js/notifications.js"></script>
+<script src="../../resources/src/Bootstrap/js/messageboxes.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
+<script src="../../resources/src/Bootstrap/js/select2.js"></script>
 <script>
 // Permite que se despliegue el dropdown
 $('.dropdown-toggle').click(function() {
