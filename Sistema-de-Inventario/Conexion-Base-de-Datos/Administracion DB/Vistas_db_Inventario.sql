@@ -8,7 +8,7 @@
 
 CREATE VIEW EntradasDeProductos AS
 SELECT 
-    c.FechaCompra AS Fecha,
+    DATE_FORMAT(c.FechaCompra, '%d-%m-%Y') AS Fecha,
     dc.NombreProducto AS Producto,
     dc.Cantidad AS Cantidad,
     dc.Precio AS PrecioUnitario,
@@ -23,7 +23,7 @@ JOIN
     proveedores p ON c.idProveedor = p.idProveedor
 UNION
 SELECT
-    e.FechaEntrada AS Fecha,
+    DATE_FORMAT(e.FechaEntrada, '%d-%m-%Y') AS Fecha,
     pr.NombreProducto AS Producto,
     e.Cantidad AS Cantidad,
     pr.Precio AS PrecioUnitario,
@@ -37,6 +37,7 @@ JOIN
 LEFT JOIN 
     proveedores p ON e.idProveedor = p.idProveedor;
 
+
 -- --------------------------------------------------------
 
 -- Vista Salida de productos, donde se visualiza la información de las salidas de productos
@@ -44,7 +45,7 @@ LEFT JOIN
 
 CREATE VIEW SalidasDeProductos AS
 SELECT 
-    v.FechaVenta AS Fecha,
+    DATE_FORMAT(v.FechaVenta, '%d-%m-%Y') AS Fecha,
     dv.NombreProducto AS Producto,
     dv.Cantidad AS Cantidad,
     dv.Precio AS PrecioUnitario,
@@ -59,7 +60,7 @@ JOIN
     clientes c ON v.idCliente = c.idCliente
 UNION
 SELECT
-    s.FechaSalida AS Fecha,
+    DATE_FORMAT(s.FechaSalida, '%d-%m-%Y') AS Fecha,
     pr.NombreProducto AS Producto,
     s.Cantidad AS Cantidad,
     pr.Precio AS PrecioUnitario,
@@ -72,5 +73,6 @@ JOIN
     productos pr ON s.idProducto = pr.idProducto
 LEFT JOIN 
     clientes c ON s.idCliente = c.idCliente;
+
 
 -- --------------------------------------------------------

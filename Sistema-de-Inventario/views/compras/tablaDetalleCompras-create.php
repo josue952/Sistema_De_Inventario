@@ -106,7 +106,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -116,15 +116,15 @@ $productos = $objCompra->obtenerTodosLosProductos();
                                         href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                 <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                 <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="./tablaCompras.php" id="Compras" class="nav-link">Compras</a>
+                            <a href="../../views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Productos" class="nav-link">Productos</a>
@@ -244,7 +244,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                                     <!--Agregar un select para seleccionar el producto-->
                                     <label for="SeleccionarProducto" class="form-label">Seleccionar Producto</label>
                                     <select class="form-select" id="NombreProductoSelect" name="NombreProductoSelect">
-                                        <option value="">Seleccionar Producto</option>
+                                        <option value="" >Seleccionar Producto</option>
                                         <?php foreach ($productos as $producto): ?>
                                         <option value="<?php echo $producto; ?>">
                                             <?php echo $producto; ?>
@@ -258,7 +258,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                                 </div>
                                 <div class="mb-3">
                                     <label for="Precio" class="form-label">Precio</label>
-                                    <input type="number" class="form-control" id="Precio" name="Precio" required>
+                                    <input type="number" class="form-control" id="Precio" name="Precio" value="" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="SubTotal" class="form-label">Sub Total</label>

@@ -160,7 +160,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -225,6 +225,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                 <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modal-agregar">
                     Agregar registro
                 </button>
+                <a class="btn btn-success btn-lg" href="../../views/Reportes/ReporteUsuarios.php" target="blank">Generar Reporte</a>
             </div>
         </div>
         <hr>

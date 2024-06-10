@@ -151,7 +151,7 @@ if ($_POST) {
                             </li>
                         <?php else : ?>
                             <li class="nav-item">
-                                <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
+                                <a href="../../views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -210,7 +210,20 @@ if ($_POST) {
     <!-- Contenido -->
     <div class="container-fluid mt-5">
         <div class="row">
-            <div class="col-md-11">
+            <div class="col-md-12"> 
+                <h1 class="text-center">Panel de control</h1>
+                <hr>
+                <!-- Acciones Rapidas -->
+                <div class="inline-search text-center">
+                    <h2>Acciones rápidas</h2><br>
+                    <div class="action-buttons">
+                        <button class="btn btn-success btn-spacing" type="button"><a class="text-decoration-none text-white" href="../../views/compras/tablaCompras.php">Compras</a></button>
+                        <button class="btn btn-success btn-spacing" type="button"><a class="text-decoration-none text-white" href="../../views/ventas/tablaVentas.php">Ventas</a></button>
+                        <button class="btn btn-success btn-spacing" type="button"><a class="text-decoration-none text-white" href="#">Entradas</a></button>
+                        <button class="btn btn-success btn-spacing" type="button"><a class="text-decoration-none text-white" href="#">Salidas</a></button>
+                    </div>
+                </div>
+                <hr>
                 <!-- Tabla entrada de productos -->
                 <table class="table">
                     <h2>Entrada de productos</h2>
@@ -241,7 +254,7 @@ if ($_POST) {
                             </select>
                             <button class="btn btn-primary col-md-1" type="submit">Filtrar Entradas</button>
 
-                            <button class="btn btn-primary" type="button"><a class="text-decoration-none text-white" href="./panelControl.php">Limpiar Filtros</a></button>
+                            <button class="btn btn-secondary" type="button"><a class="text-decoration-none text-white" href="./panelControl.php">Limpiar Filtros</a></button>
                         </form>
                     </div>
                     <!--Cuerpo de la tabla -->
@@ -280,7 +293,7 @@ if ($_POST) {
                     </tbody>
                 </table>
             </div>
-            <div class="col-md-11">
+            <div class="col-md-12">
                 <!-- Tabla salida de productos -->
                 <table class="table">
                     <h2>Salida de productos</h2>
@@ -311,7 +324,7 @@ if ($_POST) {
                             </select>
                             <button class="btn btn-primary col-md-1" type="submit">Filtrar Salidas</button>
 
-                            <button class="btn btn-primary col-md-1" type="button"><a class="text-decoration-none text-white" href="./panelControl.php">Limpiar Filtros</a></button>
+                            <button class="btn btn-secondary col-md-1" type="button"><a class="text-decoration-none text-white" href="./panelControl.php">Limpiar Filtros</a></button>
                         </form>
                     </div>
                     <!--cuerpo de la tabla -->
@@ -350,6 +363,8 @@ if ($_POST) {
                     </tbody>
                 </table>
             </div>
+            
+            <hr>
         </div>
     </div>
 </body>

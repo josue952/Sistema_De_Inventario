@@ -119,7 +119,7 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="./views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="./views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
