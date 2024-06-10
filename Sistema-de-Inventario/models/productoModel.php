@@ -13,8 +13,8 @@ class productoModel {
     private $connection;
 
     // constructor para iniciar la conexion
-    public function __construct($dbConnection) {
-        $this->connection = $dbConnection;
+    public function __construct() {
+        $this->connection = conectar();
     }
 
     // Set
@@ -87,27 +87,18 @@ class productoModel {
                 return $stmt->execute();
     }
     
-        // Método para leer 
-        public function mostrar() {
-            $sql = "SELECT * FROM productos WHERE idProducto = ?";
-            $stmt = $this->connection->prepare($sql);
-            $stmt->bind_param("i", $this->idProducto);
-            $stmt->execute();
-            $result = $stmt->get_result();
+        // Método para mostrar todos los usuarios
+        public function mostrar(){
+            $sql="SELECT * FROM productos";
+            $datosObtenidos=$this->connection->query($sql);
     
-            if ($result->num_rows == 1) {
-                $row = $result->fetch_assoc();
-                $this->Nombreproducto = $row['Nombreproducto'];
-                $this->Cantidad = $row['Cantidad'];
-                $this->Precio = $row['Precio'];
-                $this->Foto = $row['Foto'];
-                $this->idCategoria = $row['idCategoria'];
-                $this->idSucursal = $row['idSucursal'];
-                return true;
-            } else {
-                return false;
+            if($this->connection->error){
+                die ('ERROR SQL: '.$this->connection->error);
             }
-        }
+            //limpiar la consulta para poder hacer otra
+            $this->connection->next_result();
+            return $datosObtenidos;
+        } 
     
         // Método para actualizar
         public function actualizar() {
