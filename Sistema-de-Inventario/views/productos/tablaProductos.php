@@ -2,9 +2,7 @@
 
  session_start();
 require "../../models/productoModel.php";
-
-//cpnexion de la base de datos
-$conn = new mysqli("localhost", "root", "", "inventario");
+require "../../Conexion-Base-de-Datos/dbConnection.php";
 
 // Verificar la conexión
 if ($conn->connect_error) {
