@@ -119,7 +119,7 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="./views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="./views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -140,7 +140,7 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
                             <a href="./views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Productos" class="nav-link">Productos</a>
+                            <a href="./views/productos/tablaProductos.php" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
                             <a href="./views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
@@ -198,14 +198,34 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
                 </svg>
             </div>
             <div class="options">
-                <label>
-                    <input type="checkbox" id="recordar">
-                    Recordar
-                </label>
-                <a href="#" class="forgot-password">Olvidé la Contraseña</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#recuperarContraseña" class="forgot-password">¿Olvidaste tu contraseña?</a>
             </div>
             <button type="submit">Iniciar Sesión</button>
         </form>
+    </div>
+    <!--Modal de recuperar contraseña-->
+    <div class="modal fade" id="recuperarContraseña" tabindex="-1" aria-labelledby="recuperarContraseñaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recuperarContraseñaLabel">Recuperar Contraseña</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body
+                ">
+                    <form>
+                        <div class="mb-3">
+                            <label for="correo" class="col-form-label">Correo Electrónico:</label>
+                            <input type="email" class="form-control" id="correo">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">Enviar</button>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Header -->
     <!--Si el usuario no esta registrado no mostrara nada-->
@@ -219,7 +239,6 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
             </p>
         </div>
     </header>
-
     <!-- Features Section -->
     <!--Si el usuario no esta registrado no mostrara nada-->
     <section class="features py-5" <?php echo !isset($_SESSION['Nombre']) ? 'style="display: none;"' : ''; ?>>
@@ -249,12 +268,11 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
             </div>
         </div>
     </section>
-
     <!-- Footer -->
     <!--Si el usuario no esta registrado no mostrara nada-->
     <footer class="footer bg-light py-4" <?php echo !isset($_SESSION['Nombre']) ? 'style="display: none;"' : ''; ?>>
         <div class="container text-center">
-            <p class="m-0">© 2024 Proyecto</p>
+            <p class="m-0">© 2024 Proyecto Desarrollo de Aplicaciones Web</p>
         </div>
     </footer>
 

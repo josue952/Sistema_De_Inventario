@@ -124,7 +124,7 @@ class Ventas
 
     //metodo para obtener todos los productos (por nombre) de la tabla productos
     public function obtenerTodosLosProductos() {
-        $sql = "SELECT NombreProducto FROM productos";
+        $sql = "SELECT NombreProducto, Precio FROM productos";
         $result = $this->connection->query($sql);
 
         if ($this->connection->error) {

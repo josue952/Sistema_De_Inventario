@@ -345,9 +345,6 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-
-
-
 -- Procedimiento para Actualizar un Proveedor
 DELIMITER //
 
@@ -410,9 +407,8 @@ END //
 
 DELIMITER ;
 
-DELIMITER //
-
 -- Procedimiento para Leer (obtener) un cliente por id y nombre de cliente
+DELIMITER //
 CREATE PROCEDURE obtenerClientesFiltro(
     IN p_idCliente INT,
     IN p_NombreCliente VARCHAR(30)
@@ -1108,5 +1104,171 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para Leer (obtener) todos los productos
+
+DELIMITER //
+
+CREATE PROCEDURE obtenerProductos()
+BEGIN
+    SELECT 
+        p.idProducto,
+        p.NombreProducto,
+        p.Cantidad,
+        p.Precio,
+        p.Foto,
+        c.Categoria AS NombreCategoria,
+        s.NombreSucursal AS NombreSucursal
+    FROM 
+        productos p
+    LEFT JOIN 
+        categorias c ON p.idCategoria = c.idCategoria
+    LEFT JOIN 
+        sucursales s ON p.idSucursal = s.idSucursal;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para Leer (obtener) un producto por id, nombre de producto
+
+DELIMITER //
+
+CREATE PROCEDURE obtenerProductosFiltro(
+    IN p_idProducto INT,
+    IN p_NombreProducto VARCHAR(50)
+)
+BEGIN
+    SET @sql = 'SELECT 
+                    p.idProducto,
+                    p.NombreProducto,
+                    p.Cantidad,
+                    p.Precio,
+                    p.Foto,
+                    p.idCategoria,
+                    c.Categoria AS NombreCategoria,
+                    p.idSucursal,
+                    s.NombreSucursal AS NombreSucursal
+                FROM 
+                    productos p
+                LEFT JOIN 
+                    categorias c ON p.idCategoria = c.idCategoria
+                LEFT JOIN 
+                    sucursales s ON p.idSucursal = s.idSucursal
+                WHERE 1=1';
+    
+    IF p_idProducto IS NOT NULL AND p_idProducto != '' THEN
+        SET @sql = CONCAT(@sql, ' AND p.idProducto = ', p_idProducto);
+    END IF;
+
+    IF p_NombreProducto IS NOT NULL AND p_NombreProducto != '' THEN
+        SET @sql = CONCAT(@sql, ' AND p.NombreProducto LIKE ''%', p_NombreProducto, '%''');
+    END IF;
+
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para Crear un Producto
+
+DELIMITER //
+
+CREATE PROCEDURE crearProducto(
+    IN p_NombreProducto VARCHAR(50),
+    IN p_Cantidad INT,
+    IN p_Precio DECIMAL(10,2),
+    IN p_Foto VARCHAR(100),
+    IN p_idCategoria INT,
+    IN p_idSucursal INT
+)
+BEGIN
+    INSERT INTO productos (NombreProducto, Cantidad, Precio, Foto, idCategoria, idSucursal)
+    VALUES (p_NombreProducto, p_Cantidad, p_Precio, p_Foto, p_idCategoria, p_idSucursal);
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para Actualizar un Producto
+
+DELIMITER //
+
+CREATE PROCEDURE actualizarProducto(
+    IN p_NombreProducto VARCHAR(50),
+    IN p_Cantidad INT,
+    IN p_Precio DECIMAL(10,2),
+    IN p_Foto VARCHAR(100),
+    IN p_idCategoria INT,
+    IN p_idSucursal INT
+)
+BEGIN
+    UPDATE productos
+    SET NombreProducto = p_NombreProducto,
+        Cantidad = p_Cantidad,
+        Precio = p_Precio,
+        Foto = p_Foto,
+        idCategoria = p_idCategoria,
+        idSucursal = p_idSucursal
+    WHERE NombreProducto = p_NombreProducto;
+END //
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+-- Procedimiento para Eliminar un Producto
+
+DELIMITER //
+
+CREATE PROCEDURE eliminarProducto(
+    IN producto_id INT
+)
+BEGIN
+    -- Eliminar el producto de detalleCompras
+    DELETE FROM detalleCompras WHERE NombreProducto = (SELECT NombreProducto FROM productos WHERE idProducto = producto_id);
+
+    -- Eliminar el producto de detalleVentas
+    DELETE FROM detalleVentas WHERE NombreProducto = (SELECT NombreProducto FROM productos WHERE idProducto = producto_id);
+
+    -- Actualizar los totales en compras
+    UPDATE compras 
+    SET TotalCompra = (
+        SELECT SUM(dc.Cantidad * dc.Precio) 
+        FROM detalleCompras dc 
+        JOIN compras c ON dc.idCompra = c.idCompra
+        WHERE c.idCompra = compras.idCompra
+    );
+
+    -- Actualizar los totales en ventas
+    UPDATE ventas 
+    SET TotalVenta = (
+        SELECT SUM(dv.Cantidad * dv.Precio) 
+        FROM detalleVentas dv 
+        JOIN ventas v ON dv.idVenta = v.idVenta
+        WHERE v.idVenta = ventas.idVenta
+    );
+
+    -- Eliminar las entradas relacionadas con el producto
+    DELETE FROM entradas WHERE idProducto = producto_id;
+
+    -- Eliminar las salidas relacionadas con el producto
+    DELETE FROM salidas WHERE idProducto = producto_id;
+
+    -- Finalmente, eliminar el producto de la tabla productos
+    DELETE FROM productos WHERE idProducto = producto_id;
+END //
+
+DELIMITER ;
+
+
 
 -- --------------------------------------------------------

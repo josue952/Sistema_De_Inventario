@@ -96,7 +96,15 @@ if ($_POST) {
         </div>
         <div class="mb-1">
             <label for="" class="form-label">Método de Pago Aceptado</label>
-            <input type="text" class="form-control" name="MetodoDePagoAceptado" value="<?php echo $datos->MetodoDePagoAceptado; ?>">
+            <select name="MetodoDePagoAceptado" id="MetodoDePagoAceptado" class="form-control" required="required">
+                <!--Respuesta predeterminada-->
+                <option value="<?php echo $datos->MetodoDePagoAceptado; ?>"><?php echo $datos->MetodoDePagoAceptado; ?></option>
+                <!--Opciones de método de pago-->
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Deposito">Deposito</option>
+            </select>
+            
         </div><br>
     <?php } ?>
     <button type="submit" class="btn btn-primary" name="btnEditar" value="ok">Editar Proveedor</button>

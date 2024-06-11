@@ -29,8 +29,6 @@ class Usuario
         $this->Nombre = $nom;
     }
 
-
-
     /**
      * Get the value of idUsuario
      */
@@ -198,10 +196,14 @@ class Usuario
         return $datosObtenidos;
     }
 
-     // Método para verificar si un DUI ya existe
-    public function verificarDUIExistente($dui)
+     // Método para verificar si un DUI ya existe, excluyendo al usuario actual
+    public function verificarDUIExistente($dui, $idUsuario = null)
     {
-        $sql = "SELECT idUsuario FROM usuarios WHERE DUI = '$dui'";
+        if ($idUsuario) {
+            $sql = "SELECT idUsuario FROM usuarios WHERE DUI = '$dui' AND idUsuario != '$idUsuario'";
+        } else {
+            $sql = "SELECT idUsuario FROM usuarios WHERE DUI = '$dui'";
+        }
         $resultado = $this->connection->query($sql);
         if ($this->connection->error) {
             die('ERROR SQL: ' . $this->connection->error);
@@ -243,14 +245,4 @@ class Usuario
         return $datosObtenidos;
     }
 
-    // Método para verificar si un DUI ya existe
-    public function verificarDUIExistente($dui)
-    {
-        $sql = "SELECT idUsuario FROM usuarios WHERE DUI = '$dui'";
-        $resultado = $this->connection->query($sql);
-        if ($this->connection->error) {
-            die('ERROR SQL: ' . $this->connection->error);
-        }
-        return $resultado->num_rows > 0;
-    }
 }

@@ -123,7 +123,7 @@ if (isset($_POST['delete_id'])) {
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -141,13 +141,13 @@ if (isset($_POST['delete_id'])) {
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Compras" class="nav-link">Compras</a>
+                            <a href="../../views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Productos" class="nav-link">Productos</a>
+                            <a href="" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>
@@ -188,6 +188,7 @@ if (isset($_POST['delete_id'])) {
                 <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modal-agregar">
                     Agregar cliente
                 </button>
+                <a class="btn btn-success btn-lg" href="../../views/Reportes/ReporteClientes.php" target="blank">Generar Reporte</a>
             </div>
         </div>
         <hr>

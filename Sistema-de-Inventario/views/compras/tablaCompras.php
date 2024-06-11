@@ -156,17 +156,22 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
 
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Dependencias de Bootstrap -->
-    <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.js"></script>
-    <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/lobibox.css">
+    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/select2.css">
+    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/datatables.css">
+    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/waitMe.css">
     <!-- Dependencias de SweetAlert -->
     <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
+    <!--Dependencias de terceros-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
     <style>
         .action-buttons {
             display: flex;
@@ -186,7 +191,6 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
     </style>
     <title>Compras</title>
 </head>
-
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-dark bg-dark fixed-top">
@@ -212,7 +216,7 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -223,8 +227,8 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
                                 <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                 <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                 <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -280,6 +284,7 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
                 <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#Modal-CrearCompra">
                     Agregar Compra
                 </button>
+                <a class="btn btn-success btn-lg" href="../../views/Reportes/ReporteCompras.php" target="blank">Generar Reporte</a>
             </div>
         </div>
         <hr>
@@ -342,101 +347,99 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
             </table>
         </div>
     </div>
-<!-- Modal Agregar -->
-<div id="Modal-CrearCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-center w-100" id="modal-agregar-label">Formulario para crear pedido de compra</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="" method="POST">
-                    <div class="row">
-                        <div class="form-group col-md-6 text-center">
-                            <label for="FechaCompra" class="form-label">Fecha de Compra</label>
-                            <input type="date" class="form-control" name="FechaCompra" id="FechaCompra" placeholder="Fecha de Compra" required>
-                        </div><br><br>
-                        <div class="form-group col-md-6 text-center">
-                            <label for="Proveedor" class="form-label">Proveedor</label>
-                            <select class="form-control" name="Proveedor" id="Proveedor" required>
-                                <option value="">Seleccione un proveedor</option>
-                                <?php foreach ($proveedores as $proveedor): ?>
-                                    <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div><br><br><br>
-                        <div class="form-group col-md-12 text-center">
-                            <label for="Sucursal" class="form-label">Sucursal</label>
-                            <br>
-                            <select class="form-control" name="Sucursal" id="Sucursal" required>
-                                <option value="">Seleccione una sucursal</option>
-                                <?php foreach ($sucursales as $sucursal): ?>
-                                    <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div><br><br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </form>
+    <!-- Modal Agregar -->
+    <div id="Modal-CrearCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-center w-100" id="modal-agregar-label">Formulario para crear pedido de compra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method="POST">
+                        <div class="row">
+                            <div class="form-group col-md-6 text-center">
+                                <label for="FechaCompra" class="form-label">Fecha de Compra</label>
+                                <input type="date" class="form-control" name="FechaCompra" id="FechaCompra" placeholder="Fecha de Compra" required>
+                            </div><br><br>
+                            <div class="form-group col-md-6 text-center">
+                                <label for="Proveedor" class="form-label">Proveedor</label>
+                                <select class="form-control" name="Proveedor" id="Proveedor" required>
+                                    <option value="">Seleccione un proveedor</option>
+                                    <?php foreach ($proveedores as $proveedor): ?>
+                                        <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div><br><br><br>
+                            <div class="form-group col-md-12 text-center">
+                                <label for="Sucursal" class="form-label">Sucursal</label>
+                                <br>
+                                <select class="form-control" name="Sucursal" id="Sucursal" required>
+                                    <option value="">Seleccione una sucursal</option>
+                                    <?php foreach ($sucursales as $sucursal): ?>
+                                        <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div><br><br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<!-- Modal Editar -->
-<div id="Modal-EditarCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal-editar-label">Formulario para editar una compra</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="form-editar-compra" action="" method="POST">
-                    <input type="hidden" name="edit_id" id="edit_id">
-                    <div class="row">
-                        <div class="form-group col-md-6">
-                            <input type="date" class="form-control" name="FechaCompraEdit" id="FechaCompraEdit" required>
+    <!-- Modal Editar -->
+    <div id="Modal-EditarCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-editar-label">Formulario para editar una compra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-editar-compra" action="" method="POST">
+                        <input type="hidden" name="edit_id" id="edit_id">
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <input type="date" class="form-control" name="FechaCompraEdit" id="FechaCompraEdit" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <select class="form-control" name="ProveedorEdit" id="ProveedorEdit" required>
+                                    <option value="">Seleccione un proveedor</option>
+                                    <?php foreach ($proveedores as $proveedor): ?>
+                                        <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div><br><br>
+                            <div class="form-group col-md-12">
+                                <select class="form-control" name="SucursalEdit" id="SucursalEdit" required>
+                                    <option value="">Seleccione una sucursal</option>
+                                    <?php foreach ($sucursales as $sucursal): ?>
+                                        <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-group col-md-6">
-                            <select class="form-control" name="ProveedorEdit" id="ProveedorEdit" required>
-                                <option value="">Seleccione un proveedor</option>
-                                <?php foreach ($proveedores as $proveedor): ?>
-                                    <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div><br><br>
-                        <div class="form-group col-md-12">
-                            <select class="form-control" name="SucursalEdit" id="SucursalEdit" required>
-                                <option value="">Seleccione una sucursal</option>
-                                <?php foreach ($sucursales as $sucursal): ?>
-                                    <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
     <!-- Formulario oculto para eliminar una compra -->
     <?php
     echo "
     <form id='delete-form' action='./tablaCompras.php' method='POST' style='display: none;'>
         <input type='hidden' name='delete_id' id='delete_id'>
     </form>
-
     ";
     ?>
-
     <!-- Formulario oculto para editar una compra -->
     <?php
     echo "
@@ -446,26 +449,22 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
         <input type='hidden' name='ProveedorEdit' id='ProveedorEdit'>
         <input type='hidden' name='SucursalEdit' id='SucursalEdit'>
     </form>
-
     ";
     ?>
-
-
 </body>
 </html>
 <!-- Bootstrap JS and dependencies -->
 <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
-<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
-<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/waitMe.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/popper.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/lobibox.js"></script>
 <script src="../../resources/src/Bootstrap/js/notifications.js"></script>
 <script src="../../resources/src/Bootstrap/js/messageboxes.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
 <script src="../../resources/src/Bootstrap/js/select2.js"></script>
-
 <script>
 $('.dropdown-toggle').click(function() {
     $(this).next('.dropdown-menu').toggleClass('show');
@@ -515,5 +514,4 @@ $('.btn-editar').click(function() {
     // Abre el modal de edición
     $('#Modal-EditarCompra').modal('show');
 });
-
 </script>
