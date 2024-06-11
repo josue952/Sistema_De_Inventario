@@ -11,8 +11,9 @@ $orderBySalidas = "";
 
 if ($_POST) {
     // Filtros para entradas
-    if (isset($_POST['buscarFecha']) || isset($_POST['buscarPrecio']) || isset($_POST['buscarCantidad']) || isset($_POST['buscarProveedor']) || isset($_POST['buscarTipo'])) {
-        $opcionFecha = $_POST['buscarFecha'];
+    if (isset($_POST['buscarFechaInicio']) || ($_POST['buscarFechaFin']) || isset($_POST['buscarPrecio']) || isset($_POST['buscarCantidad']) || isset($_POST['buscarProveedor']) || isset($_POST['buscarTipo'])) {
+        $opcionFechaInicio = $_POST['buscarFechaInicio'];
+        $opcionFechaFin = $_POST['buscarFechaFin'];
         $opcionPrecio = $_POST['buscarPrecio'];
         $opcionCantidad = $_POST['buscarCantidad'];
         $opcionProveedor = $_POST['buscarProveedor'];
@@ -21,8 +22,8 @@ if ($_POST) {
         $conditions = array();
         $orderBy = array();
 
-        if ($opcionFecha) {
-            $conditions[] = "Fecha = '$opcionFecha' COLLATE utf8mb4_general_ci";
+        if ($opcionFechaInicio && $opcionFechaFin) {
+            $conditions[] = "Fecha BETWEEN '$opcionFechaInicio' AND '$opcionFechaFin' COLLATE utf8mb4_general_ci" ;
         }
         if ($opcionPrecio) {
             if ($opcionPrecio == 'Mayor') {
@@ -66,8 +67,8 @@ if ($_POST) {
         $conditionsSalida = array();
         $orderBySalida = array();
 
-        if ($opcionFechaSalida) {
-            $conditionsSalida[] = "Fecha = '$opcionFechaSalida' COLLATE utf8mb4_general_ci";
+        if ($opcionFechaInicio && $opcionFechaFin) {
+            $conditions[] = "Fecha BETWEEN '$opcionFechaInicio' AND '$opcionFechaFin'";
         }
         if ($opcionPrecioSalida) {
             if ($opcionPrecioSalida == 'Mayor') {
@@ -159,8 +160,8 @@ if ($_POST) {
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark">
                                     <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
-                                    <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
-                                    <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
+                                    <li><a class="dropdown-item" id="Categorias" href="../../views/categorias/tablaCategoria.php">Categorias</a></li>
+                                    <li><a class="dropdown-item" id="Sucursales" href="../../views/sucursal/tablaSucursal.php">Sucursales</a></li>
                                     <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
                                     <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                     <li>
@@ -172,7 +173,7 @@ if ($_POST) {
                                 <a href="../../views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                             </li>
                             <li class="nav-item">
-                                <a href="#" id="Productos" class="nav-link">Productos</a>
+                                <a href="../../views/productos/tablaProductos.php" id="Productos" class="nav-link">Productos</a>
                             </li>
                             <li class="nav-item">
                                 <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
@@ -230,8 +231,6 @@ if ($_POST) {
                     <!-- Buscador  -->
                     <div class="inline-search">
                         <form method="post" id="EntradaProductos">
-                            <label for="buscarFecha">Buscar por fecha:</label>
-                            <input type="date" id="buscarFecha" name="buscarFecha" class="col-md-1">
                             <label for="buscarPrecio">Buscar por precio:</label>
                             <select id="buscarPrecio" name="buscarPrecio" class="col-md-1">
                                 <option></option>
@@ -300,8 +299,6 @@ if ($_POST) {
                     <!-- Buscador  -->
                     <div class="inline-search">
                         <form method="post" id="SalidaProductos">
-                            <label for="buscarFechaSalida">Buscar por fecha:</label>
-                            <input type="date" id="buscarFechaSalida" name="buscarFechaSalida" class="col-md-1">
                             <label for="buscarPrecioSalida">Buscar por precio:</label>
                             <select id="buscarPrecioSalida" name="buscarPrecioSalida" class="col-md-1">
                                 <option></option>
