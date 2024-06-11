@@ -345,9 +345,6 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-
-
-
 -- Procedimiento para Actualizar un Proveedor
 DELIMITER //
 
