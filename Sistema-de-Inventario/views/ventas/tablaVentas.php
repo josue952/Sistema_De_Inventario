@@ -1,74 +1,55 @@
 <?php
 session_start();
-
-require '../../models/comprasModel.php';
-$objCompra = new Compra();
+require '../../models/ventasModel.php';
+$objVenta = new Ventas();
 $conn = conectar();
 
-// Obtener lista de proveedores
-$sqlProveedores = "CALL obtenerProveedores();";
-$resultProveedores = $conn->query($sqlProveedores);
+// obtener lista de ventas
+$resultVentas = $objVenta->obtenerVentas();
 
-// Cuando hay 2 o mas consultas en un procedimiento almacenado, se debe liberar el búfer de resultados
-if ($resultProveedores) {
-    $proveedores = [];
-    while ($row = $resultProveedores->fetch_assoc()) {
-        $proveedores[] = $row;
+if ($resultVentas) {
+    $ventas = [];
+    while ($row = $resultVentas->fetch_assoc()) {
+        $ventas[] = $row;
+    }
+} else {
+    echo "Error al obtener ventas: " . $conn->error;
+}
+
+//obtener lista de clientes
+$sqlClientes = "CALL obtenerClientes();";
+$resultClientes = $conn->query($sqlClientes);
+
+if ($resultClientes) {
+    $clientes = [];
+    while ($row = $resultClientes->fetch_assoc()) {
+        $clientes[] = $row;
     }
     // Libera el búfer de resultados
-    $resultProveedores->free();
+    $resultClientes->free();
     $conn->next_result();
 } else {
-    echo "Error al obtener proveedores: " . $conn->error;
+    echo "Error al obtener clientes: " . $conn->error;
 }
 
-// Obtener lista de sucursales
-$sqlSucursales = "CALL obtenerSucursales();";
-$resultSucursales = $conn->query($sqlSucursales);
-
-if ($resultSucursales) {
-    $sucursales = [];
-    while ($row = $resultSucursales->fetch_assoc()) {
-        $sucursales[] = $row;
-    }
-    // Libera el búfer de resultados
-    $resultSucursales->free();
-    $conn->next_result();
-} else {
-    echo "Error al obtener sucursales: " . $conn->error;
-}
-
-// obtener lista de compras
-$resultCompras = $objCompra->obtenerCompras();
-
-if ($resultCompras) {
-    $compras = [];
-    while ($row = $resultCompras->fetch_assoc()) {
-        $compras[] = $row;
-    }
-} else {
-    echo "Error al obtener compras: " . $conn->error;
-}
-
-// Logica para agregar una compra y esta comenzara cuando el formulario sea enviado
-if ($_POST && isset($_POST['FechaCompra'], $_POST['Proveedor'], $_POST['Sucursal'])){
+// Logica para agregar una venta y esta comenzara cuando el formulario sea enviado
+if ($_POST && isset($_POST['FechaVenta'], $_POST['Cliente'])){
     //Obtener datos del formulario
-    $FechaCompra = $_POST['FechaCompra'];
-    $Proveedor = $_POST['Proveedor'];
-    $Sucursal = $_POST['Sucursal'];
+    $FechaVenta = $_POST['FechaVenta'];
+    $idCliente = $_POST['Cliente'];
 
     
-    if ($FechaCompra != "" && $Proveedor != "" && $Sucursal != "") {
-        $objCompra->crearCompra($FechaCompra, $Proveedor, $Sucursal);
+    if ($FechaVenta != "" && $idCliente != "") {
+        $objVenta->crearVenta($FechaVenta, $idCliente);
         echo "<script>
         window.onload = function() {
             Swal.fire({
                 title: '¡Éxito!',
-                text: 'Compra creada exitosamente',
+                text: 'Venta creada exitosamente',
                 icon: 'success'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = './tablaCompras.php';
+                    window.location.href = './tablaVentas.php';
                 }
             });
         };
@@ -78,11 +59,11 @@ if ($_POST && isset($_POST['FechaCompra'], $_POST['Proveedor'], $_POST['Sucursal
         window.onload = function() {
             Swal.fire({
                 title: '¡Error!',
-                text: 'Error al crear la compra',
+                text: 'Error al crear la venta',
                 icon: 'error'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = './tablaCompras.php';
+                    window.location.href = './tablaVentas.php';
                 }
             });
         };
@@ -93,43 +74,42 @@ if ($_POST && isset($_POST['FechaCompra'], $_POST['Proveedor'], $_POST['Sucursal
 
 // Verificar si se ha solicitado la eliminación de una compra
 if (isset($_POST['delete_id'])) {
-    $idCompra = $_POST['delete_id'];
-    $objCompra->eliminarCompra($idCompra);
+    $idVenta = $_POST['delete_id'];
+    $objVenta->eliminarVenta($idVenta);
     echo "<script>
     window.onload = function() {
         Swal.fire({
             title: '¡Éxito!',
-            text: 'Compra eliminada exitosamente',
+            text: 'Venta eliminada exitosamente',
             icon: 'success'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = './tablaCompras.php';
+                window.location.href = './tablaVentas.php';
             }
         });
     };
     </script>";
 }
 
-// Verificar si se ha solicitado la edicion de una compra
-if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['ProveedorEdit'], $_POST['SucursalEdit'])) {
-    $idCompraEdit = $_POST['edit_id'];
-    $fechaCompraEdit = $_POST['FechaCompraEdit'];
-    $proveedorEdit = $_POST['ProveedorEdit'];
-    $sucursalEdit = $_POST['SucursalEdit'];
+// Verificar si se ha solicitado la edicion de una venta
+if ($_POST && isset($_POST['edit_id'], $_POST['FechaVentaEdit'], $_POST['ClienteEdit'])) {
+    $idVentaEdit = $_POST['edit_id'];
+    $fechaVentaEdit = $_POST['FechaVentaEdit'];
+    $clienteEdit = $_POST['ClienteEdit'];
     
     // Validar los datos
-    if ($fechaCompraEdit != "" && $proveedorEdit != "" && $sucursalEdit != "") {
-        $result = $objCompra->actualizarCompra($idCompraEdit, $fechaCompraEdit, $proveedorEdit, $sucursalEdit);
+    if ($fechaVentaEdit != "" && $clienteEdit != "") {
+        $result = $objVenta->actualizarVenta($idVentaEdit, $fechaVentaEdit, $clienteEdit);
         if ($result) {
             echo "<script>
             window.onload = function() {
                 Swal.fire({
                     title: '¡Éxito!',
-                    text: 'Compra editada exitosamente',
+                    text: 'Venta editada exitosamente',
                     icon: 'success'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = './tablaCompras.php';
+                        window.location.href = './tablaVentas.php';
                     }
                 });
             };
@@ -139,11 +119,11 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
             window.onload = function() {
                 Swal.fire({
                     title: '¡Error!',
-                    text: 'Error al editar la compra',
+                    text: 'Error al editar la venta',
                     icon: 'error'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = './tablaCompras.php';
+                        window.location.href = './tablaVentas.php';
                     }
                 });
             };
@@ -155,23 +135,24 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
 ?>
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Dependencias de Bootstrap -->
-    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/lobibox.css">
-    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/select2.css">
-    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/datatables.css">
-    <link rel="stylesheet" href="../../resources/src/Bootstrap/css/waitMe.css">
-    <!-- Dependencias de SweetAlert -->
-    <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
-    <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
-    <!--Dependencias de terceros-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
+    <title>Ventas</title>
+        <!--Dependencias de bootstrap-->
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/lobibox.css">
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/select2.css">
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/datatables.css">
+        <link rel="stylesheet" href="../../resources/src/Bootstrap/css/waitMe.css">
+        <!--Dependencias de SweetAlert-->
+        <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
+        <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
+        <!--Dependencias de terceros-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
     <style>
         .action-buttons {
             display: flex;
@@ -180,16 +161,13 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
         }
         .btn-spacing {
             margin: 0 5px;
-            /* Ajusta el margen según tus necesidades */
         }
-        /* Estilo para centrar el enlace de Inicio */
         .navbar-center {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
         }
     </style>
-    <title>Compras</title>
 </head>
 <body>
     <!-- Navbar -->
@@ -278,13 +256,13 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
     <div class="container mt-4 bg-white rounded p-4 shadow">
         <div class="row">
             <div class="col-md-8">
-                <h1>COMPRAS</h1>
+                <h1>VENTAS</h1>
             </div>
             <div class="col-md-4 text-lg-center">
-                <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#Modal-CrearCompra">
-                    Agregar Compra
+                <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#Modal-CrearVenta">
+                    Agregar Venta
                 </button>
-                <a class="btn btn-success btn-lg" href="../../views/Reportes/ReporteCompras.php" target="blank">Generar Reporte</a>
+                <a class="btn btn-success btn-lg" href="../../views/Reportes/ReporteVentas.php" target="blank">Generar Reporte</a>
             </div>
         </div>
         <hr>
@@ -293,53 +271,69 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
                 <thead class="bg-primary text-light">
                     <tr>
                         <th>ID</th>
-                        <th>Fecha de Compra</th>
-                        <th>Proveedor</th>
-                        <th>Sucursal</th>
-                        <th>Total Compra</th>
+                        <th>Fecha de Venta</th>
+                        <th>Cliente</th>
+                        <th>Total Venta</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <!-- Logica para obtener los datos de la tabla compras -->
+                <!-- Logica para obtener los datos de la tabla ventas -->
                 <tbody>
-                    <?php foreach ($compras as $compra): ?>
+                    <?php foreach ($ventas as $venta): ?>
                     <tr>
-                        <td><?php echo $compra['idCompra']; ?></td>
-                        <td><?php echo $compra['FechaCompra']; ?></td>
-                        <td><?php echo $compra['NombreProveedor']; ?></td>
-                        <td><?php echo $compra['NombreSucursal']; ?></td>
-                        <td><?php echo "$".$compra['TotalCompra']; ?></td>
+                        <td><?php echo $venta['idVenta']; ?></td>
+                        <td><?php echo $venta['FechaVenta']; ?></td>
+                        <td><?php echo $venta['NombreCliente']; ?></td>
+                        <td><?php echo "$".$venta['TotalVenta']; ?></td>
                         <td class="action-buttons">
-                            <!--Se inicializa como formulario para no mostrar el id en la url por seguridad-->
-                            <form action="./tablaDetalleCompras-create.php" method="post" style="display:inline;">
-                                <input type="hidden" name="idCompra" value="<?php echo $compra['idCompra']; ?>">
+                            <form action="./tablaDetalleVentas-create.php" method="post" style="display:inline;">
+                                <input type="hidden" name="idVenta" value="<?php echo $venta['idVenta']; ?>">
                                 <button type="submit" class="btn btn-success btn-sm btn-spacing">Productos</button>
                             </form>
-                            <!-- Botón de edición en la tabla -->
+                            <!--Obtener un cliente en especifico-->
                             <?php
-                            //Obtener una compra en especifico
-                            // obtener lista de compras
-                            $resultComprasEdit = $objCompra->obtenerCompraFiltro($compra['idCompra'],'','','');
+                            $nombreCliente = $venta['NombreCliente'];
+                            $sqlCliente = "CALL obtenerClienteFiltro('','$nombreCliente','','');";
+                            $resultCliente = $conn->query($sqlCliente);
 
-                            if ($resultComprasEdit) {
-                                $comprasEdit = [];
-                                while ($row = $resultComprasEdit->fetch_assoc()) {
-                                    $comprasEdit[] = $row;
+                            if ($resultCliente) {
+                                $cliente = [];
+                                while ($row = $resultCliente->fetch_assoc()) {
+                                    $cliente[] = $row;
                                 }
+                                // Libera el búfer de resultados
+                                $resultCliente->free();
+                                $conn->next_result();
                             } else {
-                                echo "Error al obtener compras: " . $conn->error;
+                                echo "Error al obtener cliente: " . $conn->error;
                             }
 
+                            //obtener una venta en especifico
+                            $idVenta = $venta['idVenta'];
+                            $sqlVentaFiltro = "CALL obtenerVentaFiltro('$idVenta','','');";
+                            $resultVentaFiltro = $conn->query($sqlVentaFiltro);
+
+                            if ($resultVentaFiltro) {
+                                $VentaFiltro = [];
+                                while ($row = $resultVentaFiltro->fetch_assoc()) {
+                                    $VentaFiltro[] = $row;
+                                }
+                                // Libera el búfer de resultados
+                                $resultVentaFiltro->free();
+                                $conn->next_result();
+                            } else {
+                                echo "Error al obtener cliente: " . $conn->error;
+                            }
                             ?>
+                            <!-- Botón de edición en la tabla -->
                             <button class="btn btn-warning btn-sm btn-spacing btn-editar" 
-                                data-idEditar="<?php echo $compra['idCompra']; ?>" 
-                                data-fecha="<?php echo $comprasEdit[0]['FechaCompra']; ?>" 
-                                data-proveedor="<?php echo $comprasEdit[0]['idProveedor'];?>" 
-                                data-sucursal="<?php echo $comprasEdit[0]['idSucursal'];?>" 
+                                data-idEditar="<?php echo $venta['idVenta']; ?>" 
+                                data-fecha="<?php echo $VentaFiltro[0]['FechaVenta']; ?>" 
+                                data-cliente="<?php echo $cliente[0]['idCliente'];?>" 
                                 data-bs-toggle="modal" 
-                                data-bs-target="#Modal-EditarCompra">Editar
+                                data-bs-target="#Modal-EditarVenta">Editar
                             </button>   
-                            <button class="btn btn-danger btn-eliminar" data-id="<?php $idCompra = $compra['idCompra']; echo $idCompra;?>">Eliminar</button>                      
+                            <button class="btn btn-danger btn-eliminar" data-id="<?php echo $venta['idVenta']; ?>">Eliminar</button>                      
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -348,39 +342,29 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
         </div>
     </div>
     <!-- Modal Agregar -->
-    <div id="Modal-CrearCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div id="Modal-CrearVenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title text-center w-100" id="modal-agregar-label">Formulario para crear pedido de compra</h5>
+                    <h5 class="modal-title text-center w-100" id="modal-agregar-label">Formulario para crear pedido de venta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form action="" method="POST">
                         <div class="row">
-                            <div class="form-group col-md-6 text-center">
-                                <label for="FechaCompra" class="form-label">Fecha de Compra</label>
-                                <input type="date" class="form-control" name="FechaCompra" id="FechaCompra" placeholder="Fecha de Compra" required>
-                            </div><br><br>
-                            <div class="form-group col-md-6 text-center">
-                                <label for="Proveedor" class="form-label">Proveedor</label>
-                                <select class="form-control" name="Proveedor" id="Proveedor" required>
-                                    <option value="">Seleccione un proveedor</option>
-                                    <?php foreach ($proveedores as $proveedor): ?>
-                                        <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
+                            <div class="form-group col-md-12 text-center">
+                                <label for="FechaVenta" class="form-label">Fecha de Venta</label>
+                                <input type="date" class="form-control" name="FechaVenta" id="FechaVenta" placeholder="Fecha de Venta" required>
+                            </div><br><br><br>
+                            <div class="form-group col-md-12 text-center">
+                                <label for="Cliente" class="form-label">Cliente</label>
+                                <select class="form-control" name="Cliente" id="Cliente" required>
+                                    <option value="">Seleccione un Cliente</option>
+                                    <?php foreach ($clientes as $cliente): ?>
+                                        <option value="<?php echo $cliente['idCliente']; ?>"><?php echo $cliente['NombreCliente']; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div><br><br><br>
-                            <div class="form-group col-md-12 text-center">
-                                <label for="Sucursal" class="form-label">Sucursal</label>
-                                <br>
-                                <select class="form-control" name="Sucursal" id="Sucursal" required>
-                                    <option value="">Seleccione una sucursal</option>
-                                    <?php foreach ($sucursales as $sucursal): ?>
-                                        <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div><br><br>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Guardar</button>
@@ -392,36 +376,30 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
         </div>
     </div>
     <!-- Modal Editar -->
-    <div id="Modal-EditarCompra" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div id="Modal-EditarVenta" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-editar-label">Formulario para editar una compra</h5>
+                    <h5 class="modal-title text-center w-100" id="modal-editar-label">Formulario para editar una venta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="form-editar-compra" action="" method="POST">
                         <input type="hidden" name="edit_id" id="edit_id">
                         <div class="row">
-                            <div class="form-group col-md-6">
-                                <input type="date" class="form-control" name="FechaCompraEdit" id="FechaCompraEdit" required>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <select class="form-control" name="ProveedorEdit" id="ProveedorEdit" required>
-                                    <option value="">Seleccione un proveedor</option>
-                                    <?php foreach ($proveedores as $proveedor): ?>
-                                        <option value="<?php echo $proveedor['idProveedor']; ?>"><?php echo $proveedor['NombreProveedor']; ?></option>
+                            <div class="form-group col-md-12 text-center">
+                                <label for="FechaVentaEdit" class="form-label">Fecha de Venta</label>
+                                <input type="date" class="form-control" name="FechaVentaEdit" id="FechaVentaEdit" placeholder="Fecha de Venta" required>
+                            </div><br><br><br>
+                            <div class="form-group col-md-12 text-center">
+                                <label for="ClienteEdit" class="form-label">Cliente</label>
+                                <select class="form-control" name="ClienteEdit" id="ClienteEdit" required>
+                                    <option value="">Seleccione un Cliente</option>
+                                    <?php foreach ($clientes as $cliente): ?>
+                                        <option value="<?php echo $cliente['idCliente']; ?>"><?php echo $cliente['NombreCliente']; ?></option>
                                     <?php endforeach; ?>
                                 </select>
-                            </div><br><br>
-                            <div class="form-group col-md-12">
-                                <select class="form-control" name="SucursalEdit" id="SucursalEdit" required>
-                                    <option value="">Seleccione una sucursal</option>
-                                    <?php foreach ($sucursales as $sucursal): ?>
-                                        <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                            </div><br><br><br>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Guardar</button>
@@ -435,22 +413,25 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
     <!-- Formulario oculto para eliminar una compra -->
     <?php
     echo "
-    <form id='delete-form' action='./tablaCompras.php' method='POST' style='display: none;'>
+    <form id='delete-form' action='./tablaVentas.php' method='POST' style='display: none;'>
         <input type='hidden' name='delete_id' id='delete_id'>
     </form>
+
     ";
     ?>
+
     <!-- Formulario oculto para editar una compra -->
     <?php
     echo "
-    <form id='edit-form' action='./tablaCompras.php' method='POST' style='display: none;'>
+    <form id='edit-form' action='./tablaVentas.php' method='POST' style='display: none;'>
         <input type='hidden' name='edit_id' id='edit_id'>
-        <input type='hidden' name='FechaCompraEdit' id='FechaCompraEdit'>
-        <input type='hidden' name='ProveedorEdit' id='ProveedorEdit'>
-        <input type='hidden' name='SucursalEdit' id='SucursalEdit'>
+        <input type='hidden' name='FechaVentaEdit' id='FechaVentaEdit'>
+        <input type='hidden' name='ClienteEdit' id='ClienteEdit'>
     </form>
+
     ";
     ?>
+
 </body>
 </html>
 <!-- Bootstrap JS and dependencies -->
@@ -466,10 +447,12 @@ if ($_POST && isset($_POST['edit_id'], $_POST['FechaCompraEdit'], $_POST['Provee
 <script src="../../resources/src/Bootstrap/js/datatables.js"></script>
 <script src="../../resources/src/Bootstrap/js/select2.js"></script>
 <script>
+// Permite que se despliegue el dropdown
 $('.dropdown-toggle').click(function() {
     $(this).next('.dropdown-menu').toggleClass('show');
 });
 
+// Permite que se despliegue el dropdown
 $(document).click(function(e) {
     var container = $(".dropdown");
     if (!container.is(e.target) && container.has(e.target).length === 0) {
@@ -479,7 +462,7 @@ $(document).click(function(e) {
 
 // Maneja el clic en el botón "Eliminar"
 $('.btn-eliminar').click(function() {
-    var compraId = $(this).data('id');
+    var ventaId = $(this).data('id');
     // Muestra un mensaje de confirmación antes de eliminar la compra (caso en js)
     Swal.fire({
         title: '¿Estás seguro?',
@@ -492,7 +475,7 @@ $('.btn-eliminar').click(function() {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
             if (result.isConfirmed) {
-            $('#delete_id').val(compraId);  
+            $('#delete_id').val(ventaId);  
             $('#delete-form').submit();
         }
     });
@@ -500,18 +483,17 @@ $('.btn-eliminar').click(function() {
 
 // Maneja el clic en el botón "Editar"
 $('.btn-editar').click(function() {
-    var compraId = $(this).data('ideditar');
-    var fechaCompra = $(this).data('fecha');
-    var proveedorId = $(this).data('proveedor');
-    var sucursalId = $(this).data('sucursal');
+    var VentaId = $(this).data('ideditar');
+    var fechaVenta = $(this).data('fecha');
+    var clienteId = $(this).data('cliente');
     
     // Establece los valores en el formulario de edición
-    $('#edit_id').val(compraId);
-    $('#FechaCompraEdit').val(fechaCompra);
-    $('#ProveedorEdit').val(proveedorId);
-    $('#SucursalEdit').val(sucursalId);
+    $('#edit_id').val(VentaId);
+    $('#FechaVentaEdit').val(fechaVenta);
+    $('#ClienteEdit').val(clienteId);
 
     // Abre el modal de edición
-    $('#Modal-EditarCompra').modal('show');
+    $('#Modal-EditarVenta').modal('show');
 });
+
 </script>

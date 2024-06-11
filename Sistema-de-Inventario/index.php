@@ -4,7 +4,7 @@ require './Conexion-Base-de-Datos/dbConnection.php';
 
 $conn = conectar();
 //este parte verifica si el usuario esta o no logueado, y si no lo redirige a la pagina de inicio
-if ($_POST){
+if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
     $nombreUsuario = $_POST['Usuario'];
     $contraseña = $_POST['Contraseña'];
     $sql = $conn->query("CALL obtenerUsuariosFiltro('', '$nombreUsuario', '')");
@@ -30,7 +30,6 @@ if ($_POST){
                 });
             };
             </script>";
-            $sql->free();
         } else {
             echo "<script>
             window.onload = function() {
@@ -120,7 +119,7 @@ if ($_POST){
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="./views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -130,8 +129,8 @@ if ($_POST){
                                 <li><a class="dropdown-item" id="Usuarios" href="./views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                 <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                 <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                <li><a class="dropdown-item" id="Proveedores" href="./views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                <li><a class="dropdown-item" id="Clientes" href="./views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
                                 <hr class="dropdown-divider">
                                 </li>
@@ -144,7 +143,7 @@ if ($_POST){
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="./views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>
@@ -199,15 +198,36 @@ if ($_POST){
                 </svg>
             </div>
             <div class="options">
-                <label>
-                    <input type="checkbox" id="recordar">
-                    Recordar
-                </label>
-                <a href="#" class="forgot-password">Olvidé la Contraseña</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#recuperarContraseña" class="forgot-password">¿Olvidaste tu contraseña?</a>
             </div>
             <button type="submit">Iniciar Sesión</button>
         </form>
     </div>
+    <!--Modal de recuperar contraseña-->
+    <div class="modal fade" id="recuperarContraseña" tabindex="-1" aria-labelledby="recuperarContraseñaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recuperarContraseñaLabel">Recuperar Contraseña</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body
+                ">
+                    <form>
+                        <div class="mb-3">
+                            <label for="correo" class="col-form-label">Correo Electrónico:</label>
+                            <input type="email" class="form-control" id="correo">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Header -->
     <!--Si el usuario no esta registrado no mostrara nada-->
     <header class="header" <?php echo !isset($_SESSION['Nombre']) ? 'style="display: none;"' : ''; ?>>
@@ -255,7 +275,7 @@ if ($_POST){
     <!--Si el usuario no esta registrado no mostrara nada-->
     <footer class="footer bg-light py-4" <?php echo !isset($_SESSION['Nombre']) ? 'style="display: none;"' : ''; ?>>
         <div class="container text-center">
-            <p class="m-0">© 2024 Proyecto</p>
+            <p class="m-0">© 2024 Proyecto Desarrollo de Aplicaciones Web</p>
         </div>
     </footer>
 
@@ -281,7 +301,7 @@ if ($_POST){
 </body>
 </html>
 <?php
-if ($_POST) {
+if ($_POST && isset($_POST['NombreEmpresa'])) {
     $nombreEmpresa = $_POST['NombreEmpresa'];
     $logoEmpresa = $_POST['LogoEmpresa'];
     $sloganEmpresa = $_POST['SloganEmpresa'];

@@ -17,10 +17,29 @@ $datosCompras = $sqlCompras->fetch_object();
 // Obtener los productos de la compra (detalle de compra)
 $sqlDetalleCompras = $objCompra->obtenerDetalleCompraFiltro($idCompra);
 
-// verificar si el usuario ha solicitado la eliminacion de un producto
+// Verificar si se ha solicitado la eliminación de un item de compra
+if (isset($_POST['delete_id'])) {
+    $producto = $_POST['producto'];
+    $cantidad = $_POST['cantidad'];
+    $objCompra->eliminarItemDetalleCompra($idCompra, $producto, $cantidad);
+    echo "<script>
+    window.onload = function() {
+        Swal.fire({
+            title: '¡Éxito!',
+            text: 'Item eliminado exitosamente',
+            icon: 'success'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = './tablaDetalleCompras-create.php?idCompra=".$idCompra."';
+            }
+        });
+    };
+    </script>";
+}
 
 //obtener el todos los productos 
 $productos = $objCompra->obtenerTodosLosProductos();
+
 ?>
 
 <!DOCTYPE html>
@@ -87,7 +106,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -97,21 +116,21 @@ $productos = $objCompra->obtenerTodosLosProductos();
                                         href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                 <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                 <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="./tablaCompras.php" id="Compras" class="nav-link">Compras</a>
+                            <a href="../../views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>
@@ -164,7 +183,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                 <tr>
                     <td><?php echo $datosCompras->idCompra; ?></td>
                     <td><?php echo $datosCompras->FechaCompra; ?></td>
-                    <td><?php echo $datosCompras->TotalCompra; ?></td>
+                    <td><?php echo "$".$datosCompras->TotalCompra; ?></td>
                 </tr>
             </tbody>
         </table>
@@ -187,15 +206,17 @@ $productos = $objCompra->obtenerTodosLosProductos();
                     </tr>
                 </thead>
                 <tbody>
+                    <!--Obtener los productos de la compra-->
                     <?php if ($sqlDetalleCompras->num_rows > 0): ?>
                     <?php while ($datosDetalleCompras = $sqlDetalleCompras->fetch_object()): ?>
                     <tr>
                         <td><?php echo $datosDetalleCompras->NombreProducto; ?></td>
                         <td><?php echo $datosDetalleCompras->Cantidad; ?></td>
-                        <td><?php echo $datosDetalleCompras->Precio; ?></td>
-                        <td><?php echo $datosDetalleCompras->SubTotal; ?></td>
+                        <td><?php echo "$".$datosDetalleCompras->Precio; ?></td>
+                        <td><?php echo "$".$datosDetalleCompras->SubTotal; ?></td>
                         <td>
-                            <button class="btn btn-eliminar"><img src="../../resources/Icons/eliminar.svg"></button>
+                            <button class="btn btn-eliminar" data-id="<?php echo $idCompra; ?>" data-producto="<?php echo $datosDetalleCompras->NombreProducto; ?>" data-cantidad="<?php echo $datosDetalleCompras->Cantidad; ?>"><img src="../../resources/Icons/eliminar.svg"></button>                        
+                        </td>
                     </tr>
                     <?php endwhile; ?>
                     <?php else: ?>
@@ -220,9 +241,10 @@ $productos = $objCompra->obtenerTodosLosProductos();
                                     <input class="form-control" id="NombreProducto" name="NombreProducto">
                                     <br>
                                     <p class="text-center">O</p>
+                                    <!--Agregar un select para seleccionar el producto-->
                                     <label for="SeleccionarProducto" class="form-label">Seleccionar Producto</label>
                                     <select class="form-select" id="NombreProductoSelect" name="NombreProductoSelect">
-                                        <option value="">Seleccionar Producto</option>
+                                        <option value="" >Seleccionar Producto</option>
                                         <?php foreach ($productos as $producto): ?>
                                         <option value="<?php echo $producto; ?>">
                                             <?php echo $producto; ?>
@@ -236,7 +258,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                                 </div>
                                 <div class="mb-3">
                                     <label for="Precio" class="form-label">Precio</label>
-                                    <input type="number" class="form-control" id="Precio" name="Precio" required>
+                                    <input type="number" class="form-control" id="Precio" name="Precio" value="" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="SubTotal" class="form-label">Sub Total</label>
@@ -250,6 +272,17 @@ $productos = $objCompra->obtenerTodosLosProductos();
             </div>
             <button class="btn btn-success mt-3" id="guardar-cambios">Guardar Cambios</button>
     </div>
+    <!-- Formulario oculto para eliminar un detalleCompra-->
+    <?php
+    echo "
+    <form id='delete-form' action='./tablaDetalleCompras-create.php?idCompra=".$idCompra."' method='POST' style='display: none;'>
+        <input type='hidden' name='delete_id' id='delete_id'>
+        <input type='hidden' name='producto' id='producto'>
+        <input type='hidden' name='cantidad' id='cantidad'>
+    </form>
+
+    ";
+    ?>
     <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
     <script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
@@ -349,49 +382,36 @@ $productos = $objCompra->obtenerTodosLosProductos();
         }
     });
 
-    //permite que se despliegue el dropdown
-    $('.dropdown-toggle').click(function() {
-        $(this).next('.dropdown-menu').toggleClass('show');
-    });
-    
-    //permite que se despliegue el dropdown
-    $(document).click(function(e) {
-        var container = $(".dropdown");
-        if (!container.is(e.target) && container.has(e.target).length === 0) {
-            container.find('.dropdown-menu').removeClass('show');
-        }
-    });
-
     //Logica para el buscador de productos
     $(document).ready(function() {
-            var productos = <?php echo json_encode($productos); ?>;
+        var productos = <?php echo json_encode($productos); ?>;
 
-            // Filtrar productos en el select cuando se escribe en el input
-            $("#NombreProducto").on("input", function() {
-                var searchTerm = $(this).val().toLowerCase();
-                $("#NombreProductoSelect option").each(function() {
-                    var optionText = $(this).text().toLowerCase();
-                    if (optionText.includes(searchTerm)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-            });
-
-            // Autocompletar para el input NombreProducto
-            $("#NombreProducto").autocomplete({
-                source: productos,
-                minLength: 2
-            });
-
-            // Reset select options when input is cleared
-            $("#NombreProducto").on("blur", function() {
-                if ($(this).val() === "") {
-                    $("#NombreProductoSelect option").show();
+        // Filtrar productos en el select cuando se escribe en el input
+        $("#NombreProducto").on("input", function() {
+            var searchTerm = $(this).val().toLowerCase();
+            $("#NombreProductoSelect option").each(function() {
+                var optionText = $(this).text().toLowerCase();
+                if (optionText.includes(searchTerm)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
                 }
             });
         });
+
+        // Autocompletar para el input NombreProducto
+        $("#NombreProducto").autocomplete({
+            source: productos,
+            minLength: 2
+        });
+
+        // Reset select options when input is cleared
+        $("#NombreProducto").on("blur", function() {
+            if ($(this).val() === "") {
+                $("#NombreProductoSelect option").show();
+            }
+        });
+    });
 
     // Obtener precio del producto seleccionado
     $('#NombreProductoSelect').on('change', function() {
@@ -405,9 +425,43 @@ $productos = $objCompra->obtenerTodosLosProductos();
         $('#precio').val(precio);
     });
 
+    //permite que se despliegue el dropdown
+    $('.dropdown-toggle').click(function() {
+        $(this).next('.dropdown-menu').toggleClass('show');
+    });
     
+    //permite que se despliegue el dropdown
+    $(document).click(function(e) {
+        var container = $(".dropdown");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.find('.dropdown-menu').removeClass('show');
+        }
+    });
+
+    // Maneja el clic en el botón "Eliminar"
+    $('.btn-eliminar').click(function() {
+            var compraId = $(this).data('id');
+            var nombreProducto = $(this).data('producto');
+            var cantidad = $(this).data('cantidad');
+            // Muestra un mensaje de confirmación antes de eliminar la compra (caso en js)
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminarlo',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#delete_id').val(compraId);  
+                    $('#producto').val(nombreProducto); 
+                    $('#cantidad').val(cantidad); 
+                    $('#delete-form').submit();
+                }
+            });
+        });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

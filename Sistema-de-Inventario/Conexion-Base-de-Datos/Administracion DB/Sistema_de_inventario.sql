@@ -134,7 +134,7 @@ CREATE TABLE `productos` (
     `NombreProducto` varchar(50) NOT NULL,
     `Cantidad` int(11) NOT NULL,
     `Precio` decimal(10,2) NOT NULL,
-    `Foto` longblob DEFAULT NULL,
+    `Foto` VARCHAR(100) NULL, -- No es obligatorio para la creacion del producto, pero luego se debe asignar
     `idCategoria` int(11) DEFAULT NULL, -- No es obligatorio para la creacion del producto, pero luego se debe asignar
     `idSucursal` int(11) DEFAULT NULL, -- No es obligatorio para la creacion del producto, pero luego se debe asignar
     PRIMARY KEY (`idProducto`),

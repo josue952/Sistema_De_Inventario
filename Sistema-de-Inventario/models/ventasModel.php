@@ -1,13 +1,12 @@
 <?php
 require '../../Conexion-Base-de-Datos/dbConnection.php';
 
-Class Compra 
+class Ventas 
 {
-    private $idCompra;
+    private $idVenta;
     private $Fecha;
-    private $idProveedor;
-    private $idSucursal;
-    private $total;
+    private $idCliente;
+    private $Total;
     private $connection;
 
     function __construct()
@@ -15,14 +14,14 @@ Class Compra
         $this->connection = conectar();
     }
 
-    public function getIdCompra()
+    public function getIdVenta()
     {
-        return $this->idCompra;
+        return $this->idVenta;
     }
 
-    public function setIdCompra($idCompra)
+    public function setIdVenta($idVenta)
     {
-        $this->idCompra = $idCompra;
+        $this->idVenta = $idVenta;
     }
 
     public function getFecha()
@@ -35,40 +34,30 @@ Class Compra
         $this->Fecha = $Fecha;
     }
 
-    public function getIdProveedor()
+    public function getIdCliente()
     {
-        return $this->idProveedor;
+        return $this->idCliente;
     }
 
-    public function setIdProveedor($idProveedor)
+    public function setIdCliente($idCliente)
     {
-        $this->idProveedor = $idProveedor;
-    }
-
-    public function getIdSucursal()
-    {
-        return $this->idSucursal;
-    }
-
-    public function setIdSucursal($idSucursal)
-    {
-        $this->idSucursal = $idSucursal;
+        $this->idCliente = $idCliente;
     }
 
     public function getTotal()
     {
-        return $this->total;
+        return $this->Total;
     }
 
-    public function setTotal($total)
+    public function setTotal($Total)
     {
-        $this->total = $total;
+        $this->Total = $Total;
     }
 
-    // metodos crud
-    //metodo para obtener todos los datos de todas las compras
-    public function obtenerCompras(){
-        $sql="CALL obtenerCompras();";
+    //metodos crud
+    //Metodo para obtener todas las ventas
+    public function obtenerVentas(){
+        $sql="CALL obtenerVentas();";
         $datosObtenidos=$this->connection->query($sql);
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
@@ -78,11 +67,10 @@ Class Compra
         return $datosObtenidos;
     } 
 
-    //metodo para obtener todos los datos de todas las compras
-    public function crearCompra($fechaCompra, $idProveedor, $idSucursal){
-        $sql="CALL crearCompra('$fechaCompra','$idProveedor','$idSucursal');";
+    //Metodo para crear una venta
+    public function crearVenta($fechaVenta, $idCliente){
+        $sql="CALL crearVenta('$fechaVenta','$idCliente');";
         $datosObtenidos=$this->connection->query($sql);
-
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
         }
@@ -91,11 +79,10 @@ Class Compra
         return $datosObtenidos;
     } 
 
-     //metodo para obtener todos los datos de una compra segun su id, fecha, proveedor y sucursal
-    public function obtenerCompraFiltro($idCompra, $fechaCompra, $idProveedor, $idSucursal){
-        $sql="CALL obtenerCompraFiltro('$idCompra', '$fechaCompra','$idProveedor','$idSucursal');";
+    //Metodo para obtener una venta por idVenta, fecha de venta e id de cliente
+    public function obtenerVentaFiltro($idVenta, $fechaVenta, $idCliente){
+        $sql="CALL obtenerVentaFiltro('$idVenta','$fechaVenta','$idCliente');";
         $datosObtenidos=$this->connection->query($sql);
-
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
         }
@@ -104,24 +91,10 @@ Class Compra
         return $datosObtenidos;
     } 
 
-    //metodo para obtener todos los datos de un detalleCompra segun su idCompra
-    public function obtenerDetalleCompraFiltro($idCompra){
-        $sql="CALL obtenerDetalleCompraFiltro('$idCompra');";
+    //Metodo para obtener los detalle venta de una venta
+    public function obtenerDetalleVentaFiltro($idVenta){
+        $sql="CALL obtenerDetalleVentaFiltro('$idVenta');";
         $datosObtenidos=$this->connection->query($sql);
-
-        if($this->connection->error){
-            die ('ERROR SQL: '.$this->connection->error);
-        }
-        //limpiar la consulta para poder hacer otra
-        $this->connection->next_result();
-        return $datosObtenidos;
-    } 
-
-    //metodo para ingresar un producto a la tabla detalleCompra
-    public function agregarProductoACompra($idCompra, $NombreProducto, $Cantidad, $Precio, $Subtotal){
-        $sql="CALL agregarProductoACompra('$idCompra','$NombreProducto','$Cantidad','$Precio', '$Subtotal');";
-        $datosObtenidos=$this->connection->query($sql);
-
         if($this->connection->error){
             die ('ERROR SQL: '.$this->connection->error);
         }
@@ -151,13 +124,13 @@ Class Compra
 
     //metodo para obtener todos los productos (por nombre) de la tabla productos
     public function obtenerTodosLosProductos() {
-        $sql = "SELECT NombreProducto FROM productos";
+        $sql = "SELECT NombreProducto, Precio FROM productos";
         $result = $this->connection->query($sql);
-    
+
         if ($this->connection->error) {
             die('ERROR SQL: ' . $this->connection->error);
         }
-    
+
         $productos = [];
         while ($row = $result->fetch_assoc()) {
             $productos[] = $row['NombreProducto'];
@@ -191,21 +164,38 @@ Class Compra
         return $producto;
     }
 
+    //metodo para obtener todas las sucursales (por nombre) de la tabla sucursales
+    public function obtenerSucursales() {
+        $sql = "SELECT idSucursal, NombreSucursal FROM sucursales";
+        $result = $this->connection->query($sql);
+
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+
+        $sucursales = [];
+        while ($row = $result->fetch_assoc()) {
+            $sucursales[] = $row;
+        }
+        $this->connection->next_result();
+        return $sucursales;
+    }
+
     // Método para actualizar la cantidad de un producto en la tabla productos
     // su funcion dependera de si el producto ya existe en detalleCompras
-    public function gestionarProductoCompra($idCompra, $nombreProducto, $cantidad, $cantidadAcumulada, $precio) {
-        $sql = "CALL gestionarProductoCompra(?, ?, ?, ?, ?)";
+    public function gestionarProductoVenta($idVenta, $idProducto, $nombreProducto, $cantidad, $precio, $idSucursal) {
+        $sql = "CALL gestionarProductoVenta(?, ?, ?, ?, ?, ?)";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bind_param('isidd', $idCompra, $nombreProducto, $cantidad, $cantidadAcumulada, $precio);
+        $stmt->bind_param('iisiii', $idVenta, $idProducto, $nombreProducto, $cantidad, $precio, $idSucursal);
         $result = $stmt->execute();
         $stmt->close();
         $this->connection->next_result();
         return $result;
     }
 
-    // Metodo para eliminar un item de la tabla detalleCompra
-    public function eliminarItemDetalleCompra($idCompra, $nombreProducto, $cantidad) {
-        $sql = "CALL eliminarItemDetalleCompra('$idCompra', '$nombreProducto', '$cantidad')";
+    // Metodo para eliminar un item de la tabla detalleVenta
+    public function eliminarItemDetalleVenta($idVenta, $nombreProducto, $cantidad) {
+        $sql = "CALL eliminarItemDetalleVenta('$idVenta', '$nombreProducto', '$cantidad')";
         $result = $this->connection->query($sql);
     
         if ($this->connection->error) {
@@ -216,14 +206,14 @@ Class Compra
         return $result;
     }
 
-    // Metodo para eliminar una compra y reducir dicha cantidad de productos en la tabla productos
-    public function eliminarCompra($idCompra) {
+    // Metodo para eliminar una venta y aumentar dicha cantidad de productos en la tabla productos
+    public function eliminarVenta($idVenta) {
         // Asegúrate de liberar cualquier resultado previo
         while($this->connection->more_results()) {
             $this->connection->next_result();
         }
 
-        $sql = "CALL eliminarCompra('$idCompra')";
+        $sql = "CALL eliminarVenta('$idVenta')";
         $result = $this->connection->query($sql);
 
         if ($this->connection->error) {
@@ -236,15 +226,18 @@ Class Compra
         return $result;
     }
 
-    // Metodo para actualizar una compra (el total no se actualiza)
-    public function actualizarCompra($idCompra, $fechaCompra, $idProveedor, $idSucursal) {
-        $conn = conectar();
-        $sql = "CALL actualizarCompra(?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("issi", $idCompra, $fechaCompra, $idProveedor, $idSucursal);
-        $result = $stmt->execute();
-        $stmt->close();
-        $conn->close();
+    // Metodo para actualizar una venta
+    public function actualizarVenta($idVenta, $fechaVenta, $idCliente) {
+        $sql = "CALL actualizarVenta('$idVenta', '$fechaVenta', '$idCliente')";
+        $result = $this->connection->query($sql);
+    
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+    
+        $this->connection->next_result();
         return $result;
     }
+
 }
+?>

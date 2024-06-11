@@ -6,10 +6,10 @@ if (!isset($_SESSION['Nombre'])) {
     header('Location: index.php');
     exit();
 }
+
 //en este apartado accederemos a la informacion que se encuantra en la base de datos para mostrarla en la vista
 $conn = conectar();
 $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
-
 
 //este apartado sirve para validar que el tipo de archivo sea el correcto
 
@@ -25,25 +25,29 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
         $tipoLogo = strtolower(pathinfo($nombreLogo, PATHINFO_EXTENSION));
         //permite obtener el tamaño del archivo en bytes
         $sizeLogo = $_FILES['LogoEmpresa']['size'];
+        //directorio donde se guardara el archivo
         $directorio = 'resources/images/';
+        //ruta donde se guardara el archivo con el nombre de la imagen
+        $ruta = $directorio.$nombreLogo;
 
         //valida que el archivo sea de tipo jpg, jpeg, png o gif
         if ($tipoLogo == 'jpg' || $tipoLogo == 'jpeg' || $tipoLogo == 'png' || $tipoLogo == 'gif'){
             //valida que ningun campo este vacio
             if ($_POST['NombreEmpresa'] != '' || $nombreLogo != '' || $_POST['SloganEmpresa'] != '' || $_POST['MisionEmpresa'] != '' || $_POST['VisionEmpresa'] != '' || $_POST['AboutUsEmpresa'] != ''){
-                $ruta = $directorio.$nombreLogo;
                 $conn->query("UPDATE empresa SET NombreEmpresa = '".$_POST['NombreEmpresa']."', LogoEmpresa = '".$ruta."', SloganEmpresa = '".$_POST['SloganEmpresa']."', MisionEmpresa = '".$_POST['MisionEmpresa']."', VisionEmpresa = '".$_POST['VisionEmpresa']."', AboutUsEmpresa = '".$_POST['AboutUsEmpresa']."' WHERE id = 1");
                 //almacenar el archivo en la carpeta resources/images
                 if (move_uploaded_file($logoEmpresa, '../../'.$ruta)){
                     echo "<script>
                     window.onload = function() {
                         Swal.fire({
-                            title: '¡Exito!',
-                            text: 'Se ha guardado la configuración de la empresa correctamente',
+                            title: 'Exito!',
+                            text: 'Configuracion Guardada Correctamente!',
                             icon: 'success'
-                        })= function() {
-                            window.location = '../../index.php';
-                        };
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '../../index.php';
+                            }
+                        });
                     };
                     </script>";
                 }else{
@@ -75,17 +79,19 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
         echo "<script>
         window.onload = function() {
             Swal.fire({
-                title: '¡Exito!',
-                text: 'Se ha guardado la configuración de la empresa correctamente',
+                title: 'Exito!',
+                text: 'Configuracion Guardada Correctamente!',
                 icon: 'success'
-            })= function() {
-                window.location = '../../index.php';
-            };
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '../../index.php';
+                }
+            });
         };
         </script>";
-
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -109,10 +115,8 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
             transform: translateX(-50%);
         }
     </style>
-
 </head>
 <body>
-    <!--nav bar-->
     <!-- Navbar -->
     <nav class="navbar navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
@@ -133,7 +137,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -143,8 +147,8 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
                                 <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                 <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                 <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
                                 <hr class="dropdown-divider">
                                 </li>
@@ -157,7 +161,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>
@@ -187,7 +191,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
         </div>
     </nav>
     <br><br><br>
-
+    <!-- Formulario de Configuración de Empresa -->
     <div class="container mt-5">
         <h1>Configurar Empresa</h1>
         <form action="" method="post" enctype="multipart/form-data">
@@ -204,7 +208,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
             </div>
             <div class="mb-3">
                 <label for="SloganEmpresa" class="form-label">Slogan de la Empresa</label>
-                <input type="text" class="form-control" id="SloganEmpresa" name="SloganEmpresa" value="<?php echo $empresa['SloganEmpresa']?>">
+                <input type="text" class="form-control" id="SloganEmpresa" name="SloganEmpresa" value='<?php echo $empresa['SloganEmpresa'];?>'>
             </div>
             <div class="mb-3">
                 <label for="MisionEmpresa" class="form-label">Misión de la Empresa</label>
@@ -225,12 +229,17 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
                 </textarea>
             </div>
             <input type="submit" class="btn btn-primary" name="btnEditarEmpresa" value="Guardar Configuracion">
-            <button class="btn btn-secondary"><a class="text-decoration-none text-dark" href="../../index.php">Volver</a></button>
+            <a class="btn btn-secondary" href="../../index.php">Volver</a>
+            <input type="button" class="btn btn-danger" id="btnEliminarImagenes" name="btnEliminarImagenes" value="Eliminar Imágenes Guardadas">            
+            <br><br>
         </form>
     </div>
-    <script src="./resources/src/Bootstrap/js/bootstrap.bundle.js"></script>
 </body>
 </html>
+<!-- Bootstrap JS and dependencies -->
+<script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
 <script>
 $('.dropdown-toggle').click(function() {
     $(this).next('.dropdown-menu').toggleClass('show');
@@ -243,4 +252,19 @@ $(document).click(function (e) {
     }
 });
 
+$('#btnEliminarImagenes').click(function() {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción eliminará todas las imágenes guardadas en la empresa',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Eliminar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'eliminar_imagenes.php';
+        }
+    });
+});
 </script>

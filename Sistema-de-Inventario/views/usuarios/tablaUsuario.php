@@ -32,28 +32,61 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
     $rol = $_POST['TXTrol'];
     
     if ($nombre != "" && $apellido != "" && $email != "" && $dui != "" && $contraseña != "" && $rol != "") {
-        // Muestra un mensaje de éxito al crear un usuario y redirige a la tabla de usuarios (caso en php)
-        echo "<script>
-            window.onload = function() {
-                Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'Usuario creado exitosamente',
-                    icon: 'success'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = './tablaUsuario.php';
-                    }
-                });
-            };
-        </script>";
-        $data = $objUsuario->crearUsuario($nombre, $apellido, $email, $dui, $contraseña, $rol);
-    }else if ($nombre == "" || $apellido == "" || $email == "" || $dui == "" || $contraseña == "" || $rol == ""){
-        // Muestra un mensaje de error al crear un usuario y redirige a la tabla de usuarios (caso en php)
+        // Verificar si el DUI ya existe antes de intentar crear el usuario
+        if ($objUsuario->verificarDUIExistente($dui)) {
+            echo "<script>
+                window.onload = function() {
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: 'El DUI ya está registrado',
+                        icon: 'error'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = './tablaUsuario.php';
+                        }
+                    });
+                };
+            </script>";
+        } else {
+            // Intentar crear el usuario
+            $resultado = $objUsuario->crearUsuario($nombre, $apellido, $email, $dui, $contraseña, $rol);
+
+            if ($resultado === false) {
+                echo "<script>
+                    window.onload = function() {
+                        Swal.fire({
+                            title: '¡Error!',
+                            text: 'Hubo un error al crear el usuario',
+                            icon: 'error'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = './tablaUsuario.php';
+                            }
+                        });
+                    };
+                </script>";
+            } else {
+                echo "<script>
+                    window.onload = function() {
+                        Swal.fire({
+                            title: '¡Éxito!',
+                            text: 'Usuario creado exitosamente',
+                            icon: 'success'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = './tablaUsuario.php';
+                            }
+                        });
+                    };
+                </script>";
+            }
+        }
+    } else {
         echo "<script>
             window.onload = function() {
                 Swal.fire({
                     title: '¡Error al crear usuario!',
-                    text: 'Debe de completar todos los campos!',
+                    text: 'Debe de completar todos los campos',
                     icon: 'error'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -63,6 +96,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
             };
         </script>";
     }
+
 }
 ?>
 
@@ -71,22 +105,18 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--Dependencias de bootstrap-->
-    <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.js"></script>
-    <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
+    <!-- Dependencias de Bootstrap -->
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/lobibox.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/select2.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/datatables.css">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/waitMe.css">
-    <!--Dependencias de SweetAlert-->
+    <!-- Dependencias de SweetAlert -->
     <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
     <!--Dependencias de terceros-->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
     <title>Usuarios</title>
     <style>
@@ -127,7 +157,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                         </li>
                         <?php else: ?>
                         <li class="nav-item">
-                            <a href="#" id="loginBtn" class="nav-link">Panel de Control</a>
+                            <a href="../../views/panelControl/panelControl.php" id="loginBtn" class="nav-link">Panel de Control</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -137,8 +167,8 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                                 <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
                                 <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
                                 <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
                                 <hr class="dropdown-divider">
                                 </li>
@@ -151,7 +181,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                             <a href="#" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                            <a href="../ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
                             <a href="#" id="Entradas" class="nav-link">Entradas</a>
@@ -192,6 +222,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                 <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modal-agregar">
                     Agregar registro
                 </button>
+                <a class="btn btn-success btn-lg" href="../../views/Reportes/ReporteUsuarios.php" target="blank">Generar Reporte</a>
             </div>
         </div>
         <hr>
@@ -228,7 +259,7 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
                                     <input type="hidden" name="idUsuario" value="<?php echo $id; ?>">
                                     <button type="submit" class="btn btn-warning btn-lg btn-spacing editar-btn">Editar</button>
                                 </form>
-                                <?php echo"</button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>"?>
+                                <?php echo"<button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objUsuario["idUsuario"]."'>Eliminar</button>"?>
                             </td>
                         </tr>
                         <?php
@@ -287,21 +318,18 @@ if ($_POST && isset($_POST['TXTnombre'], $_POST['TXTapellido'], $_POST['TXTEmail
         <input type="hidden" name="delete_id" id="delete_id">
     </form>
 </body>
-</body>
-</body>
-</body>
 
 <!-- Bootstrap JS and dependencies -->
 <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
-<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
-<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/waitMe.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/popper.min.js"></script>
 <script src="../../resources/src/Bootstrap/js/lobibox.js"></script>
 <script src="../../resources/src/Bootstrap/js/notifications.js"></script>
 <script src="../../resources/src/Bootstrap/js/messageboxes.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
 <script src="../../resources/src/Bootstrap/js/select2.js"></script>
 <script>
 $(document).ready(function() {
