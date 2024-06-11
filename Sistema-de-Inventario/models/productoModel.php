@@ -105,9 +105,9 @@ class productoModel
     } 
 
     // Método para obtener productos con filtros específicos
-    public function obtenerProductosFiltro($idProducto, $Nombreproducto, $idCategoria){
+    public function obtenerProductosFiltro($idProducto, $Nombreproducto){
         // Preparar la llamada al procedimiento almacenado con los parámetros
-        $sql = "CALL obtenerProductosFiltro('$idProducto', '$Nombreproducto', '$idCategoria');";
+        $sql = "CALL obtenerProductosFiltro('$idProducto', '$Nombreproducto');";
         
         // Ejecutar la consulta
         $datosObtenidos = $this->connection->query($sql);

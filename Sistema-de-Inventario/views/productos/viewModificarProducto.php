@@ -1,73 +1,69 @@
 <?php
-//Se incluye el modelo de usuario, que utiliza la conexion a la base de datos y los metodos necesarios
-//para realizar las operaciones CRUD
 include_once '../../models/productoModel.php';
-//Se instancia la clase Usuario
 $objProducto = new productoModel();
 
-//Parte para obtener el id del usuario
-$idProducto = $_POST['idProducto'];
+$idProducto = isset($_POST['idProducto']) ? $_POST['idProducto'] : (isset($_GET['id']) ? $_GET['id'] : null);
 if (!$idProducto) {
     die("ID de producto no proporcionado.");
 }
 
-//Parte para manejar la logica para actualizar al usuario en la base de datos
+//este apartado se ejecuta cuando hay una imagen que se enviara
+if (isset($_POST['btnEditar'], $_POST['NombreProducto'], $_POST['Cantidad'], $_POST['Precio'], $_POST['idCategoria'], $_POST['idSucursal'])){
+    //obtiene el archivo temporal
+    $imgProducto = $_FILES['Foto']['tmp_name'];
+    //obtiene el nombre del archivo
+    $nombreImgProducto = $_FILES['Foto']['name'];
+    //obtiene la extensión del archivo
+    $tipoImagenProducto = strtolower(pathinfo($nombreImgProducto, PATHINFO_EXTENSION));
+    //permite obtener el tamaño del archivo en bytes
+    $sizeImagenProducto = $_FILES['Foto']['size'];
+    //directorio donde se guardara el archivo
+    $directorio = 'resources/Productos_img/';
+    //ruta donde se guardara el archivo con el nombre de la imagen  
+    $ruta = $directorio.$nombreImgProducto;
 
-//Si se presiona el boton de editar
-if (isset($_POST['btnEditar'])) {
-    $idProducto = $_POST['idProducto'];
-    $Nombreproducto = $_POST['Nombreproducto'];
+    //obtenemos los campos del formulario
+    $NombreProducto = $_POST['NombreProducto'];
     $Cantidad = $_POST['Cantidad'];
     $Precio = $_POST['Precio'];
-    $Foto = $_POST['Foto'];
-    $idCategoria = $_POST['idCategoria'];
-    $idSucursal = $_POST['idSucursal'];
+    $Categoria = $_POST['idCategoria'];
+    $Sucursal = $_POST['idSucursal'];
 
-    $data = $objProducto->actualizarProducto($NombreProducto, $Cantidad, $Precio, $Foto, $idCategoria, $idSucursal);
+    //valida que el archivo sea de tipo jpg, jpeg, png o gif
+    if ($tipoImagenProducto == 'jpg' || $tipoImagenProducto == 'jpeg' || $tipoImagenProducto == 'png' || $tipoImagenProducto == 'gif'){
+            //almacenar el archivo en la carpeta resources/images
+            if (move_uploaded_file($imgProducto, '../../'.$ruta)){
+                //llama al metodo de la clase productoModel para insertar un producto
+                $data = $objProducto->actualizarProducto($NombreProducto, $Cantidad, $Precio, $ruta, $Categoria, $Sucursal);
+                echo "<script>
+                window.onload = function() {
+                    Swal.fire({
+                        title: 'Exito!',
+                        text: 'Producto Actualizado Correctamente',
+                        icon: 'success'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '../../views/productos/tablaProductos.php';
+                        }
+                    });
+                };
+                </script>";
+            }else{
+                echo "<script>
+                window.onload = function() {
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: 'No se ha Registrar el Producto',
+                        icon: 'error'
+                    });
+                };
+                </script>";
+            }
+        }
 
-    // Si se actualiza el producto
-    if ($data) {
-        // Limpiar las variables
-        $NombreProducto = '';
-        $Cantidad = '';
-        $Precio = '';
-        $Foto = '';
-        $idCategoria = '';
-        $idSucursal = '';
-
-        //se utiliza sweetalert para mostrar un mensaje de exito
-        echo "<script>
-        window.onload = function() {
-            Swal.fire({
-                title: '¡Éxito!',
-                text: 'Usuario actualizado correctamente',
-                icon: 'success'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = './tablaUsuario.php';
-                }
-            });
-        };
-        </script>";
-    } else {
-        //se utiliza sweetalert para mostrar un mensaje de error
-        echo "<script>
-        window.onload = function() {
-            Swal.fire({
-                title: '¡Error!',
-                text: 'Algo salio mal!',
-                icon: 'error'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = './tablaProducto.php';
-                }
-            });
-        };
-        </script>";
     }
-}
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -75,30 +71,23 @@ if (isset($_POST['btnEditar'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../resources/src/Bootstrap/css/bootstrap.min.css">
-    <!--Dependencias de bootstrap-->
     <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.js"></script>
     <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
-    <!--Dependencias de SweetAlert-->
     <script src="../../resources/src/SweetAlert/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="../../resources/src/SweetAlert/sweetalert2.min.css">
-    <title>Editar Usuario</title>
+    <title>Editar Producto</title>
 </head>
 
 <body class="bg-light">
 
-
-    <!--Modal para editar un Producto-->
-
-    <form action="./viewModificarProducto.php?id=<?php echo $idProducto; ?>" class="col-4 p-3 m-auto" method="post">
+    <form action="./viewModificarProducto.php?id=<?php echo $idProducto; ?>" class="col-4 p-3 m-auto" method="post" enctype="multipart/form-data">
         <h5 class="text-center alert alert-secondary">Modificar Producto</h5>
         <?php
-        // Obtener los datos del producto con un filtro por ID
-        $sql = $objProducto->obtenerProductosFiltro($idProducto, $NombreProducto, $idCategoria);
-
+        $sql = $objProducto->obtenerProductosFiltro($idProducto, '');
         while ($datos = $sql->fetch_object()) { ?>
             <div class="mb-1">
                 <label for="" class="form-label">Nombre del Producto</label>
-                <input type="text" class="form-control" name="Nombreproducto" value="<?php echo $datos->NombreProducto; ?>">
+                <input type="text" class="form-control" name="NombreProducto" value="<?php echo $datos->NombreProducto; ?>">
             </div>
             <div class="mb-1">
                 <label for="" class="form-label">Cantidad</label>
@@ -109,22 +98,41 @@ if (isset($_POST['btnEditar'])) {
                 <input type="text" class="form-control" name="Precio" value="<?php echo $datos->Precio; ?>">
             </div>
             <div class="mb-1">
-                <label for="" class="form-label">Foto</label>
-                <input type="text" class="form-control" name="Foto" value="<?php echo $datos->Foto; ?>">
+                <label for="" class="form-label">Imagen Actual</label>
+                <img src="../../<?php echo $datos->Foto; ?>" alt="Producto" style="width: 25%; height: auto;">
+                <label for="" class="form-label">Nueva Imagen</label>
+                <input type="file" class="form-control" name="Foto" value="<?php echo $datos->Foto; ?>">
             </div>
             <div class="mb-1">
-                <label for="" class="form-label">ID Categoría</label>
-                <input type="text" class="form-control" name="idCategoria" value="<?php echo $datos->idCategoria; ?>">
+                <label for="" class="form-label">Categoría</label>
+                <select name="idCategoria" id="idCategoria" class="form-control" required="required">
+                    <option value="<?php echo $datos->idCategoria; ?>"><?php echo $datos->NombreCategoria; ?></option>
+                    <?php
+                    $conn = conectar();
+                    $sqlCategorias = "SELECT idCategoria, Categoria FROM categorias";
+                    $resultCategorias = $conn->query($sqlCategorias);
+                    foreach ($resultCategorias as $categoria) {
+                    ?>
+                        <option value="<?php echo $categoria['idCategoria']; ?>"><?php echo $categoria['Categoria']; ?></option>
+                    <?php } ?>
+                </select>
             </div>
             <div class="mb-1">
                 <label for="" class="form-label">ID Sucursal</label>
-                <input type="text" class="form-control" name="idSucursal" value="<?php echo $datos->idSucursal; ?>">
+                <select name="idSucursal" id="idSucursal" class="form-control" required="required">
+                    <option value="<?php echo $datos->idSucursal; ?>"><?php echo $datos->NombreSucursal; ?></option>
+                    <?php
+                    $sqlSucursales = "SELECT idSucursal, NombreSucursal FROM sucursales";
+                    $resultSucursales = $conn->query($sqlSucursales);
+                    foreach ($resultSucursales as $sucursal) {
+                    ?>
+                        <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
+                    <?php } ?>
+                </select>
             </div><br>
         <?php } ?>
         <button type="submit" class="btn btn-primary" name="btnEditar" value="ok">Editar Producto</button>
-
-        <button type="button" class="btn btn-secondary"><a href="./tablaProducto.php"
-                class="text-decoration-none text-dark">Volver</a></button>
+        <button type="button" class="btn btn-secondary"><a href="./tablaProductos.php" class="text-decoration-none text-dark">Volver</a></button>
     </form>
 
 </body>

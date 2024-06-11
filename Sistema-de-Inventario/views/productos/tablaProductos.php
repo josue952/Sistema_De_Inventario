@@ -3,18 +3,10 @@
 session_start();
 require "../../models/productoModel.php";
 
-
-// Verificar la conexión
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-
 $objProducto = new productoModel();
 
 //cpnexion de la base de datos
 $conn = conectar();
-
 
 // Verificar si se ha solicitado la eliminación de un producto
 if (isset($_POST['delete_id'])) {
@@ -27,7 +19,7 @@ if (isset($_POST['delete_id'])) {
             icon: 'success'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = './tablaProducto.php';
+                window.location.href = './tablaProductos.php';
             }
         });
     };
@@ -36,48 +28,62 @@ if (isset($_POST['delete_id'])) {
 }
 
 // Verificar si se recibieron datos del formulario al crear un producto
-if ($_POST && isset($_POST['TXTNombreproducto'], $_POST['TXTCantidad'], $_POST['TXTPrecio'], $_POST['TXTFoto'], $_POST['TXTCategoria'], $_POST['TXTSucursal'])) {
-    $Nombreproducto = $_POST['TXTNombreproducto'];
+
+//este apartado se ejecuta cuando hay una imagen que se enviara
+if (isset($_POST['TXTNombreproducto'], $_POST['TXTCantidad'], $_POST['TXTPrecio'], $_POST['TXTCategoria'], $_POST['TXTSucursal'], $_FILES['imagenProducto'])){
+    //obtiene el archivo temporal
+    $imgProducto = $_FILES['imagenProducto']['tmp_name'];
+    //obtiene el nombre del archivo
+    $nombreImgProducto = $_FILES['imagenProducto']['name'];
+    //obtiene la extensión del archivo
+    $tipoImagenProducto = strtolower(pathinfo($nombreImgProducto, PATHINFO_EXTENSION));
+    //permite obtener el tamaño del archivo en bytes
+    $sizeImagenProducto = $_FILES['imagenProducto']['size'];
+    //directorio donde se guardara el archivo
+    $directorio = 'resources/Productos_img/';
+    //ruta donde se guardara el archivo con el nombre de la imagen  
+    $ruta = $directorio.$nombreImgProducto;
+
+    //obtenemos los campos del formulario
+    $NombreProducto = $_POST['TXTNombreproducto'];
     $Cantidad = $_POST['TXTCantidad'];
     $Precio = $_POST['TXTPrecio'];
-    $Foto = $_POST['TXTFoto'];
-    $idCategoria = $_POST['TXTCategoria'];
-    $idSucursal = $_POST['TXTSucursal'];
+    $Categoria = $_POST['TXTCategoria'];
+    $Sucursal = $_POST['TXTSucursal'];
 
-    if ($Nombreproducto != "" && $Cantidad != "" && $Precio != "" && $Foto != "" && $idCategoria != "" && $idSucursal != "") {
-        // Muestra un mensaje de éxito al crear un producto y redirige a la tabla de productos
-        echo "<script>
-            window.onload = function() {
-                Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'Producto creado exitosamente',
-                    icon: 'success'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = './tablaProducto.php';
-                    }
-                });
-            };
-        </script>";
-        $data = $objProducto->crearProducto($Nombreproducto, $Cantidad, $Precio, $Foto, $idCategoria, $idSucursal);
-    } else {
-        // Muestra un mensaje de error al crear un producto y redirige a la tabla de productos
-        echo "<script>
-            window.onload = function() {
-                Swal.fire({
-                    title: '¡Error al crear producto!',
-                    text: 'Debe de completar todos los campos!',
-                    icon: 'error'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = './tablaProducto.php';
-                    }
-                });
-            };
-        </script>";
+    //valida que el archivo sea de tipo jpg, jpeg, png o gif
+    if ($tipoImagenProducto == 'jpg' || $tipoImagenProducto == 'jpeg' || $tipoImagenProducto == 'png' || $tipoImagenProducto == 'gif'){
+            //almacenar el archivo en la carpeta resources/images
+            if (move_uploaded_file($imgProducto, '../../'.$ruta)){
+                //llama al metodo de la clase productoModel para insertar un producto
+                $data = $objProducto->crearProducto($NombreProducto, $Cantidad, $Precio, $ruta, $Categoria, $Sucursal);
+                echo "<script>
+                window.onload = function() {
+                    Swal.fire({
+                        title: 'Exito!',
+                        text: 'Producto Registrado Correctamente',
+                        icon: 'success'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '../../views/productos/tablaProductos.php';
+                        }
+                    });
+                };
+                </script>";
+            }else{
+                echo "<script>
+                window.onload = function() {
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: 'No se ha Registrar el Producto',
+                        icon: 'error'
+                    });
+                };
+                </script>";
+            }
+        }
+
     }
-}
-
 // obtener productos
 $productos = $objProducto->obtenerProductos();
 
@@ -86,8 +92,7 @@ $productos = $objProducto->obtenerProductos();
 
 
 <!DOCTYPE html>
-< lang="en">
-
+<html lang="es">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -216,19 +221,17 @@ $productos = $objProducto->obtenerProductos();
             </div>
         </nav>
         <br><br><br>
-
+        <!--contenido-->
+        <div class="container mt-5 pt-5">
         <h1 class="text-center p-4">Tabla Productos</h1>
-
-
-
         <div class="container mt-4 bg-white rounded p-4 shadow">
+            <div class="d-flex justify-content-end mb-2">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Registrar
+                </button>
+            </div>
             <!-- Modal -->
-            <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Registrar
-            </button>
-            <!-- Modal -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -238,58 +241,67 @@ $productos = $objProducto->obtenerProductos();
                         <div class="modal-body">
                             <form action="" method="POST" enctype="multipart/form-data">
                                 <div class="row">
-
-                                    <div class="form-group col-md-6">
-                                        <input type="text" class="form-control" name="TXTnombreProducto"
-                                            id="NombreProducto" placeholder="Nombre del producto" require>
-                                    </div><br><br>
-                                    <div class="form-group col-md-6">
-                                        <input type="number" class="form-control" name="TXTcantidad" id="Cantidad"
-                                            placeholder="Cantidad" require>
-                                    </div><br><br>
-                                    <div class="form-group col-md-6">
-                                        <input type="number" class="form-control" name="TXTprecio" id="Precio"
-                                            placeholder="Precio" require>
-                                    </div><br><br>
-                                    <div class="form-group col-md-6">
-                                        <input type="text" class="form-control" name="TXTcategoria" id="Categoria"
-                                            placeholder="Categoria" require>
-                                    </div><br><br>
-                                    <div class="form-group col-md-6">
-                                        <input type="text" class="form-control" name="TXTsucursal" id="Sucursal"
-                                            placeholder="Sucursal" require>
-                                    </div><br><br>
+                                    <div class="form-group col-md-6 mb-3">
+                                        <input type="text" class="form-control" name="TXTNombreproducto" id="NombreProducto" placeholder="Nombre del producto" required>
+                                    </div>
+                                    <div class="form-group col-md-6 mb-3">
+                                        <input type="number" class="form-control" name="TXTCantidad" id="Cantidad" placeholder="Cantidad" required>
+                                    </div>
+                                    <div class="form-group col-md-6 mb-3">
+                                        <input type="number" step="0.01" class="form-control" name="TXTPrecio" id="Precio" placeholder="Precio" required>
+                                    </div>
+                                    <div class="form-group col-md-6 mb-3">
+                                        <select name="TXTCategoria" id="TXTCategoria" class="form-control" required>
+                                            <option value="">Seleccionar Categoria</option>
+                                            <?php
+                                            $sqlCategorias = "SELECT idCategoria, Categoria FROM categorias";
+                                            $resultCategorias = $conn->query($sqlCategorias);
+                                            foreach ($resultCategorias as $categoria) {
+                                            ?>
+                                                <option value="<?php echo $categoria['idCategoria']; ?>"><?php echo $categoria['Categoria']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6 mb-3">
+                                        <select name="TXTSucursal" id="TXTSucursal" class="form-control" required>
+                                            <option value="">Seleccionar Sucursal</option>
+                                            <?php
+                                            $sqlSucursales = "SELECT idSucursal, NombreSucursal FROM sucursales";
+                                            $resultSucursales = $conn->query($sqlSucursales);
+                                            foreach ($resultSucursales as $sucursal) {
+                                            ?>
+                                                <option value="<?php echo $sucursal['idSucursal']; ?>"><?php echo $sucursal['NombreSucursal']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
                                 </div>
-                                <input type="file" class="form-control" name="imagen">
-                                <input type="submit" value="Registrar" name="btnRegistrar"
-                                    class="form-control btn btn-success">
-
+                                <div class="mb-3">
+                                    <input type="file" class="form-control" name="imagenProducto" id="imagenProducto" required>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Registrar Producto</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
                             </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="button" class="btn btn-primary">Agregar</button>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-            <table class="table table-hover table-stripped" id="tablaProductos>" <thead class="bg-dark text-white">
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Nombre del Producto</th>
-                    <th scope="col">Cantidad</th>
-                    <th scope="col">Precio</th>
-                    <th scope="col">Imagen</th>
-                    <th scope="col">idCategoria</th>
-                    <th scope="col">idSucursal</th>
-                    <th scope="col">Acciones</th>
-                </tr>
+            <table class="table table-hover table-striped" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Foto</th>
+                        <th>Categoría</th>
+                        <th>Sucursal</th>
+                        <th>Acciones</th>
+                    </tr>
                 </thead>
                 <tbody>
                     <?php
-                    // obtener todos los datos de los usuarios
                     $resultProductos = $objProducto->obtenerProductos();
 
                     if ($resultProductos) {
@@ -307,19 +319,15 @@ $productos = $objProducto->obtenerProductos();
                             <td><?php echo $producto["NombreProducto"]; ?></td>
                             <td><?php echo $producto["Cantidad"]; ?></td>
                             <td><?php echo $producto["Precio"]; ?></td>
-                            <td><?php echo $producto["Foto"]; ?></td>
-                            <td><?php echo $producto["idCategoria"]; ?></td>
-                            <td><?php echo $producto["idSucursal"]; ?></td>
+                            <td><img src="../../<?php echo $producto["Foto"]; ?>" alt="Producto" style="width: 50px; height: auto;"></td>
+                            <td><?php echo $producto["NombreCategoria"]; ?></td>
+                            <td><?php echo $producto["NombreSucursal"]; ?></td>
                             <td class="action-buttons">
-                                <?php $id = $producto["idProducto"]; ?>
-                                <!-- Formulario para la acción de editar -->
                                 <form action="./viewModificarProducto.php" method="post" style="display:inline;">
-                                    <input type="hidden" name="idProducto" value="<?php echo $id; ?>">
-                                    <button type="submit"
-                                        class="btn btn-warning btn-lg btn-spacing editar-btn">Editar</button>
+                                    <input type="hidden" name="idProducto" value="<?php echo $producto["idProducto"]; ?>">
+                                    <button type="submit" class="btn btn-warning btn-sm btn-spacing editar-btn m-3">Editar</button>
                                 </form>
-
-                                <?php echo "</button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='" . $producto["idProducto"] . "'>Eliminar</button>" ?>
+                                <button class="btn btn-danger btn-sm btn-spacing eliminar-btn" data-id="<?php echo $producto["idProducto"]; ?>">Eliminar</button>
                             </td>
                         </tr>
                         <?php
@@ -328,24 +336,28 @@ $productos = $objProducto->obtenerProductos();
                 </tbody>
             </table>
         </div>
+    </div>
+    <?php
+    echo "
+    <form id='delete-form' action='./tablaProductos.php' method='POST' style='display: none;'>
+        <input type='hidden' name='delete_id' id='delete_id'>
+    </form>
+    ";
+    ?>
 
-
-
-
-        <!-- Bootstrap JS and dependencies -->
-        <script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
-        <script src="../../resources/src/Bootstrap/js/datatables.js"></script>
-        <script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
-        <script src="../../resources/src/Bootstrap/js/waitMe.min.js"></script>
-        <script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
-        <script src="../../resources/src/Bootstrap/js/popper.min.js"></script>
-        <script src="../../resources/src/Bootstrap/js/lobibox.js"></script>
-        <script src="../../resources/src/Bootstrap/js/notifications.js"></script>
-        <script src="../../resources/src/Bootstrap/js/messageboxes.js"></script>
-        <script src="../../resources/src/Bootstrap/js/select2.js"></script>
-    </body>
-    </body>
+</body>
+<!-- Bootstrap JS and dependencies -->
+<script src="../../resources/src/Bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/bootstrap.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.js"></script>
+<script src="../../resources/src/Bootstrap/js/datatables.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/waitMe.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/jquery.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/popper.min.js"></script>
+<script src="../../resources/src/Bootstrap/js/lobibox.js"></script>
+<script src="../../resources/src/Bootstrap/js/notifications.js"></script>
+<script src="../../resources/src/Bootstrap/js/messageboxes.js"></script>
+<script src="../../resources/src/Bootstrap/js/select2.js"></script>
     <script>
         $(document).ready(function () {
             // Inicializa DataTable
@@ -376,7 +388,7 @@ $productos = $objProducto->obtenerProductos();
 
         // Maneja el clic en el botón "Eliminar"
         $('.eliminar-btn').click(function () {
-            var userId = $(this).data('id');
+            var productoId = $(this).data('id');
             // Muestra un mensaje de confirmación antes de eliminar el producto (caso en js)
             Swal.fire({
                 title: '¿Estás seguro?',
@@ -389,7 +401,7 @@ $productos = $objProducto->obtenerProductos();
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $('#delete_id').val(userId);
+                    $('#delete_id').val(productoId);
                     $('#delete-form').submit();
                 }
             });

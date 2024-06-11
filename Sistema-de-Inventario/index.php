@@ -140,7 +140,7 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
                             <a href="./views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Productos" class="nav-link">Productos</a>
+                            <a href="./views/productos/tablaProductos.php" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
                             <a href="./views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
@@ -227,7 +227,6 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
             </div>
         </div>
     </div>
-    
     <!-- Header -->
     <!--Si el usuario no esta registrado no mostrara nada-->
     <header class="header" <?php echo !isset($_SESSION['Nombre']) ? 'style="display: none;"' : ''; ?>>
@@ -240,7 +239,6 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
             </p>
         </div>
     </header>
-
     <!-- Features Section -->
     <!--Si el usuario no esta registrado no mostrara nada-->
     <section class="features py-5" <?php echo !isset($_SESSION['Nombre']) ? 'style="display: none;"' : ''; ?>>
@@ -270,7 +268,6 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
             </div>
         </div>
     </section>
-
     <!-- Footer -->
     <!--Si el usuario no esta registrado no mostrara nada-->
     <footer class="footer bg-light py-4" <?php echo !isset($_SESSION['Nombre']) ? 'style="display: none;"' : ''; ?>>

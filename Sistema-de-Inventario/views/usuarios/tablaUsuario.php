@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../../models/productoModel.php";
+require "../../models/usuarioModel.php";
 $objUsuario = new Usuario();
 
 // Verificar si se ha solicitado la eliminación de un usuario

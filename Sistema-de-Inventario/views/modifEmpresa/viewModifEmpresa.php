@@ -27,7 +27,7 @@ $empresa = $conn->query("SELECT * FROM empresa WHERE id = 1")->fetch_assoc();
         $sizeLogo = $_FILES['LogoEmpresa']['size'];
         //directorio donde se guardara el archivo
         $directorio = 'resources/images/';
-        //ruta donde se guardara el archivo con el nombre de la imagen
+        //ruta donde se guardara el archivo con el nombre de la imagen  
         $ruta = $directorio.$nombreLogo;
 
         //valida que el archivo sea de tipo jpg, jpeg, png o gif
