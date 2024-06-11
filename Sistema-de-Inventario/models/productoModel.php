@@ -2,9 +2,10 @@
 
 require '../../Conexion-Base-de-Datos/dbConnection.php';
 
-class productoModel {
+class productoModel
+{
     private $idProducto;
-    private $Nombreproducto;
+    private $NombreProducto;
     private $Cantidad;
     private $Precio;
     private $Foto;
@@ -13,114 +14,164 @@ class productoModel {
     private $connection;
 
     // constructor para iniciar la conexion
-    public function __construct() {
+    public function __construct()
+    {
         $this->connection = conectar();
     }
 
     // Set
-    public function setIdProducto($idProducto) {
+    public function setIdProducto($idProducto)
+    {
         $this->idProducto = $idProducto;
     }
 
-    public function setNombreproducto($Nombreproducto) {
+    public function setNombreproducto($Nombreproducto)
+    {
         $this->Nombreproducto = $Nombreproducto;
     }
 
-    public function setCantidad($Cantidad) {
+    public function setCantidad($Cantidad)
+    {
         $this->Cantidad = $Cantidad;
     }
 
-    public function setPrecio($Precio) {
+    public function setPrecio($Precio)
+    {
         $this->Precio = $Precio;
     }
 
-    public function setFoto($Foto) {
+    public function setFoto($Foto)
+    {
         $this->Foto = $Foto;
     }
 
-    public function setIdCategoria($idCategoria) {
+    public function setIdCategoria($idCategoria)
+    {
         $this->idCategoria = $idCategoria;
     }
 
-    public function setIdSucursal($idSucursal) {
+    public function setIdSucursal($idSucursal)
+    {
         $this->idSucursal = $idSucursal;
     }
-    
+
     //get
-    public function getIdProducto() {
+    public function getIdProducto()
+    {
         return $this->idProducto;
     }
 
-    public function getNombreproducto() {
-        return $this->Nombreproducto;
+    public function getNombreproducto()
+    {
+        return $this->NombreProducto;
     }
 
-    public function getCantidad() {
+    public function getCantidad()
+    {
         return $this->Cantidad;
     }
 
-    public function getPrecio() {
+    public function getPrecio()
+    {
         return $this->Precio;
     }
 
-    public function getFoto() {
+    public function getFoto()
+    {
         return $this->Foto;
     }
 
-    public function getIdCategoria() {
+    public function getIdCategoria()
+    {
         return $this->idCategoria;
     }
 
-    public function getIdSucursal() {
+    public function getIdSucursal()
+    {
         return $this->idSucursal;
     }
-   
-    
-        // Método para crear un nuevo
-    
 
-        public function agregar($Nombreproducto, $Cantidad, $Precio, $Foto, $idCategoria, $idSucursal) {
-            $sql = "INSERT INTO productos (Nombreproducto, Cantidad, Precio, Foto, idCategoria, idSucursal)
-                VALUES (?, ?, ?, ?, ?, ?)";
-            $stmt = $this->connection->prepare($sql);
-            $stmt->bind_param("sidsii", $Nombreproducto, $Cantidad, $Precio, $Foto, $idCategoria, $idSucursal);
-                return $stmt->execute();
+
+    // Método para obtener todos los productos
+    public function obtenerProductos(){
+        $sql = "CALL obtenerProductos();";
+        $datosObtenidos = $this->connection->query($sql);
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
+        }
+        // Limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
+        return $datosObtenidos;
+    } 
+
+    // Método para obtener productos con filtros específicos
+    public function obtenerProductosFiltro($idProducto, $Nombreproducto, $idCategoria){
+        // Preparar la llamada al procedimiento almacenado con los parámetros
+        $sql = "CALL obtenerProductosFiltro('$idProducto', '$Nombreproducto', '$idCategoria');";
+        
+        // Ejecutar la consulta
+        $datosObtenidos = $this->connection->query($sql);
+        
+        // Verificar errores
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
+        }
+        
+        // Limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
+        return $datosObtenidos;
     }
-    
-        // Método para mostrar todos los usuarios
-        public function mostrar(){
-            $sql="SELECT * FROM productos";
-            $datosObtenidos=$this->connection->query($sql);
-    
-            if($this->connection->error){
-                die ('ERROR SQL: '.$this->connection->error);
-            }
-            //limpiar la consulta para poder hacer otra
-            $this->connection->next_result();
-            return $datosObtenidos;
-        } 
-    
-        // Método para actualizar
-        public function actualizar() {
-            $sql = "UPDATE productos SET Nombreproducto = ?, Cantidad = ?, Precio = ?, Foto = ?, idCategoria = ?, idSucursal = ?
-                    WHERE idProducto = ?";
-            $stmt = $this->connection->prepare($sql);
-            $stmt->bind_param("sidsiii", $this->Nombreproducto, $this->Cantidad, $this->Precio, $this->Foto, $this->idCategoria, $this->idSucursal, $this->idProducto);
-    
-            if ($stmt->execute()) {
-                return true;
-            } else {
-                return false;
-            }
+
+    // Método para insertar un producto
+    public function crearProducto($Nombreproducto, $Cantidad, $Precio, $Foto, $idCategoria, $idSucursal){
+        // Preparar la llamada al procedimiento almacenado con los parámetros
+        $sql = "CALL crearProducto('$Nombreproducto', '$Cantidad', '$Precio', '$Foto', '$idCategoria', '$idSucursal');";
+        
+        // Ejecutar la consulta
+        $datosObtenidos = $this->connection->query($sql);
+        
+        // Verificar errores
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
         }
-    
-        // Método para eliminar
-        public function eliminar($idProducto) {
-            $sql = "DELETE FROM productos WHERE idProducto = ?";
-            $stmt = $this->connection->prepare($sql);
-            $stmt->bind_param("i", $idProducto);
-            return $stmt->execute();
+        // Limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
+        return $datosObtenidos;
+    }
+
+    // Método para actualizar un producto
+    public function actualizarProducto($NombreProducto, $Cantidad, $Precio, $Foto, $idCategoria, $idSucursal){
+        // Preparar la llamada al procedimiento almacenado con los parámetros
+        $sql = "CALL actualizarProducto('$NombreProducto', '$Cantidad', '$Precio', '$Foto', '$idCategoria', '$idSucursal');";
+        
+        // Ejecutar la consulta
+        $datosObtenidos = $this->connection->query($sql);
+        
+        // Verificar errores
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
         }
-    
-    
+        // Limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
+        return $datosObtenidos;
+    }
+
+    // Método para eliminar un producto
+    public function eliminarProducto($idProducto){
+        // Preparar la llamada al procedimiento almacenado con los parámetros
+        $sql = "CALL eliminarProducto('$idProducto');";
+        
+        // Ejecutar la consulta
+        $datosObtenidos = $this->connection->query($sql);
+        
+        // Verificar errores
+        if($this->connection->error){
+            die ('ERROR SQL: '.$this->connection->error);
+        }
+        // Limpiar la consulta para poder hacer otra
+        $this->connection->next_result();
+        return $datosObtenidos;
+    }
+
+
 }

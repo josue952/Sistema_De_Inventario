@@ -1,19 +1,19 @@
 <?php
 // Verificar si se ha solicitado la eliminación de un usuario
 if (isset($_POST['delete_id'])) {
-    $idUsuario = $_POST['delete_id'];
+    $producto = $_POST['delete_id'];
     echo "<script>
     window.onload = function() {
         Swal.fire({
             title: '¡Éxito!',
-            text: 'Usuario eliminado exitosamente',
+            text: 'Producto eliminado exitosamente',
             icon: 'success'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = './tablaUsuario.php';
+                window.location.href = './tablaProducto.php';
             }
         });
     };
     </script>";
-    $objUsuario->eliminarUsuario($idUsuario);
+    $producto->eliminarUsuario($idProducto);
 }
