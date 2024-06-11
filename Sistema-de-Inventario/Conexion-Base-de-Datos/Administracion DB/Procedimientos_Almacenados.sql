@@ -181,12 +181,24 @@ END //
 DELIMITER ;
 
 -- Procedimiento para Eliminar una Categoria
+
 DELIMITER //
 
 CREATE PROCEDURE eliminarCategoria(
     IN p_idCategoria INT
 )
 BEGIN
+    DECLARE productos_en_categoria INT;
+
+    -- Verificar si hay productos asociados a esta categoría
+    SELECT COUNT(*) INTO productos_en_categoria FROM productos WHERE idCategoria = p_idCategoria;
+
+    -- Si hay productos asociados, actualizar la categoría a NULL
+    IF productos_en_categoria > 0 THEN
+        UPDATE productos SET idCategoria = NULL WHERE idCategoria = p_idCategoria;
+    END IF;
+
+    -- Eliminar la categoría
     DELETE FROM categorias WHERE idCategoria = p_idCategoria;
 END //
 
@@ -280,13 +292,31 @@ END //
 DELIMITER ;
 
 -- Procedimiento para Eliminar una Sucursal
+
 DELIMITER //
 
 CREATE PROCEDURE eliminarSucursal(
     IN p_idSucursal INT
 )
 BEGIN
+    DECLARE compras_con_sucursal INT;
+    
+    -- Iniciar una transacción
+    START TRANSACTION;
+
+    -- Verificar si hay compras asociadas a esta sucursal
+    SELECT COUNT(*) INTO compras_con_sucursal FROM compras WHERE idSucursal = p_idSucursal;
+
+    -- Si hay compras asociadas, actualizar el campo idSucursal a NULL
+    IF compras_con_sucursal > 0 THEN
+        UPDATE compras SET idSucursal = NULL WHERE idSucursal = p_idSucursal;
+    END IF;
+
+    -- Eliminar la sucursal
     DELETE FROM sucursales WHERE idSucursal = p_idSucursal;
+
+    -- Confirmar la transacción si no hay errores
+    COMMIT;
 END //
 
 DELIMITER ;
@@ -1269,6 +1299,205 @@ END //
 
 DELIMITER ;
 
-
-
 -- --------------------------------------------------------
+
+DELIMITER //
+
+CREATE PROCEDURE obtenerEntradas()
+BEGIN
+    SELECT 
+        e.idEntrada,
+        DATE_FORMAT(e.FechaEntrada, '%d-%m-%Y') AS FechaEntrada,
+        p.NombreProducto,
+        e.Motivo,
+        e.Cantidad,
+        (SELECT NombreProveedor FROM proveedores WHERE idProveedor = e.idProveedor) AS NombreProveedor
+    FROM 
+        entradas e
+    LEFT JOIN 
+        productos p ON e.idProducto = p.idProducto;
+END //
+
+DELIMITER ;
+
+--------------------------
+
+DELIMITER //
+
+CREATE PROCEDURE obtenerEntradasFiltro(
+    IN p_idEntrada INT,
+    IN p_idProducto INT
+)
+BEGIN
+    SET @sql = 'SELECT 
+                    e.idEntrada,
+                    DATE_FORMAT(e.FechaEntrada, "%d-%m-%Y") AS FechaEntrada,
+                    p.NombreProducto,
+                    e.Motivo,
+                    e.Cantidad,
+                    (SELECT NombreProveedor FROM proveedores WHERE idProveedor = e.idProveedor) AS NombreProveedor
+                FROM 
+                    entradas e
+                LEFT JOIN 
+                    productos p ON e.idProducto = p.idProducto
+                WHERE 1=1';
+   
+    IF p_idEntrada IS NOT NULL AND p_idEntrada != '' THEN
+        SET @sql = CONCAT(@sql, ' AND e.idEntrada = ', p_idEntrada);
+    END IF;
+ 
+    IF p_idProducto IS NOT NULL AND p_idProducto != '' THEN
+        SET @sql = CONCAT(@sql, ' AND e.idProducto = ', p_idProducto);
+    END IF;
+ 
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+DELIMITER ;
+
+-------------------------------
+
+DELIMITER //
+ 
+CREATE PROCEDURE crearEntrada(
+    IN p_FechaEntrada DATE,
+    IN p_idProducto INT,
+    IN p_Motivo VARCHAR(250),
+    IN p_Cantidad INT,
+    IN p_idProveedor INT
+)
+BEGIN
+    INSERT INTO entradas (FechaEntrada, idProducto, Motivo, Cantidad, idProveedor)
+    VALUES (p_FechaEntrada, p_idProducto, p_Motivo, p_Cantidad, p_idProveedor);
+END //
+ 
+DELIMITER ;
+
+
+-------------------------------
+DELIMITER //
+ 
+CREATE PROCEDURE actualizarEntrada(
+    IN p_idEntrada INT,
+    IN p_FechaEntrada DATE,
+    IN p_idProducto INT,
+    IN p_Motivo VARCHAR(250),
+    IN p_Cantidad INT,
+    IN p_idProveedor INT
+)
+BEGIN
+    UPDATE entradas
+    SET FechaEntrada = p_FechaEntrada,
+        idProducto = p_idProducto,
+        Motivo = p_Motivo,
+        Cantidad = p_Cantidad,
+        idProveedor = p_idProveedor
+    WHERE idEntrada = p_idEntrada;
+END //
+ 
+DELIMITER ;
+ 
+ 
+---------------------------------
+DELIMITER //
+ 
+CREATE PROCEDURE eliminarEntrada(
+    IN p_idEntrada INT
+)
+BEGIN
+    DELETE FROM entradas WHERE idEntrada = p_idEntrada;
+END //
+ 
+DELIMITER ;
+ 
+--salida
+ 
+DELIMITER //
+ 
+CREATE PROCEDURE crearSalida(
+    IN p_FechaSalida DATE,
+    IN p_idProducto INT,
+    IN p_Motivo VARCHAR(250),
+    IN p_Cantidad INT,
+    IN p_idCliente INT
+)
+BEGIN
+    INSERT INTO salidas (FechaSalida, idProducto, Motivo, Cantidad, idCliente)
+    VALUES (p_FechaSalida, p_idProducto, p_Motivo, p_Cantidad, p_idCliente);
+END //
+ 
+DELIMITER ;
+ 
+-----------------------
+DELIMITER //
+ 
+CREATE PROCEDURE obtenerSalidas()
+BEGIN
+    SELECT * FROM salidas;
+END //
+ 
+DELIMITER ;
+ 
+--------------------------
+DELIMITER //
+ 
+CREATE PROCEDURE obtenerSalidasFiltro(
+    IN p_idSalida INT,
+    IN p_idProducto INT
+)
+BEGIN
+    SET @sql = 'SELECT * FROM salida WHERE 1=1';
+   
+    IF p_idSalida IS NOT NULL AND p_idSalida != '' THEN
+        SET @sql = CONCAT(@sql, ' AND idSalida = ', p_idSalida);
+    END IF;
+ 
+    IF p_idProducto IS NOT NULL AND p_idProducto != '' THEN
+        SET @sql = CONCAT(@sql, ' AND idProducto = ', p_idProducto);
+    END IF;
+ 
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+ 
+DELIMITER ;
+ 
+ 
+-------------------------------
+DELIMITER //
+ 
+CREATE PROCEDURE actualizarSalida(
+    IN p_idSalida INT,
+    IN p_FechaEntrada DATE,
+    IN p_idProducto INT,
+    IN p_Motivo VARCHAR(250),
+    IN p_Cantidad INT,
+    IN p_idCliente INT
+)
+BEGIN
+    UPDATE salidas
+    SET FechaSalida = p_FechaSalida,
+        idProducto = p_idProducto,
+        Motivo = p_Motivo,
+        Cantidad = p_Cantidad,
+        idCliente = p_idCliente
+    WHERE idSalida = p_idSalida;
+END //
+ 
+DELIMITER ;
+ 
+ 
+---------------------------------
+DELIMITER //
+ 
+CREATE PROCEDURE eliminarSalida(
+    IN p_idSalida INT
+)
+BEGIN
+    DELETE FROM salidas WHERE idSalida = p_idSalida;
+END //
+ 
+DELIMITER ;

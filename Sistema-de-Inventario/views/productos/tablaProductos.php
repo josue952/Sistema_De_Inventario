@@ -169,12 +169,11 @@ $productos = $objProducto->obtenerProductos();
                                         Administración
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-dark">
-                                        <li><a class="dropdown-item" id="Usuarios"
-                                                href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
-                                        <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
-                                        <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
-                                        <li><a class="dropdown-item" id="Proveedores" href="#">Proveedores</a></li>
-                                        <li><a class="dropdown-item" id="Clientes" href="#">Clientes</a></li>
+                                        <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
+                                        <li><a class="dropdown-item" id="Categorias" href="../../views/categorias/tablaCategoria.php">Categorias</a></li>
+                                        <li><a class="dropdown-item" id="Sucursales" href="../../views/sucursal/tablaSucursal.php">Sucursales</a></li>
+                                        <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
+                                        <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes">Clientes</a></li>
                                         <li>
                                             <hr class="dropdown-divider">
                                         </li>
@@ -184,20 +183,19 @@ $productos = $objProducto->obtenerProductos();
                                     <a href="../../views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#" id="Productos" class="nav-link">Productos</a>
+                                    <a href="../../views/productos/tablaProductos.php" id="Productos" class="nav-link">Productos</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#" id="Ventas" class="nav-link">Ventas</a>
+                                    <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#" id="Entradas" class="nav-link">Entradas</a>
+                                    <a href="" id="Entradas" class="nav-link">Entradas</a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#" id="Salidas" class="nav-link">Salidas</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="../../views/modifEmpresa/viewModifEmpresa.php" id="configurarEmpresa"
-                                        class="nav-link">Configurar Empresa</a>
+                                    <a href="../../views/modifEmpresa/viewModifEmpresa.php" id="configurarEmpresa" class="nav-link">Configurar Empresa</a>
                                 </li>
                             <?php endif; ?>
                         </ul>
@@ -226,9 +224,10 @@ $productos = $objProducto->obtenerProductos();
         <h1 class="text-center p-4">Tabla Productos</h1>
         <div class="container mt-4 bg-white rounded p-4 shadow">
             <div class="d-flex justify-content-end mb-2">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     Registrar
                 </button>
+                <a class="btn btn-success btn-lg m-1" href="../../views/Reportes/ReporteProductos.php" target="blank">Generar Reporte</a>
             </div>
             <!-- Modal -->
             <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -318,7 +317,7 @@ $productos = $objProducto->obtenerProductos();
                             <td><?php echo $producto["idProducto"]; ?></td>
                             <td><?php echo $producto["NombreProducto"]; ?></td>
                             <td><?php echo $producto["Cantidad"]; ?></td>
-                            <td><?php echo $producto["Precio"]; ?></td>
+                            <td><?php echo "$".$producto["Precio"]; ?></td>
                             <td><img src="../../<?php echo $producto["Foto"]; ?>" alt="Producto" style="width: 50px; height: auto;"></td>
                             <td><?php echo $producto["NombreCategoria"]; ?></td>
                             <td><?php echo $producto["NombreSucursal"]; ?></td>

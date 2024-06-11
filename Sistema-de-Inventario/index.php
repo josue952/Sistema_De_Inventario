@@ -127,8 +127,8 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
                             </a>
                             <ul class="dropdown-menu dropdown-menu-dark">
                                 <li><a class="dropdown-item" id="Usuarios" href="./views/usuarios/tablaUsuario.php">Usuarios</a></li>
-                                <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
-                                <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
+                                <li><a class="dropdown-item" id="Categorias" href="./views/categorias/tablaCategoria.php">Categorias</a></li>
+                                <li><a class="dropdown-item" id="Sucursales" href="./views/sucursal/tablaSucursal.php">Sucursales</a></li>
                                 <li><a class="dropdown-item" id="Proveedores" href="./views/Proveedores/tablaProveedor.php">Proveedores</a></li>
                                 <li><a class="dropdown-item" id="Clientes" href="./views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
@@ -146,10 +146,10 @@ if ($_POST && isset($_POST['Usuario']) && isset($_POST['Contraseña'])){
                             <a href="./views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Entradas" class="nav-link">Entradas</a>
+                            <a href="./views/entrada/tablaEntradas.php" id="Entradas" class="nav-link">Entradas</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Salidas" class="nav-link">Salidas</a>
+                            <a href="./views/salida/tablaSalidas.php" id="Salidas" class="nav-link">Salidas</a>
                         </li>
                         <li class="nav-item">
                             <a href="./views/modifEmpresa/viewModifEmpresa.php" id="configurarEmpresa" class="nav-link">Configurar Empresa</a>

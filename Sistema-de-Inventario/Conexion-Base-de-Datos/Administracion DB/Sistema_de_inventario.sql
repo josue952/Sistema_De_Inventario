@@ -92,14 +92,14 @@ CREATE TABLE `compras` (
     `idCompra` int(11) NOT NULL AUTO_INCREMENT,
     `FechaCompra` DATE NOT NULL,
     `idProveedor` int(11) NOT NULL,
-    `idSucursal` int(11) NOT NULL,
+    `idSucursal` int(11) DEFAULT NULL, -- Cambio: Permitimos NULL
     `TotalCompra` decimal(10,2) DEFAULT NULL,
     PRIMARY KEY (`idCompra`),
     FOREIGN KEY (`idProveedor`) REFERENCES `proveedores`(`idProveedor`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (`idSucursal`) REFERENCES `sucursales`(`idSucursal`)
-        ON DELETE CASCADE
+        ON DELETE SET NULL -- Cambio: Seteamos a NULL en vez de CASCADE
         ON UPDATE CASCADE
 );
 

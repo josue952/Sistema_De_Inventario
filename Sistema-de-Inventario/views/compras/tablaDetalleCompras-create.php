@@ -112,10 +112,9 @@ $productos = $objCompra->obtenerTodosLosProductos();
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">Administración</a>
                             <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" id="Usuarios"
-                                        href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
-                                <li><a class="dropdown-item" id="Categorias" href="#">Categorias</a></li>
-                                <li><a class="dropdown-item" id="Sucursales" href="#">Sucursales</a></li>
+                                <li><a class="dropdown-item" id="Usuarios" href="../../views/usuarios/tablaUsuario.php">Usuarios</a></li>
+                                <li><a class="dropdown-item" id="Categorias" href="../../views/categorias/tablaCategoria.php">Categorias</a></li>
+                                <li><a class="dropdown-item" id="Sucursales" href="../../views/sucursal/tablaSucursal.php">Sucursales</a></li>
                                 <li><a class="dropdown-item" id="Proveedores" href="../../views/Proveedores/tablaProveedor.php">Proveedores</a></li>
                                 <li><a class="dropdown-item" id="Clientes" href="../../views/Clientes/tablaCliente.php">Clientes</a></li>
                                 <li>
@@ -127,7 +126,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                             <a href="../../views/compras/tablaCompras.php" id="Compras" class="nav-link">Compras</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" id="Productos" class="nav-link">Productos</a>
+                            <a href="../../views/productos/tablaProductos.php" id="Productos" class="nav-link">Productos</a>
                         </li>
                         <li class="nav-item">
                             <a href="../../views/ventas/tablaVentas.php" id="Ventas" class="nav-link">Ventas</a>
@@ -139,8 +138,7 @@ $productos = $objCompra->obtenerTodosLosProductos();
                             <a href="#" id="Salidas" class="nav-link">Salidas</a>
                         </li>
                         <li class="nav-item">
-                            <a href="../../views/modifEmpresa/viewModifEmpresa.php" id="configurarEmpresa"
-                                class="nav-link">Configurar Empresa</a>
+                            <a href="../../views/modifEmpresa/viewModifEmpresa.php" id="configurarEmpresa" class="nav-link">Configurar Empresa</a>
                         </li>
                         <?php endif; ?>
                     </ul>
