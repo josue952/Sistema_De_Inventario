@@ -1175,6 +1175,7 @@ BEGIN
     SET @sql = 'SELECT 
                     p.idProducto,
                     p.NombreProducto,
+                    FechaEntrada,
                     p.Cantidad,
                     p.Precio,
                     p.Foto,
@@ -1255,52 +1256,6 @@ DELIMITER ;
 
 -- --------------------------------------------------------
 
--- Procedimiento para Eliminar un Producto
-
-DELIMITER //
-
-CREATE PROCEDURE eliminarProducto(
-    IN producto_id INT
-)
-BEGIN
-    -- Eliminar el producto de detalleCompras
-    DELETE FROM detalleCompras WHERE NombreProducto = (SELECT NombreProducto FROM productos WHERE idProducto = producto_id);
-
-    -- Eliminar el producto de detalleVentas
-    DELETE FROM detalleVentas WHERE NombreProducto = (SELECT NombreProducto FROM productos WHERE idProducto = producto_id);
-
-    -- Actualizar los totales en compras
-    UPDATE compras 
-    SET TotalCompra = (
-        SELECT SUM(dc.Cantidad * dc.Precio) 
-        FROM detalleCompras dc 
-        JOIN compras c ON dc.idCompra = c.idCompra
-        WHERE c.idCompra = compras.idCompra
-    );
-
-    -- Actualizar los totales en ventas
-    UPDATE ventas 
-    SET TotalVenta = (
-        SELECT SUM(dv.Cantidad * dv.Precio) 
-        FROM detalleVentas dv 
-        JOIN ventas v ON dv.idVenta = v.idVenta
-        WHERE v.idVenta = ventas.idVenta
-    );
-
-    -- Eliminar las entradas relacionadas con el producto
-    DELETE FROM entradas WHERE idProducto = producto_id;
-
-    -- Eliminar las salidas relacionadas con el producto
-    DELETE FROM salidas WHERE idProducto = producto_id;
-
-    -- Finalmente, eliminar el producto de la tabla productos
-    DELETE FROM productos WHERE idProducto = producto_id;
-END //
-
-DELIMITER ;
-
--- --------------------------------------------------------
-
 DELIMITER //
 
 CREATE PROCEDURE obtenerEntradas()
@@ -1308,17 +1263,20 @@ BEGIN
     SELECT 
         e.idEntrada,
         DATE_FORMAT(e.FechaEntrada, '%d-%m-%Y') AS FechaEntrada,
-        p.NombreProducto,
         e.Motivo,
         e.Cantidad,
-        (SELECT NombreProveedor FROM proveedores WHERE idProveedor = e.idProveedor) AS NombreProveedor
+        pr.NombreProveedor,
+        p.NombreProducto
     FROM 
         entradas e
     LEFT JOIN 
-        productos p ON e.idProducto = p.idProducto;
+        productos p ON e.idProducto = p.idProducto
+    LEFT JOIN 
+        proveedores pr ON e.idProveedor = pr.idProveedor;
 END //
 
 DELIMITER ;
+
 
 --------------------------
 
@@ -1331,15 +1289,18 @@ CREATE PROCEDURE obtenerEntradasFiltro(
 BEGIN
     SET @sql = 'SELECT 
                     e.idEntrada,
-                    DATE_FORMAT(e.FechaEntrada, "%d-%m-%Y") AS FechaEntrada,
-                    p.NombreProducto,
                     e.Motivo,
                     e.Cantidad,
-                    (SELECT NombreProveedor FROM proveedores WHERE idProveedor = e.idProveedor) AS NombreProveedor
+                    e.idProveedor,
+                    e.idProducto,
+                    pr.NombreProveedor,
+                    p.NombreProducto
                 FROM 
                     entradas e
                 LEFT JOIN 
                     productos p ON e.idProducto = p.idProducto
+                LEFT JOIN 
+                    proveedores pr ON e.idProveedor = pr.idProveedor
                 WHERE 1=1';
    
     IF p_idEntrada IS NOT NULL AND p_idEntrada != '' THEN
@@ -1356,6 +1317,7 @@ BEGIN
 END //
 
 DELIMITER ;
+
 
 -------------------------------
 
@@ -1431,47 +1393,75 @@ END //
 DELIMITER ;
  
 -----------------------
+
 DELIMITER //
- 
+
 CREATE PROCEDURE obtenerSalidas()
 BEGIN
-    SELECT * FROM salidas;
+    SELECT 
+        s.idSalida,
+        DATE_FORMAT(s.FechaSalida, '%d-%m-%Y') AS FechaSalida,
+        s.Motivo,
+        s.Cantidad,
+        c.NombreCliente,
+        p.NombreProducto
+    FROM 
+        salidas s
+    LEFT JOIN 
+        productos p ON s.idProducto = p.idProducto
+    LEFT JOIN 
+        clientes c ON s.idCliente = c.idCliente;
 END //
- 
+
 DELIMITER ;
+
  
 --------------------------
-DELIMITER //
- 
+
+ DELIMITER //
+
 CREATE PROCEDURE obtenerSalidasFiltro(
     IN p_idSalida INT,
     IN p_idProducto INT
 )
 BEGIN
-    SET @sql = 'SELECT * FROM salida WHERE 1=1';
+    SET @sql = 'SELECT 
+                    s.idSalida,
+                    s.Motivo,
+                    s.Cantidad,
+                    s.idCliente,
+                    s.idProducto,
+                    c.NombreCliente,
+                    p.NombreProducto
+                FROM 
+                    salidas s
+                LEFT JOIN 
+                    productos p ON s.idProducto = p.idProducto
+                LEFT JOIN 
+                    clientes c ON s.idCliente = c.idCliente
+                WHERE 1=1';
    
     IF p_idSalida IS NOT NULL AND p_idSalida != '' THEN
-        SET @sql = CONCAT(@sql, ' AND idSalida = ', p_idSalida);
+        SET @sql = CONCAT(@sql, ' AND s.idSalida = ', p_idSalida);
     END IF;
  
     IF p_idProducto IS NOT NULL AND p_idProducto != '' THEN
-        SET @sql = CONCAT(@sql, ' AND idProducto = ', p_idProducto);
+        SET @sql = CONCAT(@sql, ' AND s.idProducto = ', p_idProducto);
     END IF;
  
     PREPARE stmt FROM @sql;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
- 
+
 DELIMITER ;
- 
  
 -------------------------------
 DELIMITER //
  
 CREATE PROCEDURE actualizarSalida(
     IN p_idSalida INT,
-    IN p_FechaEntrada DATE,
+    IN p_FechaSalida DATE,
     IN p_idProducto INT,
     IN p_Motivo VARCHAR(250),
     IN p_Cantidad INT,

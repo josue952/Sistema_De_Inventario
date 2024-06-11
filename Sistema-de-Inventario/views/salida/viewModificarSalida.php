@@ -11,15 +11,22 @@ if (!$idSalida) {
     die("ID de Salida no proporcionado.");
 }
 
+//obtener el todos los productos 
+$productos = $objSalida->obtenerTodosLosProductos();
+
+//obtener el todos los clientes 
+$clientes = $objSalida->obtenerClientes();
+
+
 // Manejo de la lógica para actualizar la Salida en la base de datos
 if ($_POST) {
     $fechaSalida = $_POST['FechaSalida'];
     $idProducto = $_POST['idProducto'];
     $motivo = $_POST['Motivo'];
     $cantidad = $_POST['Cantidad'];
-    $idCliente = isset($_POST['idCliente']) ? $_POST['idCliente'] : NULL;
+    $idCliente = $_POST['idCliente'];
 
-    $data = $objSalida->actualizarSalida($idSalida, $fechaSalida, $idProducto, $motivo, $cantidad, $idSalida);
+    $data = $objSalida->actualizarSalida($idSalida, $fechaSalida, $idProducto, $motivo, $cantidad, $idCliente);
 
     if ($data) {
         // Limpiar las variables
@@ -34,7 +41,7 @@ if ($_POST) {
         window.onload = function() {
             Swal.fire({
                 title: '¡Éxito!',
-                text: 'Entrada actualizada correctamente',
+                text: 'Salida actualizada correctamente',
                 icon: 'success'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -89,8 +96,16 @@ if ($_POST) {
             <input type="date" class="form-control" name="FechaSalida" value="<?php echo $datos->FechaSalida; ?>" required>
         </div>
         <div class="mb-1">
-            <label for="idProducto" class="form-label">ID Producto</label>
-            <input type="number" class="form-control" name="idProducto" value="<?php echo $datos->idProducto; ?>" required>
+            <label for="idProducto" class="form-label">Producto</label>
+            <!--Agregar un select para seleccionar el producto-->
+            <select class="form-select" id="idProducto" name="idProducto" required>
+                <option value="<?php echo $datos->idProducto; ?>"><?php echo $datos->NombreProducto; ?></option>
+                <?php foreach ($productos as $producto): ?>
+                    <option value="<?php echo $producto['idProducto']; ?>">
+                    <?php echo $producto['NombreProducto']; ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="mb-1">
             <label for="Motivo" class="form-label">Motivo</label>
@@ -101,8 +116,16 @@ if ($_POST) {
             <input type="number" class="form-control" name="Cantidad" value="<?php echo $datos->Cantidad; ?>" required>
         </div>
         <div class="mb-1">
-            <label for="idCliente class="form-label">ID Cliente (opcional)</label>
-            <input type="number" class="form-control" name="idCliente" value="<?php echo $datos->idCliente; ?>">
+            <label for="idCliente" class="form-label">Cliente (opcional)</label>
+            <!--Agregar un select para seleccionar el producto-->
+            <select class="form-select" id="idCliente" name="idCliente" required>
+                <option value="<?php echo $datos->idCliente; ?>"><?php echo $datos->NombreCliente; ?></option>
+                    <?php foreach ($clientes as $cliente): ?>
+                    <option value="<?php echo $cliente['idCliente']; ?>">
+                        <?php echo $cliente['NombreCliente']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div><br>
     <?php } else {
         echo "<p class='text-center'>No se encontró la salida con ID {$idSalida}</p>";

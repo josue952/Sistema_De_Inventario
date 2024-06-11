@@ -11,6 +11,13 @@ if (!$idEntrada) {
     die("ID de entrada no proporcionado.");
 }
 
+//obtener el todos los productos 
+$productos = $objEntrada->obtenerTodosLosProductos();
+
+//obtener el todos los proveedores 
+$proveedores = $objEntrada->obtenerProveedor();
+
+
 // Manejo de la lógica para actualizar la entrada en la base de datos
 if ($_POST) {
     $fechaEntrada = $_POST['FechaEntrada'];
@@ -89,8 +96,16 @@ if ($_POST) {
             <input type="date" class="form-control" name="FechaEntrada" value="<?php echo $datos->FechaEntrada; ?>" required>
         </div>
         <div class="mb-1">
-            <label for="idProducto" class="form-label">ID Producto</label>
-            <input type="number" class="form-control" name="idProducto" value="<?php echo $datos->idProducto; ?>" required>
+            <label for="idProducto" class="form-label">Producto</label>
+            <!--Agregar un select para seleccionar el producto-->
+            <select class="form-select" id="idProducto" name="idProducto" required>
+                <option value="<?php echo $datos->idProducto; ?>"><?php echo $datos->NombreProducto; ?></option>
+                <?php foreach ($productos as $producto): ?>
+                    <option value="<?php echo $producto['idProducto']; ?>">
+                    <?php echo $producto['NombreProducto']; ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="mb-1">
             <label for="Motivo" class="form-label">Motivo</label>
@@ -102,7 +117,15 @@ if ($_POST) {
         </div>
         <div class="mb-1">
             <label for="idProveedor" class="form-label">ID Proveedor (opcional)</label>
-            <input type="number" class="form-control" name="idProveedor" value="<?php echo $datos->idProveedor; ?>">
+            <!--Agregar un select para seleccionar el producto-->
+            <select class="form-select" id="idProveedor" name="idProveedor" required>
+                <option value="<?php echo $datos->idProveedor; ?>"><?php echo $datos->NombreProveedor; ?></option>
+                    <?php foreach ($proveedores as $proveedor): ?>
+                        <option value="<?php echo $proveedor['idProveedor']; ?>">
+                    <?php echo $proveedor['NombreProveedor']; ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
         </div><br>
     <?php } else {
         echo "<p class='text-center'>No se encontró la entrada con ID {$idEntrada}</p>";

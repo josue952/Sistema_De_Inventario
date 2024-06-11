@@ -3,6 +3,16 @@ session_start();
 require "../../models/entrada.php"; // Suponiendo que tienes un modelo para manejar las entradas
 $objEntrada = new Entradas();
 
+// Obtener todos los datos de los proveedores
+$Entradas =$objEntrada->obtenerEntradas();
+
+//obtener el todos los productos 
+$productos = $objEntrada->obtenerTodosLosProductos();
+
+//obtener el todos los proveedores 
+$proveedores = $objEntrada->obtenerProveedor();
+
+
 
 // Verificar si se recibieron datos del formulario al crear una entrada
 if ($_POST && isset($_POST['FechaEntrada'], $_POST['idProducto'], $_POST['Motivo'], $_POST['Cantidad'])) {
@@ -13,25 +23,8 @@ if ($_POST && isset($_POST['FechaEntrada'], $_POST['idProducto'], $_POST['Motivo
     $idProveedor = $_POST['idProveedor'];
 
     if ($FechaEntrada != "" && $idProducto != "" && $motivo != "" && $cantidad != "" && $idProveedor != "") {
-        //cuando hay un error en la consulta
-        if (!$objEntrada->crearEntrada($FechaEntrada, $idProducto, $motivo, $cantidad, $idProveedor)){
-            
-            echo "<script>
-            window.onload = function() {
-                Swal.fire({
-                    title: '¡Error al crear entrada!',
-                    text: 'Ocurrió un error al crear la entrada',
-                    icon: 'error'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = './tablaEntradas.php';
-                    }
-                });
-            };
-            </script>";
-        }else{
-            // Muestra un mensaje de éxito al crear una entrada y redirige a la tabla de entradas
-            echo "<script>
+        // Muestra un mensaje de éxito al crear una entrada y redirige a la tabla de entradas
+        echo "<script>
             window.onload = function() {
                 Swal.fire({
                     title: '¡Éxito!',
@@ -43,8 +36,8 @@ if ($_POST && isset($_POST['FechaEntrada'], $_POST['idProducto'], $_POST['Motivo
                     }
                 });
             };
-            </script>";
-        }
+        </script>";
+        $data = $objEntrada->crearEntrada($FechaEntrada, $idProducto, $motivo, $cantidad, $idProveedor);
     } else {
         // Muestra un mensaje de error al crear una entrada y redirige a la tabla de entradas
         echo "<script>
@@ -65,6 +58,7 @@ if ($_POST && isset($_POST['FechaEntrada'], $_POST['idProducto'], $_POST['Motivo
 // Verificar si se ha solicitado la eliminación de una entrada
 if (isset($_POST['delete_id'])) {
     $idEntrada = $_POST['delete_id'];
+    $objEntrada->eliminarEntrada($idEntrada);
     echo "<script>
     window.onload = function() {
         Swal.fire({
@@ -78,7 +72,6 @@ if (isset($_POST['delete_id'])) {
         });
     };
     </script>";
-    $objEntrada->eliminarEntrada($idEntrada);
 }
 
 ?>
@@ -214,31 +207,31 @@ if (isset($_POST['delete_id'])) {
             <table class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Fecha de Entrada</th>
                         <th>ID de producto</th>
                         <th>Motivo</th>
                         <th>Cantidad</th>
                         <th>ID Proveedor</th>
-                        <th>Acciones</th>
+                        <th>ACCIONES</th>
 
                     </tr>
                 </thead>
                 <tbody class="text-center">
                 <?php
-                        // Obtener todos los datos de los proveedores
-                        $data=$objEntrada->obtenerEntradas();
                         // Recorrer cada dato que existe y mostrarlos en la tabla
-                        foreach ($data as $objEntrada) {
+                        foreach ($Entradas as $Entrada) {
                             echo "<tr>";
-                            echo "<td>".$objEntrada["FechaEntrada"]."</td>";
-                            echo "<td>".$objEntrada["idProducto"]."</td>";
-                            echo "<td>".$objEntrada["Motivo"]."</td>";
-                            echo "<td>".$objEntrada["Cantidad"]."</td>";
-                            echo "<td>".$objEntrada["idProveedor"]."</td>";
-                            $id = $objEntrada["idProveedor"];
+                            echo "<td>".$Entrada["idEntrada"]."</td>";
+                            echo "<td>".$Entrada["FechaEntrada"]."</td>";
+                            echo "<td>".$Entrada["NombreProducto"]."</td>";
+                            echo "<td>".$Entrada["Motivo"]."</td>";
+                            echo "<td>".$Entrada["Cantidad"]."</td>";
+                            echo "<td>".$Entrada["NombreProveedor"]."</td>";
+                            $id = $Entrada["idEntrada"];
                             echo "<td data-bs-toggle='modal' data-bs-target='#modal-editar' class='action-buttons'>
                             <button class='btn btn-warning btn-lg btn-spacing editar-btn'><a class='text-decoration-none text-dark' href='./viewModificarEntrada.php?id=$id'>Editar</a>
-                            </button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objEntrada["idProducto"]."'>Eliminar</button>
+                            </button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$Entrada["idEntrada"]."'>Eliminar</button>
                             </td>";
                             echo"</tr>";
                         }
@@ -259,13 +252,21 @@ if (isset($_POST['delete_id'])) {
                 <div class="modal-body">
                     <form action="./tablaEntradas.php" method="POST">
                         <div class="row">
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
                                 <label for="FechaEntrada">Fecha de Entrada</label>
                                 <input type="date" class="form-control" name="FechaEntrada" id="FechaEntrada" required>
                             </div><br><br>
-                            <div class="form-group col-md-6">
-                                <label for="idProducto">ID del Producto</label>
-                                <input type="number" class="form-control" name="idProducto" id="idProducto" placeholder="ID del Producto" required>
+                            <div class="form-group col-md-12">
+                                <label for="idProducto">Producto</label>
+                                    <!--Agregar un select para seleccionar el producto-->
+                                    <select class="form-select" id="idProducto" name="idProducto" required>
+                                        <option value="">Seleccionar Producto</option>
+                                        <?php foreach ($productos as $producto): ?>
+                                            <option value="<?php echo $producto['idProducto']; ?>">
+                                                <?php echo $producto['NombreProducto']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                             </div><br><br>
                             <div class="form-group col-md-6">
                                 <label for="Motivo">Motivo</label>
@@ -275,9 +276,17 @@ if (isset($_POST['delete_id'])) {
                                 <label for="Cantidad">Cantidad</label>
                                 <input type="number" class="form-control" name="Cantidad" id="Cantidad" placeholder="Cantidad" required>
                             </div><br><br>
-                            <div class="form-group col-md-6">
-                                <label for="idProveedor">ID del Proveedor (Opcional)</label>
-                                <input type="number" class="form-control" name="idProveedor" id="idProveedor" placeholder="ID del Proveedor">
+                            <div class="form-group col-md-12">
+                                <label for="idProveedor">Proveedor (Opcional)</label>
+                                <!--Agregar un select para seleccionar el producto-->
+                                <select class="form-select" id="idProveedor" name="idProveedor" required>
+                                        <option value="">Seleccionar Proveedor</option>
+                                        <?php foreach ($proveedores as $proveedor): ?>
+                                            <option value="<?php echo $proveedor['idProveedor']; ?>">
+                                                <?php echo $proveedor['NombreProveedor']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                </select>
                             </div><br><br>
                         </div>
                         <div class="modal-footer">
@@ -364,6 +373,7 @@ if (isset($_POST['delete_id'])) {
             container.find('.dropdown-menu').removeClass('show');
         }
     });
+    
     </script>
 </body>
 </html>

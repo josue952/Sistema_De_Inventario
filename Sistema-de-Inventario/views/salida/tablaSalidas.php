@@ -3,6 +3,11 @@ session_start();
 require "../../models/salida.php"; // Suponiendo que tienes un modelo para manejar las salidas
 $objSalida = new Salidas();
 
+//obtener el todos los productos 
+$productos = $objSalida->obtenerTodosLosProductos();
+
+//obtener el todos los clientes 
+$clientes = $objSalida->obtenerClientes();
 
 // Verificar si se recibieron datos del formulario al crear una salida
 if ($_POST && isset($_POST['FechaSalida'], $_POST['idProducto'], $_POST['Motivo'], $_POST['Cantidad'])) {
@@ -214,14 +219,14 @@ if (isset($_POST['delete_id'])) {
                         foreach ($data as $objSalida) {
                             echo "<tr>";
                             echo "<td>".$objSalida["FechaSalida"]."</td>";
-                            echo "<td>".$objSalida["idProducto"]."</td>";
+                            echo "<td>".$objSalida["NombreProducto"]."</td>";
                             echo "<td>".$objSalida["Motivo"]."</td>";
                             echo "<td>".$objSalida["Cantidad"]."</td>";
-                            echo "<td>".$objSalida["idCliente"]."</td>";
-                            $id = $objSalida["idCliente"];
+                            echo "<td>".$objSalida["NombreCliente"]."</td>";
+                            $id = $objSalida["idSalida"];
                             echo "<td data-bs-toggle='modal' data-bs-target='#modal-editar' class='action-buttons'>
                             <button class='btn btn-warning btn-lg btn-spacing editar-btn'><a class='text-decoration-none text-dark' href='./viewModificarSalida.php?id=$id'>Editar</a>
-                            </button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objSalida["idProducto"]."'>Eliminar</button>
+                            </button><button class='btn btn-danger btn-lg btn-spacing eliminar-btn' data-id='".$objSalida["idSalida"]."'>Eliminar</button>
                             </td>";
                             echo"</tr>";
                         }
@@ -240,15 +245,23 @@ if (isset($_POST['delete_id'])) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="./tablaSaldas.php" method="POST">
+                    <form action="./tablaSalidas.php" method="POST">
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label for="FechaSalida">Fecha de Salida</label>
                                 <input type="date" class="form-control" name="FechaSalida" id="FechaSalida" required>
                             </div><br><br>
                             <div class="form-group col-md-6">
-                                <label for="idProducto">ID del Producto</label>
-                                <input type="number" class="form-control" name="idProducto" id="idProducto" placeholder="ID del Producto" required>
+                                <label for="idProducto">Producto</label>
+                                <!--Agregar un select para seleccionar el producto-->
+                                <select class="form-select" id="idProducto" name="idProducto" required>
+                                        <option value="">Seleccionar Producto</option>
+                                        <?php foreach ($productos as $producto): ?>
+                                            <option value="<?php echo $producto['idProducto']; ?>">
+                                                <?php echo $producto['NombreProducto']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                </select>
                             </div><br><br>
                             <div class="form-group col-md-6">
                                 <label for="Motivo">Motivo</label>
@@ -258,9 +271,17 @@ if (isset($_POST['delete_id'])) {
                                 <label for="Cantidad">Cantidad</label>
                                 <input type="number" class="form-control" name="Cantidad" id="Cantidad" placeholder="Cantidad" required>
                             </div><br><br>
-                            <div class="form-group col-md-6">
-                                <label for="idCliente">ID del Cliente (Opcional)</label>
-                                <input type="number" class="form-control" name="idCliente" id="idCliente" placeholder="ID del Cliente">
+                            <div class="form-group col-md-12">
+                                <label for="idCliente">Cliente (Opcional)</label>
+                                <!--Agregar un select para seleccionar el producto-->
+                                <select class="form-select" id="idCliente" name="idCliente" required>
+                                        <option value="">Seleccionar Proveedor</option>
+                                        <?php foreach ($clientes as $cliente): ?>
+                                            <option value="<?php echo $cliente['idCliente']; ?>">
+                                                <?php echo $cliente['NombreCliente']; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                </select>
                             </div><br><br>
                         </div>
                         <div class="modal-footer">

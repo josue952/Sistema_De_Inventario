@@ -86,6 +86,7 @@ class Entradas
         if ($this->connection->error) {
             die('ERROR SQL: ' . $this->connection->error);
         }
+        $this->connection->next_result();
         return $datosObtenidos;
     }
 
@@ -101,7 +102,7 @@ class Entradas
         if($this->connection->error){
             die('ERROR SQL: ' . $this->connection->error);
         }
-    
+        $this->connection->next_result();
         // Retornar los datos obtenidos de la consulta
         return $datosObtenidos;
     }
@@ -123,6 +124,7 @@ class Entradas
         if ($this->connection->error) {
             die('ERROR SQL: ' . $this->connection->error);
         }
+        $this->connection->next_result();
         return $datosObtenidos;
     }
 
@@ -133,7 +135,42 @@ class Entradas
         if ($this->connection->error) {
             die('ERROR SQL: ' . $this->connection->error);
         }
+        $this->connection->next_result();
         return $datosObtenidos;
+    }
+
+    //metodo para obtener todas las sucursales (por nombre) de la tabla sucursales
+    public function obtenerTodosLosProductos() {
+        $sql = "SELECT idProducto, NombreProducto FROM productos";
+        $result = $this->connection->query($sql);
+
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+
+        $sucursales = [];
+        while ($row = $result->fetch_assoc()) {
+            $sucursales[] = $row;
+        }
+        $this->connection->next_result();
+        return $sucursales;
+    }
+
+    //metodo para obtener todas las sucursales (por nombre) de la tabla sucursales
+    public function obtenerProveedor() {
+        $sql = "SELECT idProveedor, NombreProveedor FROM proveedores";
+        $result = $this->connection->query($sql);
+
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+
+        $sucursales = [];
+        while ($row = $result->fetch_assoc()) {
+            $sucursales[] = $row;
+        }
+        $this->connection->next_result();
+        return $sucursales;
     }
 }
 ?>

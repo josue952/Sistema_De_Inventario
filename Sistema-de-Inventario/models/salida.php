@@ -135,5 +135,39 @@ class Salidas
         }
         return $datosObtenidos;
     }
+
+    //metodo para obtener todas las sucursales (por nombre) de la tabla sucursales
+    public function obtenerTodosLosProductos() {
+        $sql = "SELECT idProducto, NombreProducto FROM productos";
+        $result = $this->connection->query($sql);
+
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+
+        $sucursales = [];
+        while ($row = $result->fetch_assoc()) {
+            $sucursales[] = $row;
+        }
+        $this->connection->next_result();
+        return $sucursales;
+    }
+
+    //metodo para obtener todas las sucursales (por nombre) de la tabla sucursales
+    public function obtenerClientes() {
+        $sql = "SELECT idCliente, NombreCliente FROM clientes";
+        $result = $this->connection->query($sql);
+
+        if ($this->connection->error) {
+            die('ERROR SQL: ' . $this->connection->error);
+        }
+
+        $sucursales = [];
+        while ($row = $result->fetch_assoc()) {
+            $sucursales[] = $row;
+        }
+        $this->connection->next_result();
+        return $sucursales;
+    }
 }
 ?>
